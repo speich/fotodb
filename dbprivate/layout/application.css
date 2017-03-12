@@ -1,0 +1,32 @@
+
+#CanvasImgPreview { border: 1px solid #aaaaaa; background-color: white; width: 800px; height: 800px; padding: 8px; }
+#ImgPreview { position: relative; }
+
+.ImgFullScreen {
+	position: absolute;
+	z-index: 10;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 100%;
+	background-color: #fffdf4;
+	cursor: pointer;
+}
+
+.ImgFullScreen div {
+	display: table;
+	height: 100%;
+	width: 100%;
+}
+
+.ImgFullScreen div div {
+	display: table-cell;
+	vertical-align: middle;
+	text-align: center;
+}
+
+.ImgFullScreen img {
+	border: 2px solid #000000;
+}
+
+#updateExif { cursor: pointer; }

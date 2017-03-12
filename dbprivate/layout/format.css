@@ -1,0 +1,21 @@
+body {
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+ 	background-color: rgb(176,142,111);
+ 	font-size: 12px;
+ 	font-family: verdana;
+ 	color: #000000;
+}
+
+table {display: table; 	border-collapse: collapse; empty-cells: show;}
+caption {display: table-caption;}
+tr {display: table-row;}
+col {display: table-column;}
+colgroup {display: table-column-group;}
+tbody {display: table-row-group;}
+thead {display: table-header-group;}
+tfoot {display: table-footer-group;}
+td {display: table-cell;}
+th {display: table-cell;}

@@ -1,0 +1,11 @@
+Note: For cgi to work in a subdir of a virtual host do the following (on Ubuntu/Mint):
+
+in /etc/apache2/conf-enabled/default.conf add:
+<Directory "/var/www/*/cgi-bin">
+	Options +ExecCGI
+	AddHandler cgi-script .cgi .pl
+</Directory>
+
+in /etc/apache2/conf-enabled/serve-cgi-bin.conf change lines
+ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+<Directory "/usr/lib/cgi-bin">

@@ -1,0 +1,21 @@
+<?php
+// Executes the ExifTool by Phil Harvey
+// and returns the data as an alphabetically sorted array
+// http://owl.phy.queensu.ca/~phil/exiftool/
+//ini_set('xdebug.var_display_max_depth', -1);
+//ini_set('xdebug.var_display_max_children', -1);
+//ini_set('xdebug.var_display_max_data', -1);
+
+require_once __DIR__.'/../../classes/ExifService.php';
+
+
+$lang = isset($_GET['lang']) ? filter_input(INPUT_GET, 'lang', FILTER_SANITIZE_MAGIC_QUOTES) : 'en';
+$exif = new \photoXplorer\ExifService($lang);
+
+// query string should only contain path information below image root, e.g. below /dbprivate/images/
+// which will be mapped into /media/sf_Bilder/
+$img = '/media/sf_Bilder'.$_GET['img'];
+$data = $exif->getData($img);
+
+header('Content-Type: text/html; charset=utf-8');
+echo $exif->render($data);

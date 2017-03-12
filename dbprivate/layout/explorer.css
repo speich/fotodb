@@ -1,0 +1,45 @@
+.ImgExplorer div {
+	margin: 1px;
+	background-color: #cccccc;
+	float: left;
+	font-size: 11px;
+	padding: 20px;
+}
+
+.ImgExplorer img {
+	width: 180px;
+	border: 1px solid black;
+}
+
+#ImgExplTop {
+	overflow: auto;
+}
+
+.FileExplorer td {
+	padding: 4px;
+	vertical-align: top;
+}
+
+.FileExplorer img {
+	width: 80px;
+	border: 1px solid grey;
+}
+
+.FileExplorer a { text-decoration: none; }
+
+.MarkDone {
+	background-color: green;
+}
+	 
+.MarkOpen {
+	background-color: inherit;
+}
+
+.exifData th[scope="row"] {
+    text-align: left;
+    color: #aaa;
+}
+.exifData th[scope="rowgroup"] {
+    text-align: left;
+    font-weight: bold;
+}

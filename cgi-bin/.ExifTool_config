@@ -1,0 +1,6 @@
+%Image::ExifTool::UserDefined::Options = (
+   CoordFormat => "%+.8f",
+   DateFormat => "%d.%m.%Y %H:%M:%S"
+);
+
+1;  #end
