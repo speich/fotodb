@@ -33,9 +33,14 @@ class FotoDb extends Website {
 	 * @return PDO
 	 */
 	public function Connect() {
+		$dbFile = 'sqlite:'.__DIR__.'/../dbprivate/dbfiles/'.$this->DbName;
+		$isCreated = file_exists($dbFile);
 		if (is_null($this->Db)) {	// check if not already connected
 			try {
-				$this->Db = new PDO('sqlite:'.__DIR__.'/../dbprivate/dbfiles/'.$this->DbName);
+				$this->Db = new PDO('sqlite:'.$dbFile);
+				if (!$isCreated) {
+					$this->createStructure();
+				}
 				$this->Db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 				// Do every time you connect since they are only valid during connection (not permanent)
 				$this->Db->sqliteCreateAggregate('GROUP_CONCAT', [$this, 'groupConcatStep'], [$this, 'groupConcatFinalize']);
@@ -245,7 +250,7 @@ class FotoDb extends Website {
 			INNER JOIN Locations l ON il.LocationId = l.Id
 			INNER JOIN Locations_Countries lc ON l.Id = lc.LocationId
 			WHERE ImgId = :ImgId";
-		// AND CountryId = ???
+		// AND CountryId = ???§
 		$Stmt = $this->Db->prepare($Sql);
 		$Stmt->bindParam(':ImgId', $ImgId);
 		$Stmt->execute();
@@ -777,286 +782,134 @@ class FotoDb extends Website {
 	 */
 	private function createStructure() {
 		$sql = "BEGIN;
-			create table COUNTRIES (
-			  Id INTEGER(2000000000) not null,
-			  NameEn VARCHAR2(2000000000),
-			  NameDe VARCHAR2(2000000000),
-			  primary key (id)
+			CREATE TABLE 'Countries' (
+				'Id' INTEGER PRIMARY KEY  NOT NULL,
+				'NameEn' VARCHAR2,
+				'NameDe' VARCHAR2
 			);
-			create table EXIF (
-			  Make VARCHAR2(2000000000),
-			  Model VARCHAR2(2000000000),
-			  ImageWidth INTEGER(2000000000),
-			  ImageHeight INTEGER(2000000000),
-			  FileSize VARCHAR2(2000000000),
-			  DateTimeOriginal INTEGER(2000000000),
-			  ExposureTime VARCHAR2(2000000000),
-			  FNumber INTEGER(2000000000),
-			  ISO INTEGER(2000000000),
-			  ExposureProgram VARCHAR2(2000000000),
-			  MeteringMode VARCHAR2(2000000000),
-			  Flash VARCHAR2(2000000000),
-			  FocusDistance NUMERIC(2000000000),
-			  ImgId INTEGER(2000000000) not null,
-			  GPSLatitude FLOAT(2000000000),
-			  GPSLongitude FLOAT(2000000000),
-			  GPSAltitude INTEGER(2000000000),
-			  GPSAltitudeRef INTEGER(2000000000),
-			  LensSpec VARCHAR(2000000000),
-			  VibrationReduction TEXT(2000000000),
-			  FileType VARCHAR(2000000000),
-			  Lens VARCHAR(2000000000),
-			  FocalLength VARCHAR(2000000000)
+			CREATE TABLE 'Exif' (
+				'Make' VARCHAR2,
+				'Model' VARCHAR2,
+				'ImageWidth' INTEGER,
+				'ImageHeight' INTEGER,
+				'FileSize' VARCHAR2,
+				'DateTimeOriginal' INTEGER,
+				'ExposureTime' VARCHAR2,
+				'FNumber' INTEGER,
+				'ISO' INTEGER,
+				'ExposureProgram' VARCHAR2,
+				'MeteringMode' VARCHAR2,
+				'Flash' VARCHAR2,
+				'FocusDistance' NUMERIC,
+				'ImgId' INTEGER NOT NULL,
+				'GPSLatitude' FLOAT,
+				'GPSLongitude' FLOAT,
+				'GPSAltitude' INTEGER,
+				'GPSAltitudeRef' INTEGER,
+				'LensSpec' VARCHAR,
+				'VibrationReduction' TEXT,
+				'FileType' VARCHAR,
+				'Lens' VARCHAR,
+				'FocalLength' VARCHAR
 			);
-			create table FILMTYPES (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR2(2000000000),
-			  Code VARCHAR2(2000000000),
-			  primary key (id)
+			CREATE TABLE FilmTypes (
+				Id INTEGER NOT NULL PRIMARY KEY,
+				Name VARCHAR2,
+				`Code` VARCHAR2
 			);
-			create table IMAGES (
-			  Id INTEGER(2000000000) not null,
-			  ImgFolder VARCHAR2(2000000000),
-			  ImgName VARCHAR2(2000000000),
-			  ImgDate VARCHAR2(2000000000),
-			  ImgTechInfo VARCHAR2(2000000000),
-			  FilmTypeId INTEGER(2000000000),
-			  RatingId INTEGER(2000000000),
-			  DateAdded INTEGER(2000000000),
-			  LastChange INTEGER(2000000000),
-			  ImgDesc VARCHAR2(2000000000),
-			  ImgTitle VARCHAR2(2000000000),
-			  Public INTEGER(2000000000),
-			  DatePublished INTEGER(2000000000),
-			  ImgDateOriginal INTEGER(2000000000),
-			  ImgLat FLOAT(2000000000),
-			  ImgLng FLOAT(2000000000),
-			  ShowLoc INTEGER(2000000000),
-			  CountryId INTEGER(2000000000),
-			  primary key (id)
+			CREATE TABLE [Images] (
+				[Id] INTEGER PRIMARY KEY NOT NULL,
+				[ImgFolder] VARCHAR2 NULL,
+				[ImgName] VARCHAR2 NULL,
+				[ImgDate] VARCHAR2 NULL,
+				[ImgTechInfo] VARCHAR2 NULL,
+				[FilmTypeId] INTEGER NULL,
+				[RatingId] INTEGER NULL,
+				[DateAdded] INTEGER NULL,
+				[LastChange] INTEGER NULL,
+				[ImgDesc] VARCHAR2 NULL,
+				[ImgTitle] VARCHAR2 NULL,
+				[Public] INTEGER NULL,
+				[DatePublished] INTEGER NULL,
+				[ImgDateOriginal] INTEGER NULL,
+				[ImgLat] FLOAT NULL,
+				[ImgLng] FLOAT NULL
+				,
+				'ShowLoc' INTEGER DEFAULT 1,
+				'CountryId' INTEGER
 			);
-
-			create table IMAGES_KEYWORDS (
-			  ImgId INTEGER(2000000000) not null,
-			  KeywordId INTEGER(2000000000) not null
+			CREATE TABLE Images_Keywords (
+				ImgId INTEGER NOT NULL,
+				KeywordId INTEGER NOT NULL
 			);
-
-			create table IMAGES_LOCATIONS (
-			  ImgId INTEGER(2000000000),
-			  LocationId INTEGER(2000000000)
+			CREATE TABLE [Images_Locations] (
+				[ImgId] INTEGER NULL,
+				[LocationId] INTEGER NULL
 			);
-
-			create table IMAGES_SCIENTIFICNAMES (
-			  ImgId INTEGER(2000000000) not null,
-			  ScientificNameId INTEGER(2000000000) not null,
-			  SexId INTEGER(2000000000) not null,
-			  primary key (scientificnameid)
+			CREATE TABLE [Images_ScientificNames] (
+				[ImgId] INTEGER NOT NULL,
+				[ScientificNameId] INTEGER NOT NULL,
+				[SexId] INTEGER NOT NULL,
+				PRIMARY KEY ([ImgId], [ScientificNameId])
 			);
-
-			create table IMAGES_THEMES (
-			  ImgId INTEGER(2000000000) not null,
-			  ThemeId INTEGER(2000000000) not null
+			CREATE TABLE Images_Themes (
+				ImgId INTEGER NOT NULL,
+				ThemeId INTEGER NOT NULL
 			);
-
-			create table KEYWORDS (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR2(2000000000),
-			  primary key (id)
+			CREATE TABLE Keywords (
+				Id INTEGER NOT NULL PRIMARY KEY,
+				Name VARCHAR2
 			);
-
-			create table LOCATIONS (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR(1024),
-			  primary key (id)
+			CREATE TABLE [Locations] (
+				[Id] INTEGER NOT NULL PRIMARY KEY,
+				[Name] VARCHAR(1024) NULL
 			);
-
-			create table LOCATIONS_COUNTRIES (
-			  LocationId INTEGER(2000000000),
-			  CountryId INTEGER(2000000000)
+			CREATE TABLE [Locations_Countries] (
+				[LocationId] INTEGER NULL,
+				[CountryId] INTEGER NULL
 			);
-
-			create table RATING (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR2(2000000000),
-			  primary key (id)
+			CREATE TABLE Rating (
+				Id INTEGER NOT NULL PRIMARY KEY,
+				Name VARCHAR2
 			);
-
-			create table SCIENTIFICNAMES (
-			  Id INTEGER(2000000000) not null,
-			  NameDe VARCHAR2(2000000000),
-			  NameEn VARCHAR2(2000000000),
-			  NameLa VARCHAR2(2000000000),
-			  ThemeId INTEGER(2000000000),
-			  primary key (id)
+			CREATE TABLE 'ScientificNames' (
+				'Id' INTEGER PRIMARY KEY  NOT NULL,
+				'NameDe' VARCHAR2,
+				'NameEn' VARCHAR2,
+				'NameLa' VARCHAR2,
+				'ThemeId' INTEGER DEFAULT (NULL)
 			);
-
-			create table SEXES (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR2(2000000000),
-			  primary key (id)
+			CREATE TABLE Sexes (
+				Id INTEGER NOT NULL PRIMARY KEY,
+				Name VARCHAR2
 			);
-
-			create table SQLITE_SEQUENCE (
-			  name VARCHAR(2000000000),
-			  seq VARCHAR(2000000000)
+			CREATE TABLE 'SubjectAreas' (
+				'Id' INTEGER PRIMARY KEY  NOT NULL,
+				'NameDe' VARCHAR,
+				'NameEn' VARCHAR
 			);
-
-			create table SUBJECTAREAS (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR(2000000000),
-			  primary key (id)
+			CREATE TABLE 'Themes' (
+				'Id' INTEGER PRIMARY KEY  NOT NULL,
+				'NameDe' VARCHAR2,
+				'SubjectAreaId' INTEGER,
+				'NameEn' VARCHAR
 			);
-
-			create table THEMES (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR2(2000000000),
-			  SubjectAreaId INTEGER(2000000000),
-			  primary key (id)
+			CREATE TABLE 'birds' (
+				'lat',
+				'dng'
 			);
-
-			create table COUNTRIES (
-			  Id INTEGER(2000000000) not null,
-			  NameEn VARCHAR2(2000000000),
-			  NameDe VARCHAR2(2000000000),
-			  primary key (id)
+			CREATE TABLE searchIndex (
+				id INTEGER PRIMARY KEY,
+				word TEXT UNIQUE ON CONFLICT IGNORE
 			);
-
-			create table EXIF (
-			  Make VARCHAR2(2000000000),
-			  Model VARCHAR2(2000000000),
-			  ImageWidth INTEGER(2000000000),
-			  ImageHeight INTEGER(2000000000),
-			  FileSize VARCHAR2(2000000000),
-			  DateTimeOriginal INTEGER(2000000000),
-			  ExposureTime VARCHAR2(2000000000),
-			  FNumber INTEGER(2000000000),
-			  ISO INTEGER(2000000000),
-			  ExposureProgram VARCHAR2(2000000000),
-			  MeteringMode VARCHAR2(2000000000),
-			  Flash VARCHAR2(2000000000),
-			  FocusDistance NUMERIC(2000000000),
-			  ImgId INTEGER(2000000000) not null,
-			  GPSLatitude FLOAT(2000000000),
-			  GPSLongitude FLOAT(2000000000),
-			  GPSAltitude INTEGER(2000000000),
-			  GPSAltitudeRef INTEGER(2000000000),
-			  LensSpec VARCHAR(2000000000),
-			  VibrationReduction TEXT(2000000000),
-			  FileType VARCHAR(2000000000),
-			  Lens VARCHAR(2000000000),
-			  FocalLength VARCHAR(2000000000)
-			);
-
-			create table FILMTYPES (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR2(2000000000),
-			  Code VARCHAR2(2000000000),
-			  primary key (id)
-			);
-
-			create table IMAGES (
-			  Id INTEGER(2000000000) not null,
-			  ImgFolder VARCHAR2(2000000000),
-			  ImgName VARCHAR2(2000000000),
-			  ImgDate VARCHAR2(2000000000),
-			  ImgTechInfo VARCHAR2(2000000000),
-			  FilmTypeId INTEGER(2000000000),
-			  RatingId INTEGER(2000000000),
-			  DateAdded INTEGER(2000000000),
-			  LastChange INTEGER(2000000000),
-			  ImgDesc VARCHAR2(2000000000),
-			  ImgTitle VARCHAR2(2000000000),
-			  Public INTEGER(2000000000),
-			  DatePublished INTEGER(2000000000),
-			  ImgDateOriginal INTEGER(2000000000),
-			  ImgLat FLOAT(2000000000),
-			  ImgLng FLOAT(2000000000),
-			  ShowLoc INTEGER(2000000000),
-			  CountryId INTEGER(2000000000),
-			  primary key (id)
-			);
-
-			create table IMAGES_KEYWORDS (
-			  ImgId INTEGER(2000000000) not null,
-			  KeywordId INTEGER(2000000000) not null
-			);
-
-			create table IMAGES_LOCATIONS (
-			  ImgId INTEGER(2000000000),
-			  LocationId INTEGER(2000000000)
-			);
-
-			create table IMAGES_SCIENTIFICNAMES (
-			  ImgId INTEGER(2000000000) not null,
-			  ScientificNameId INTEGER(2000000000) not null,
-			  SexId INTEGER(2000000000) not null,
-			  primary key (scientificnameid)
-			);
-
-			create table IMAGES_THEMES (
-			  ImgId INTEGER(2000000000) not null,
-			  ThemeId INTEGER(2000000000) not null
-			);
-
-			create table KEYWORDS (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR2(2000000000),
-			  primary key (id)
-			);
-
-			create table LOCATIONS (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR(1024),
-			  primary key (id)
-			);
-
-			create table LOCATIONS_COUNTRIES (
-			  LocationId INTEGER(2000000000),
-			  CountryId INTEGER(2000000000)
-			);
-
-			create table RATING (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR2(2000000000),
-			  primary key (id)
-			);
-
-			create table SCIENTIFICNAMES (
-			  Id INTEGER(2000000000) not null,
-			  NameDe VARCHAR2(2000000000),
-			  NameEn VARCHAR2(2000000000),
-			  NameLa VARCHAR2(2000000000),
-			  ThemeId INTEGER(2000000000),
-			  primary key (id)
-			);
-
-			create table SEXES (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR2(2000000000),
-			  primary key (id)
-			);
-
-			create table SQLITE_SEQUENCE (
-			  name VARCHAR(2000000000),
-			  seq VARCHAR(2000000000)
-			);
-
-			create table SUBJECTAREAS (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR(2000000000),
-			  primary key (id)
-			);
-
-			create table THEMES (
-			  Id INTEGER(2000000000) not null,
-			  Name VARCHAR2(2000000000),
-			  SubjectAreaId INTEGER(2000000000),
-			  primary key (id)
+			CREATE TABLE searchOccurrences (
+				wordId INTEGER NOT NULL,
+				recordId INTEGER NOT NULL
 			);
 			COMMIT;";
-		$Path = $this->GetWebRoot().$this->PathDb;
-		$Db = new PDO('sqlite:'.$Path.'/'.$this->DbName);
-		$Db->exec($sql);
-		print_r($Db->errorInfo());
+		$this->Db->exec($sql);
+		print_r($this->Db->errorInfo());
+
+
 	}
 }
