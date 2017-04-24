@@ -33,11 +33,11 @@ class FotoDb extends Website {
 	 * @return PDO
 	 */
 	public function Connect() {
-		$dbFile = 'sqlite:'.__DIR__.'/../dbprivate/dbfiles/'.$this->DbName;
-		$isCreated = file_exists($dbFile);
 		if (is_null($this->Db)) {	// check if not already connected
 			try {
+				$dbFile = __DIR__.'/../dbprivate/dbfiles/'.$this->DbName;
 				$this->Db = new PDO('sqlite:'.$dbFile);
+				$isCreated = file_exists($dbFile);
 				if (!$isCreated) {
 					$this->createStructure();
 				}
