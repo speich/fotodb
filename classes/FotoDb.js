@@ -40,6 +40,8 @@ define([
 	
 	return declare(null, {
 
+		curPromise: null,
+
 		GetCurImgId: function () {
 			if (CurImgId) {
 				return CurImgId;
@@ -120,47 +122,30 @@ define([
 		 *
 		 * @param {object} Img HTMLImageElement reference
 		 */
-		SetImg: function (Img) {
-			// Also make sure, that the response is setting the right image id
-			var Ajax = Tool.CheckObjById(Img);
-			if (Ajax) {
-				return false;
-			} // async request of this image still in progress. Set to null if request finished (Ajax.DoneFnc()).
-			else {
-				Tool.AddObj(new XmlHttp(), Img);
-				// Store ajax object temporarily in global object array, because this method might be called
-				// before a previous async request of another image has finished and therefore the prevous object Ajax = new XmlHttp()
-				// would be overwritten.
-				Tool.GetObjById(Img).Doctype = 'Xml';
-				Tool.GetObjById(Img).Method = 'POST';
-				Tool.GetObjById(Img).Charset = 'UTF-8';
+		SetImg: function(Img) {
+			if (this.curPromise) {
+				this.curPromise.cancel();
 			}
+			this.curPromise = new Promise();
+
+			this.Frm.GetFormEl().reset();
+			// disable form input on until insert image has completed. Otherwise CurImgId not correctly set for form
+			this.Frm.DisableFields();
+			Img.parentNode.parentNode.style.opacity = 0.3;	// set visual clue that image data is set
+
+			this.placeImage(Img);
+
 			// if Img has id then edit else insert
 			// insert new image data
 			if (!Img.id) {
-				this.SetCurImgId(null);	// reset before inserting new -> make sure not an old id is used in form update/edit
-				this.Frm.SetCurImgId(null);
-				var Host = window.location.host;
-				var ImgSrc = Img.src.replace('http://', '');
-				ImgSrc = ImgSrc.replace(Host, '');
-				Tool.GetObjById(Img).Query = 'Fnc=Insert&Img=' + ImgSrc;
+				this.curPromise = this.insertImage(Img);
 			}
 			// edit image data
 			else {
-				this.SetCurImgId(Img.id);
-				this.Frm.SetCurImgId(Img.id);
-				Tool.GetObjById(Img).Query = 'Fnc=Edit&ImgId=' + Img.id;
+				this.curPromise = this.editImage(Img);
 			}
-			this.Frm.GetFormEl().reset();
 
-			Tool.GetObjById(Img).SetLoadingFnc(this, function () {
-				// disable form input on until insert image has completed. Otherwise CurImgId not correctly set for form
-				this.Frm.DisableFields();
-				Img.parentNode.parentNode.style.opacity = 0.3;	// set visual clue that image data is set
-			});
-
-			Tool.GetObjById(Img).SetDoneFnc(this, function () {
-				var Xml = Tool.GetObjById(Img).Result;
+			this.curPromise.then(function(Xml) {
 				if (Xml) {
 					var ImgId = Xml.getElementsByTagName('Image').item(0).getAttribute('Id');
 					if (!Img.id) {
@@ -180,24 +165,53 @@ define([
 					alert('No response or no Xml');
 				}
 			});
+		},
 
-			Tool.GetObjById(Img).LoadData(PHPDbFncUrl);
+		editImage: function(Img) {
+			var data, Host, ImgSrc;
 
-			// place image on canvas
-			var Canvas = byId('CanvasImgPreview');
-			var H = parseInt(document.defaultView.getComputedStyle(Canvas, null).getPropertyValue("height"));
-			var W = parseInt(document.defaultView.getComputedStyle(Canvas, null).getPropertyValue("width"));
-			// Img.width and Img.height are the scaled thumbnail size and not the full original one,
-			// therefore remove ImgPreview from canvas and append image to get original size
-			// in Gecko you could use naturalWidth/naturalHeight
-			var ImgPrev = new Image();
+			this.SetCurImgId(null);	// reset before inserting new -> make sure not an old id is used in form update/edit
+			this.Frm.SetCurImgId(null);
+			Host = window.location.host;
+			ImgSrc = Img.src.replace('http://', '');
+			ImgSrc = ImgSrc.replace(Host, '');
+			data = {
+				url: PHPDbFncUrl,
+				method: 'post',
+				responseType: 'xml',
+				Fnc: 'Insert',
+				Img: ImgSrc
+			};
+			return xhrPost(data);
+		},
+
+		insertImage: function(Img) {
+			this.SetCurImgId(Img.id);
+			this.Frm.SetCurImgId(Img.id);
+			Tool.GetObjById(Img).Query = 'Fnc=Edit&ImgId=' + Img.id;
+			return xhrPost(PHPDbFncUrl);
+		},
+
+		/**
+		 * Place image element on canvas.
+		 * @param Img
+		 */
+		placeImage: function(Img) {
+			var Self = this,
+				Canvas = byId('CanvasImgPreview'),
+				H = parseInt(document.defaultView.getComputedStyle(Canvas, null).getPropertyValue("height")),
+				W = parseInt(document.defaultView.getComputedStyle(Canvas, null).getPropertyValue("width")),
+				// Img.width and Img.height are the scaled thumbnail size and not the full original one,
+				// therefore remove ImgPreview from canvas and append image to get original size
+				// in Gecko you could use naturalWidth/naturalHeight
+				ImgPrev = new Image();
+
 			ImgPrev.src = Img.src;
 			while (Canvas.firstChild) {
 				Canvas.removeChild(Canvas.firstChild);
 			}
 			ImgPrev.setAttribute('id', 'ImgPreview');
-			var Self = this;
-			ImgPrev.addEventListener('click', function () {
+			ImgPrev.addEventListener('click', function() {
 				Self.ZoomImg(Img, ImgPrev.width, ImgPrev.height);
 			}, false);
 			if (parseInt(ImgPrev.width) > W) {
