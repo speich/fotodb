@@ -221,9 +221,14 @@ define([
 		 */
 		parseXml: function(response) {
 			return response.text().then(text => {
-				let parser = new DOMParser();
+				let doc, error, parser = new DOMParser();
 
-				return parser.parseFromString(text, 'text/xml');
+				doc = parser.parseFromString(text, 'text/xml');
+				error = doc.getElementsByTagName('parsererror');
+				if (error.length > 0) {
+					Promise.reject()
+				}
+				return doc;
 			}).catch(console.log.bind(console));
 		},
 
