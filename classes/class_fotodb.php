@@ -469,21 +469,39 @@ class FotoDb extends Website {
 	/**
 	 * Delete image data from database.
 	 *
-	 * @param integer $ImgId image id
+	 * @param integer $imgId image id
 	 * @return string message
 	 */
-	public function Delete($ImgId) {
-		$ImgId = preg_replace("/\D/",'', $ImgId);	// allow only numbers
-		$this->BeginTransaction();
-		$this->Db->exec("DELETE FROM Images WHERE Id = $ImgId");
-		$this->Db->exec("DELETE FROM Exif WHERE ImgId = $ImgId");
-		$this->Db->exec("DELETE FROM Images_ScientificNames WHERE ImgId = $ImgId");
-		$this->Db->exec("DELETE FROM Images_Keywords WHERE ImgId = $ImgId");
-	 	$this->Db->exec("DELETE FROM Images_Themes WHERE ImgId = $ImgId");
-		$this->Db->exec("DELETE FROM Images_Locations WHERE ImgId = $ImgId");
-		if ($this->Commit()) {
-			echo 'success';
-		}
+	public function Delete($imgId)
+   {
+       $this->BeginTransaction();
+       $sql = "DELETE FROM Images WHERE Id = :imgId";
+       $stmt = $this->Db->prepare($sql);
+       $stmt->bindParam(':imgId', $imgId);
+       $stmt->execute();
+       $sql = "DELETE FROM Exif WHERE ImgId = :imgId";
+       $stmt = $this->Db->prepare($sql);
+       $stmt->bindParam(':imgId', $imgId);
+       $stmt->execute();
+       $sql = "DELETE FROM Images_ScientificNames WHERE ImgId = :imgId";
+       $stmt = $this->Db->prepare($sql);
+       $stmt->bindParam(':imgId', $imgId);
+       $stmt->execute();
+       $sql = "DELETE FROM Images_Keywords WHERE ImgId = :imgId";
+       $stmt = $this->Db->prepare($sql);
+       $stmt->bindParam(':imgId', $imgId);
+       $stmt->execute();
+       $sql = "DELETE FROM Images_Themes WHERE ImgId = :imgId";
+       $stmt = $this->Db->prepare($sql);
+       $stmt->bindParam(':imgId', $imgId);
+       $stmt->execute();
+       $sql = "DELETE FROM Images_Locations WHERE ImgId = :imgId";
+       $stmt = $this->Db->prepare($sql);
+       $stmt->bindParam(':imgId', $imgId);
+       $stmt->execute();
+       if ($this->Commit()) {
+           echo 'success';
+       }
 		else {
 			$this->RollBack();
 			echo 'failed';
