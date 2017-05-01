@@ -420,9 +420,7 @@ define([
 						e.preventDefault();
 						break;	// arrow up
 					case keys.DELETE:
-						if (e.target.nodeName != 'INPUT' && e.target.nodeName != 'TEXTAREA') {
-							this.DelImage();
-						}
+						this.DelImage();
 						break;			// del
 				}
 				switch (e.charCode) {
