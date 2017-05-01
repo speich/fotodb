@@ -4,7 +4,8 @@ namespace photoXplorer;
 class ExifService {
 
 	private $exiftool = '/cgi-bin/Image-ExifTool-10.24/exiftool';
-	private $exiftoolParams = '-config /cgi-bin/.ExifTool_config -g -s2 -j';
+	private $exiftoolParams = '-c "%+.8f" -g -s2 -j';
+	//private $exiftoolParams = '-config /cgi-bin/.ExifTool_config -c "%+.8f" -g -s2 -j';  // config does not work, wrong path?
 	//private $exiftoolParams = '-G';
 
 	/**
