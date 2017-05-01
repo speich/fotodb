@@ -168,6 +168,7 @@ class FotoDb extends Website {
 		$strXml .= '</HtmlFormData>';
 		header('Content-Type: text/xml; charset=UTF-8');
 		echo $strXml;
+
 		return true;
 	}
 	

@@ -123,10 +123,7 @@ define([
 		 * @param {object} Img HTMLImageElement reference
 		 */
 		SetImg: function(Img) {
-			if (this.curPromise) {
-				this.curPromise.cancel();
-			}
-			this.curPromise = new Promise();
+			let request;
 
 			this.Frm.GetFormEl().reset();
 			// disable form input on until insert image has completed. Otherwise CurImgId not correctly set for form
@@ -136,60 +133,98 @@ define([
 			this.placeImage(Img);
 
 			// if Img has id then edit else insert
-			// insert new image data
-			if (!Img.id) {
-				this.curPromise = this.insertImage(Img);
+			if (Img.id) {
+				request = this.editImage(Img).then(xml => {
+					let id = this.getImgIdXml(xml);
+
+					// make sure the returned id is the same as the selected image
+					if (Img.id === id) {
+						return xml;
+					}
+					else {
+						// TODO: automatically select the image in Explorer with the correct id
+						throw new Error('wrong image');
+					}
+				}).catch(console.log.bind(console));
 			}
-			// edit image data
 			else {
-				this.curPromise = this.editImage(Img);
+				request = this.insertImage(Img).then(xml => {
+					Img.id = this.getImgIdXml(xml);
+
+					return xml;
+				}).catch(console.log.bind(console));
 			}
 
-			this.curPromise.then(function(Xml) {
-				if (Xml) {
-					var ImgId = Xml.getElementsByTagName('Image').item(0).getAttribute('Id');
-					if (!Img.id) {
-						Img.setAttribute('id', ImgId);
-					}
-					this.SetCurImgId(ImgId);
-					this.Frm.SetCurImgId(ImgId);
-					this.Frm.Fill(Xml);
-					// mark image if its in the database
-					byId(ImgId).parentNode.setAttribute('class', 'MarkDone');
-					this.Frm.EnableFields();
-					Img.parentNode.parentNode.style.opacity = 1;
-					Tool.RemoveObjById(Img);
-					dom.byId('ImgTitle').focus();
-				}
-				else {
-					alert('No response or no Xml');
-				}
+			request.then(xml => {
+				this.SetCurImgId(Img.id);
+				this.Frm.SetCurImgId(Img.id);
+				this.Frm.Fill(xml);
+				// mark image if its in the database
+				byId(Img.id).parentNode.setAttribute('class', 'MarkDone');
+				this.Frm.EnableFields();
+				Img.parentNode.parentNode.style.opacity = 1;
+				byId('ImgTitle').focus();
+			}).catch(err => {
+				alert(err);
 			});
 		},
 
-		editImage: function(Img) {
-			var data, Host, ImgSrc;
+		getImgIdXml: function(xml) {
+			let imgXml = xml.getElementsByTagName('Image').item(0);
+
+			return imgXml.getAttribute('Id');
+		},
+
+		insertImage: function(img) {
+			let imgSrc, request;
 
 			this.SetCurImgId(null);	// reset before inserting new -> make sure not an old id is used in form update/edit
 			this.Frm.SetCurImgId(null);
-			Host = window.location.host;
-			ImgSrc = Img.src.replace('http://', '');
-			ImgSrc = ImgSrc.replace(Host, '');
-			data = {
-				url: PHPDbFncUrl,
+			imgSrc = new URL(img.src);
+			request = new Request(PHPDbFncUrl, {
 				method: 'post',
-				responseType: 'xml',
-				Fnc: 'Insert',
-				Img: ImgSrc
-			};
-			return xhrPost(data);
+				body: new URLSearchParams('Fnc=Insert&Img=' + imgSrc.pathname)
+			});
+
+			return fetch(request).then(response => {
+				if (response.ok) {
+					return this.parseXml(response);
+				}
+				else {
+					throw new Error('insert failed: ' + response);
+				}
+			}).catch(console.log.bind(console));
 		},
 
-		insertImage: function(Img) {
-			this.SetCurImgId(Img.id);
-			this.Frm.SetCurImgId(Img.id);
-			Tool.GetObjById(Img).Query = 'Fnc=Edit&ImgId=' + Img.id;
-			return xhrPost(PHPDbFncUrl);
+		editImage: function(Img) {
+			let request;
+
+			request = new Request(PHPDbFncUrl, {
+				method: 'post',
+				body: new URLSearchParams('Fnc=Edit&ImgId=' + Img.id) // init object not implemented yet in FF
+			});
+
+			return fetch(request).then(response => {
+				if (response.ok) {
+					return this.parseXml(response);
+				}
+				else {
+					return new Error('edit failed' + response);
+				}
+			}).catch(console.log.bind(console));
+		},
+
+		/**
+		 * Parses the response into Xml.
+		 * @param {Response} response
+		 * @returns {Promise}
+		 */
+		parseXml: function(response) {
+			return response.text().then(text => {
+				let parser = new DOMParser();
+
+				return parser.parseFromString(text, 'text/xml');
+			}).catch(console.log.bind(console));
 		},
 
 		/**
@@ -400,7 +435,7 @@ define([
 					// alt + c copy
 					case 99:
 						// if the field ImgDateOriginal is not empty we skip it to not overwrite date from exif
-						var fld = dom.byId('ImgDateOriginal');
+						var fld = byId('ImgDateOriginal');
 						if (fld.value != '') {
 							fld.XmlInclude = false;
 						}
@@ -412,7 +447,7 @@ define([
 					// alt + v paste
 					case 118:
 						// if ImgLat and ImgLng are not empty (set by exif), we do not overwrite when pasting
-						var lat = dom.byId('ImgLat'), lng = dom.byId('ImgLng');
+						var lat = byId('ImgLat'), lng = byId('ImgLng');
 						lat.overwrite = lat.value === '';
 						lng.overwrite = lng.value === '';
 						this.Frm.Fill(Tool.GetObjById('copy'));
@@ -428,7 +463,7 @@ define([
 			if (evt.keyCode === keys.ENTER) {
 				var store = select.store,
 					id = select.get('value'),
-					fld = dom.byId('SpeciesSexId'),
+					fld = byId('SpeciesSexId'),
 					sexId = fld[fld.selectedIndex].value,
 					sexText = fld[fld.selectedIndex].text,
 					// fetchItemByIdentity would send an additional request to get the other names
@@ -438,7 +473,7 @@ define([
 
 				this.SetSpecies(id, nameDe, nameEn, nameLa, sexId, sexText);
 				fld.focus();
-				fld = dom.byId('ImgTitle');
+				fld = byId('ImgTitle');
 				if (fld.value === '') {
 					fld.value = nameDe;
 				}
@@ -599,12 +634,12 @@ define([
 					self.setSpeciesNames(evt, this);
 				}
 			}, 'SpeciesNameLa');
-			on(dom.byId('SpeciesSexId'), 'keyup', function (e) {
+			on(byId('SpeciesSexId'), 'keyup', function (e) {
 				if (e.keyCode == 13) {
 					SpeciesFilterDe.focus();
 				}
 			});
-			on(dom.byId('SpeciesSexId'), 'change', function (e) {
+			on(byId('SpeciesSexId'), 'change', function (e) {
 				SpeciesFilterDe.focus();
 			});
 
@@ -814,7 +849,7 @@ define([
 			});
 			Node.appendChild(Img);
 			Node.appendChild(document.createTextNode(Text));
-			dom.byId('Keywords').appendChild(Node);
+			byId('Keywords').appendChild(Node);
 		},
 
 		ClearKeyword: function () {

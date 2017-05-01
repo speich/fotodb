@@ -43,19 +43,24 @@ class ExifService {
 		$imageNoExt = substr($img, 0, strrpos($img, '.'));   // remove file extension
 		$tool = __DIR__.'/..'.$this->exiftool.' '.$this->exiftoolParams;
 		exec($tool.' '.$imageNoExt.'.NEF', $data);
-		$data = implode('', $data);
-		$data1 = json_decode($data, true);
-		$data1 = array_pop($data1);
+		if (count($data) > 0) {
+          $data = implode('', $data);
+          $data1 = json_decode($data, true);
+          $data1 = array_pop($data1);
 
-		$data2 = [];
-		if ($this->hasSeparateXmpFile($img)) {
-			exec($tool.' '.$imageNoExt.'.xmp', $data);   // note: exec appends the data
-			$data = implode('', $data);
-			$data2 = json_decode($data, true);
-			$data2 = array_pop($data2);
-		}
+          $data2 = [];
+          if ($this->hasSeparateXmpFile($img)) {
+              exec($tool.' '.$imageNoExt.'.xmp', $data);   // note: exec appends the data
+              $data = implode('', $data);
+              $data2 = json_decode($data, true);
+              $data2 = array_pop($data2);
+          }
 
-		return array_merge($data1, $data2);
+          return array_merge($data1, $data2);
+      }
+      else {
+          return $data;
+      }
 	}
 
 	/**
