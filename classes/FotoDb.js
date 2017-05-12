@@ -462,6 +462,11 @@ define([
 			return false;
 		},
 
+		/**
+		 * Fill in species information into form and set it as title as well as set the theme.
+		 * @param evt
+		 * @param select
+		 */
 		setSpeciesNames: function(evt, select) {
 			if (evt.keyCode === keys.ENTER) {
 				var store = select.store,
@@ -469,17 +474,29 @@ define([
 					fld = byId('SpeciesSexId'),
 					sexId = fld[fld.selectedIndex].value,
 					sexText = fld[fld.selectedIndex].text,
+					themeIds,
 					// fetchItemByIdentity would send an additional request to get the other names
 					nameDe = store._itemsByIdentity[id].NameDe,
 					nameEn = store._itemsByIdentity[id].NameEn,
 					nameLa = store._itemsByIdentity[id].NameLa;
 
-				this.SetSpecies(id, nameDe, nameEn, nameLa, sexId, sexText);
+				this.createSpeciesElements(id, nameDe, nameEn, nameLa, sexId, sexText);
 				fld.focus();
+				// set title
 				fld = byId('ImgTitle');
 				if (fld.value === '') {
 					fld.value = nameDe;
 				}
+				// set theme
+				// an image can have more than one theme
+				fld = byId('Theme');
+				if (fld.value === '') {
+					// TODO: instead of not setting theme id when a theme is already set, we should just add it instead
+					fld.value = store._itemsByIdentity[id].ThemeId;
+				}
+				// set image to public
+				fld = byId('Public');
+				fld.checked = true;
 			}
 		},
 
@@ -516,7 +533,7 @@ define([
 			// This array holds all form/element names, that have to be saved/read to/from database
 			// and the name of the xml element it will be an attribute or child of.
 			// Species module is set in SetScientificNames method.
-			// location is set SetLocation method
+			// location is set createLocationElements method
 			var arrFld = [
 				['ImgTitle', 'Image'],
 				['ImgDesc', 'Image'],
@@ -549,21 +566,21 @@ define([
 			}, true);
 			byId('LocationName').addEventListener('keyup', function (e) {
 				if (e.keyCode == 13) {
-					self.SetLocation(null, this.value);
+					self.createLocationElements(null, this.value);
 					this.value = "";
 				}
 			}, true);
 			byId('Location').addEventListener('dblclick', function () {
-				self.SetLocation(this[this.selectedIndex].value, this[this.selectedIndex].text);
+				self.createLocationElements(this[this.selectedIndex].value, this[this.selectedIndex].text);
 			}, true);
 			byId('Location').addEventListener('keyup', function (e) {
 				if (e.keyCode == 13) {
-					self.SetLocation(this[this.selectedIndex].value, this[this.selectedIndex].text);
+					self.createLocationElements(this[this.selectedIndex].value, this[this.selectedIndex].text);
 				}
 			}, true);
 			byId('CountryId').addEventListener('change', function () {
 				self.ReloadLocation();	// filter locations by country'
-				self.ClearLocation();		// clear list with locations when user changes country
+				self.removeLocationElements();		// clear list with locations when user changes country
 				// Disabled below, because when reverse geocoding does not find country user looses current extent because jumping to country
 				//map.findAddress(this[this.selectedIndex].text, 4);
 			}, true);
@@ -608,7 +625,7 @@ define([
 				queryExpr: '${0}',
 				autoComplete: false,
 				invalidMessage: 'No name found.',
-				pageSize: 20,
+				pageSize: 12,
 				onKeyUp: function(evt) {
 					self.setSpeciesNames(evt, this);
 				}
@@ -620,7 +637,7 @@ define([
 				queryExpr: '${0}',
 				autoComplete: false,
 				invalidMessage: 'No name found.',
-				pageSize: 20,
+				pageSize: 12,
 				onKeyUp: function(evt) {
 					self.setSpeciesNames(evt, this);
 				}
@@ -632,7 +649,7 @@ define([
 				queryExpr: '${0}',
 				autoComplete: false,
 				invalidMessage: 'No name found.',
-				pageSize: 20,
+				pageSize: 12,
 				onKeyUp: function(evt) {
 					self.setSpeciesNames(evt, this);
 				}
@@ -716,13 +733,14 @@ define([
 
 		/**
 		 * Create HTMLDivElements containing Species names.
-		 *
 		 * @param {number} Id
 		 * @param {string} NameDe
 		 * @param {string} NameEn
 		 * @param {string} NameLa
+		 * @param SexId
+		 * @param SexText
 		 */
-		SetSpecies: function (Id, NameDe, NameEn, NameLa, SexId, SexText) {
+		createSpeciesElements: function (Id, NameDe, NameEn, NameLa, SexId, SexText) {
 			var El = d.createElement('div');
 			El.setAttribute('id', Id);
 			El.XmlInclude = true;
@@ -754,10 +772,11 @@ define([
 		/**
 		 * Clear HTMLDivElement containing Species names
 		 */
-		ClearSpecies: function () {
-			var El = byId('Species');
-			while (El && El.firstChild) {
-				El.removeChild(El.firstChild);
+		removeSpeciesElements: function () {
+			let el = byId('Species');
+
+			while (el && el.firstChild) {
+				el.removeChild(el.firstChild);
 			}
 		},
 
@@ -767,7 +786,7 @@ define([
 		 * @param number Id image id
 		 * @param string Name location name
 		 */
-		SetLocation: function (Id, Name) {
+		createLocationElements: function (Id, Name) {
 			// check if name is not already in list before adding new
 			var Nodes = byId('Locations').getElementsByTagName('div');
 			var i = Nodes.length - 1;
@@ -797,7 +816,7 @@ define([
 		/**
 		 * Remove all previously set location names.
 		 */
-		ClearLocation: function () {
+		removeLocationElements: function () {
 			var El = byId('Locations');
 			while (El && El.firstChild) {
 				El.removeChild(El.firstChild);

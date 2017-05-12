@@ -80,9 +80,9 @@ define([
 				lat, lng, point,
 				mapTool = this.fotoDb.mapTool;
 
-			this.fotoDb.ClearLocation();
+			this.fotoDb.removeLocationElements();
 			this.fotoDb.ClearKeyword();
-			this.fotoDb.ClearSpecies();
+			this.fotoDb.removeSpeciesElements();
 
 			// create flat array from element and attribute nodes to traverse xml data
 			// not recursive. Tree only two levels deep
@@ -111,7 +111,7 @@ define([
 
 					// Species module
 					if (Nodes[j].nodeName == 'ScientificName') {
-						this.fotoDb.SetSpecies(
+						this.fotoDb.createSpeciesElements(
 						Nodes[j].getAttribute('Id'),
 						Tool.DecodeHtml(Nodes[j].getAttribute('NameDe')),
 						Tool.DecodeHtml(Nodes[j].getAttribute('NameEn')),
@@ -122,7 +122,7 @@ define([
 					}
 					// locations part of form
 					else if (Nodes[j].nodeName == 'Location') {
-						this.fotoDb.SetLocation(Nodes[j].getAttribute('Id'), Tool.DecodeHtml(Nodes[j].getAttribute('Name')));
+						this.fotoDb.createLocationElements(Nodes[j].getAttribute('Id'), Tool.DecodeHtml(Nodes[j].getAttribute('Name')));
 					}
 					else if (Nodes[j].nodeName == 'Keyword') {
 						this.fotoDb.SetKeyword(Nodes[j].getAttribute('Id'), Tool.DecodeHtml(Nodes[j].getAttribute('Name')));
@@ -206,7 +206,6 @@ define([
 				}
 			}
 		},
-
 
 		/**
 		 * Setup form element properties.
@@ -417,7 +416,7 @@ define([
 			if (len > 0) {
 				for (i = 0; i < len; i++) {
 					var name = data.getElementsByTagName('GeoName')[i].firstChild.nodeValue;
-					self.fotoDb.SetLocation('', name);	// id is given after insert into database
+					self.fotoDb.createLocationElements('', name);	// id is given after insert into database
 				}
 			}
 
@@ -438,6 +437,17 @@ define([
 			}).then(function(result) {
 				byId('Location').innerHTML = result;
 			});
+		},
+
+		select: function() {
+			for ( var i = 0, l = select.options.length, o; i < l; i++ )
+			{
+			  o = select.options[i];
+			  if ( optionsToSelect.indexOf( o.text ) != -1 )
+			  {
+			    o.selected = true;
+			  }
+			}
 		}
 
 	});

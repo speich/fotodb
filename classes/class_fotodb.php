@@ -619,13 +619,12 @@ class FotoDb extends Website {
 				$ColName = (isset($_POST['ColName']) && preg_match('/^\w+$/', $_POST['ColName']) === 1) ? $_POST['ColName'] : 'NameDe';
 				$Limit = (isset($_POST['count']) && preg_match('/[0-9]+/', $_POST['count']) !== false) ? $_POST['count'] : 50;
 				$Offset = (isset($_POST['start']) && preg_match('/[0-9]+/', $_POST['start']) !== false) ? $_POST['start'] : 0;
-				$Sql = "SELECT Id, NameDe, NameEn, NameLa FROM ScientificNames WHERE $ColName LIKE '%'||:Query||'%' LIMIT :Limit OFFSET :Offset";				
+				$Sql = "SELECT Id, NameDe, NameEn, NameLa, ThemeId FROM ScientificNames WHERE $ColName LIKE '%'||:Query||'%' LIMIT :Limit OFFSET :Offset";
 				$Stmt = $this->Db->prepare($Sql);
 				$Stmt->bindParam(':Query', $Query);
 				$Stmt->bindParam(':Limit', $Limit);
 				$Stmt->bindParam(':Offset', $Offset);
 				$Stmt->execute();
-				// { identifier: Id, items: [Id: 3, Name: 'Flug'] }
 				$arr = $Stmt->fetchAll(PDO::FETCH_ASSOC);
 				$arr = ['identifier' => 'Id', 'items' => $arr];
 				echo json_encode($arr);
