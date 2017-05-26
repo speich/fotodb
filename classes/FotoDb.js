@@ -121,6 +121,7 @@ define([
 		 * Handles communication between js and database when an image is clicked in the image/file explorer.
 		 *
 		 * @param {object} Img HTMLImageElement reference
+		 * @return {Promise}
 		 */
 		SetImg: function(Img) {
 			let request;
@@ -155,7 +156,7 @@ define([
 				}).catch(console.log.bind(console));
 			}
 
-			request.then(xml => {
+			return request.then(xml => {
 				this.SetCurImgId(Img.id);
 				this.Frm.SetCurImgId(Img.id);
 				this.Frm.Fill(xml);

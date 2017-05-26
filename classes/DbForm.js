@@ -132,31 +132,34 @@ define([
 					}
 				}
 			}
-			// google maps module
+			// google maps module (might not be displayed)
 			// display image on the map
-			if (mapTool && mapTool.map) {
-				mapTool.clearMarkers();
+			if (mapTool) {
+        mapTool.clearMarkers();
 
-				lat = byId('ImgLat').value;
-				lng = byId('ImgLng').value;
+        lat = byId('ImgLat').value;
+        lng = byId('ImgLng').value;
 
-				if (lat !== '' && lng !== '') {
-					mapTool.addMarker({
-						lat: lat,
-						lng: lng,
-						img: byId('ImgPreview').src
-					}, 'image');
+        // tab with map might not displayed
 
-					point = new gmaps.LatLng(lat, lng);
-					mapTool.map.setCenter(point);
+          if (lat !== '' && lng !== '') {
+            mapTool.addMarker({
+              lat: lat,
+              lng: lng,
+              img: byId('ImgPreview').src
+            }, 'image');
 
-					if (byId('Locations').getElementsByTagName('div').length === 0) {
-						mapTool.reverseGeocode(new gmaps.LatLng(lat, lng)).then(function(result) {
-							self.updateLocation(result);
-						});
-					}
-				}
-			}
+            point = new gmaps.LatLng(lat, lng);
+          }
+        if (mapTool.map) {
+            mapTool.map.setCenter(point);
+        }
+        if (byId('Locations').getElementsByTagName('div').length === 0) {
+          mapTool.reverseGeocode(new gmaps.LatLng(lat, lng)).then(function(result) {
+            self.updateLocation(result);
+          });
+        }
+      }
 			// make all select fields reflect new DB content after inserting new content
 			this.UpdateSelectFields();
 
