@@ -112,13 +112,21 @@ $SpeciesSex->SetSelected('unknown', HTML_OPTION_TEXT);
 					Show location<input type="checkbox" id="ShowLoc" checked="false">
 				</div><!-- End Tab2 -->
 			</div><!-- End TabCont -->
-			<div id="Right2"><label for="ImgTitle">image title</label>
-				<input id="ImgTitle" type="text">
-				public<input type="checkbox" id="Public" checked="checked">
-				<br>
-				<label for="ImgDesc">image description</label>
-				<textarea id="ImgDesc"></textarea>
-				<br>
+			<div id="Right2">
+			<div id="DivSpeciesModule">
+							<div style="float: left"><label for="SpeciesSexId">Species sex</label><br>
+							<?php $SpeciesSex->Render(); ?>
+							</div>
+							<div style="float: left"><label for="SpeciesNameDe">Species name German</label><br>
+							<input type="text" id="SpeciesNameDe" class="FldSpeciesFilter"></div>
+							<div style="float: left"><label for="SpeciesNameEn">Species name English</label><br>
+							<input type="text" id="SpeciesNameEn" class="FldSpeciesFilter"></div>
+							<div><label for="SpeciesNameLa">Species name Latin</label><br>
+							<input type="text" id="SpeciesNameLa" class="FldSpeciesFilter"></div>
+							<div id="Species" class="ContList"></div>
+							</div>
+				<label for="ImgTitle">image title</label><input id="ImgTitle" type="text">public<input type="checkbox" id="Public" checked="checked"><br>
+				<label for="ImgDesc">image description</label><textarea id="ImgDesc"></textarea><br>
 				<div>
 				<div style="float: left;">
 				<label for="Theme">Theme</label><br>
@@ -141,18 +149,6 @@ $SpeciesSex->SetSelected('unknown', HTML_OPTION_TEXT);
 				</div>
 				<label for="ImgTechInfo">TechInfo</label>
 				<textarea id="ImgTechInfo"></textarea>
-				<div id="DivSpeciesModule">
-				<div style="float: left"><label for="SpeciesSexId">Species sex</label><br>
-				<?php $SpeciesSex->Render(); ?>
-				</div>
-				<div style="float: left"><label for="SpeciesNameDe">Species name German</label><br>
-				<input type="text" id="SpeciesNameDe" class="FldSpeciesFilter"></div>
-				<div style="float: left"><label for="SpeciesNameEn">Species name English</label><br>
-				<input type="text" id="SpeciesNameEn" class="FldSpeciesFilter"></div>
-				<div><label for="SpeciesNameLa">Species name Latin</label><br>
-				<input type="text" id="SpeciesNameLa" class="FldSpeciesFilter"></div>
-				<div id="Species" class="ContList"></div>
-				</div>
 				<input type="button" id="FncSaveImg" value="save"><a href="http://fotodb/dbprivate/library/dbfunctions.php?Fnc=Publish">publish</a>
 			</div><!-- End Right2 -->
 			
