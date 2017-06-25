@@ -131,28 +131,24 @@ define([
 						Set(Nodes[j]);
 					}
 				}
-			}
-			// google maps module (might not be displayed)
-			// display image on the map
-			if (mapTool) {
+      }
+      lat = byId('ImgLat').value;
+      lng = byId('ImgLng').value;
+      // google maps module (might not be displayed)
+      // display image on the map
+      if (mapTool && lat !== '' && lng !== '') {
         mapTool.clearMarkers();
 
-        lat = byId('ImgLat').value;
-        lng = byId('ImgLng').value;
+        mapTool.addMarker({
+          lat: lat,
+          lng: lng,
+          img: byId('ImgPreview').src
+        }, 'image');
 
-        // tab with map might not displayed
+        point = new gmaps.LatLng(lat, lng);
 
-          if (lat !== '' && lng !== '') {
-            mapTool.addMarker({
-              lat: lat,
-              lng: lng,
-              img: byId('ImgPreview').src
-            }, 'image');
-
-            point = new gmaps.LatLng(lat, lng);
-          }
         if (mapTool.map) {
-            mapTool.map.setCenter(point);
+          mapTool.map.setCenter(point);
         }
         if (byId('Locations').getElementsByTagName('div').length === 0) {
           mapTool.reverseGeocode(new gmaps.LatLng(lat, lng)).then(function(result) {
