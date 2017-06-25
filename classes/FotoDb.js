@@ -43,12 +43,7 @@ define([
     curPromise: null,
 
     GetCurImgId: function() {
-      if (CurImgId) {
-        return CurImgId;
-      }
-      else {
-        return false;
-      }
+        return CurImgId ? CurImgId : false;
     },
 
     /**
@@ -129,7 +124,7 @@ define([
       this.Frm.GetFormEl().reset();
       // disable form input on until insert image has completed. Otherwise CurImgId not correctly set for form
       this.Frm.DisableFields();
-      Img.parentNode.parentNode.style.opacity = 0.3;	// set visual clue that image data is set
+      Img.parentNode.parentNode.style.opacity = 0.3;	// set visual clue that image data is being set
 
       this.placeImage(Img);
 
@@ -164,6 +159,7 @@ define([
         byId(Img.id).parentNode.setAttribute('class', 'MarkDone');
         this.Frm.EnableFields();
         Img.parentNode.parentNode.style.opacity = 1;
+        byId('SpeciesSexId').focus();
       }).catch(err => {
         alert(err);
       });
@@ -400,9 +396,10 @@ define([
 
     /**
      * Handles all main window keys.
+     * Note: Use ctrl instead of alt key, since there is less interference with existing keys such as arrow keys in select fields
      */
     Keys: function(e) {
-      if (e.altKey) {
+      if (e.ctrlKey) {
         switch(e.keyCode) {
           case keys.RIGHT_ARROW:
             this.NextImage();
@@ -429,14 +426,17 @@ define([
             break;			// del
         }
         switch(e.charCode) {
-          // alt + s save
+          // ctrl + s save
           case 115:
             this.Frm.SaveAll();
             e.stopPropagation();
             e.preventDefault();
             break;
-          // alt + c copy
+          // ctrl + c copy
           case 99:
+            if (window.getSelection()){
+              break;  // allow copy when text is selectd
+            }
             // if the field ImgDateOriginal is not empty we skip it to not overwrite date from exif
             var fld = byId('ImgDateOriginal');
             if (fld.value != '') {
@@ -449,6 +449,9 @@ define([
             break;
           // alt + v paste
           case 118:
+            if (window.getSelection()) {
+              break;  // allow copy when text is selectd
+            }
             // if ImgLat and ImgLng are not empty (set by exif), we do not overwrite when pasting
             var lat = byId('ImgLat'), lng = byId('ImgLng');
             lat.overwrite = lat.value === '';
@@ -561,7 +564,7 @@ define([
       byId('FncSaveImg').addEventListener('click', function() {
         self.Frm.SaveAll();
       }, true);
-      on(document, 'keypress', function(e) {
+      on(document, 'keydown', function(e) {
         self.Keys(e);
       }, true);
       byId('LocationName').addEventListener('keyup', function(e) {
@@ -677,7 +680,6 @@ define([
       new ContentPane({splitter: true, region: 'top', style: 'height: 60%'}, 'ImgExplTop');
       new ContentPane({region: 'center'}, 'PaneLeftExifContent');
       El.startup();
-      SpeciesFilterLa.focus();
 
       tc.watch("selectedChildWidget", function(name, oval, nval) {
         var point,
