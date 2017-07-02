@@ -398,71 +398,73 @@ define([
      * Handles all main window keys.
      * Note: Use ctrl instead of alt key, since there is less interference with existing keys such as arrow keys in select fields
      */
-    Keys: function(e) {
-      if (e.ctrlKey) {
-        switch(e.keyCode) {
-          case keys.RIGHT_ARROW:
+    Keys: function(evt) {
+      if (evt.ctrlKey) {
+        switch(evt.key) {
+          case 'ArrowRight':
+            evt.stopPropagation();
+            evt.preventDefault();
             this.NextImage();
-            e.stopPropagation();
-            e.preventDefault();
             break;
-          case keys.DOWN_ARROW:
+          case 'ArrowDown':
+            evt.stopPropagation();
+            evt.preventDefault();
             this.NextImage();
-            e.stopPropagation();
-            e.preventDefault();
-            break;			// arrow down
-          case keys.LEFT_ARROW:
+            break;
+          case 'ArrowLeft':
+            evt.stopPropagation();
+            evt.preventDefault();
             this.PreviousImage();
-            e.stopPropagation();
-            e.preventDefault();
-            break;	// arrow left
-          case keys.UP_ARROW:
+            break;
+          case 'ArrowUp':
+            evt.stopPropagation();
+            evt.preventDefault();
             this.PreviousImage();
-            e.stopPropagation();
-            e.preventDefault();
-            break;	// arrow up
-          case keys.DELETE:
+            break;
+          case 'Delete':
+            evt.stopPropagation();
+            evt.preventDefault();
             this.DelImage();
-            break;			// del
-        }
-        switch(e.charCode) {
+            break;
           // ctrl + s save
-          case 115:
+          case 's':
+            evt.stopPropagation();
+            evt.preventDefault();
+            console.log('save');
             this.Frm.SaveAll();
-            e.stopPropagation();
-            e.preventDefault();
             break;
           // ctrl + c copy
-          case 99:
-            if (window.getSelection()){
+          case 'c':
+            if (window.getSelection().toString() !== '') {
               break;  // allow copy when text is selectd
             }
+            evt.stopPropagation();
+            evt.preventDefault();
+            console.log('copy');
             // if the field ImgDateOriginal is not empty we skip it to not overwrite date from exif
-            var fld = byId('ImgDateOriginal');
+            let fld = byId('ImgDateOriginal');
             if (fld.value != '') {
               fld.XmlInclude = false;
             }
             Tool.AddObj(this.Frm.SaveXml(), 'copy');
             fld.XmlInclude = true;
-            e.stopPropagation();
-            e.preventDefault();
             break;
           // alt + v paste
-          case 118:
-            if (window.getSelection()) {
-              break;  // allow copy when text is selectd
+          case 'v':
+            if (window.getSelection() !== '') {
+              break;  // allow copy when text is selected
             }
+            evt.stopPropagation();
+            evt.preventDefault();
+            console.log('paste');
             // if ImgLat and ImgLng are not empty (set by exif), we do not overwrite when pasting
-            var lat = byId('ImgLat'), lng = byId('ImgLng');
+            let lat = byId('ImgLat'), lng = byId('ImgLng');
             lat.overwrite = lat.value === '';
             lng.overwrite = lng.value === '';
             this.Frm.Fill(Tool.GetObjById('copy'));
-            e.stopPropagation();
-            e.preventDefault();
             break;
         }
       }
-      return false;
     },
 
     /**
@@ -564,8 +566,8 @@ define([
       byId('FncSaveImg').addEventListener('click', function() {
         self.Frm.SaveAll();
       }, true);
-      on(document, 'keydown', function(e) {
-        self.Keys(e);
+      window.addEventListener('keydown', function(evt) { // needs to be on window not document to capture keys before browser does.
+        self.Keys(evt);
       }, true);
       byId('LocationName').addEventListener('keyup', function(e) {
         if (e.keyCode == 13) {
