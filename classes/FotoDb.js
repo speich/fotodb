@@ -43,7 +43,7 @@ define([
     curPromise: null,
 
     GetCurImgId: function() {
-        return CurImgId ? CurImgId : false;
+      return CurImgId ? CurImgId: false;
     },
 
     /**
@@ -334,12 +334,12 @@ define([
      */
     NextImage: function() {
       // current selected image (has an Id only after ajax request completed)
-      var El = byId(this.GetCurImgId());
-      if (El) {
-        var Tr = Tool.NextNode(El.parentNode.parentNode);	// img -> td -> tr
+      var el = byId(this.GetCurImgId());
+      if (el) {
+        var Tr = Tool.NextNode(el.parentNode.parentNode);	// img -> td -> tr
         if (/File/.test(Tr.getAttribute('class'))) {	// only process files, not folders
           var Img = Tr.getElementsByTagName('img').item(0);
-          if (Img) {	// no next El if already last image in file list
+          if (Img) {	// no next el if already last image in file list
             this.Explorer.HighlightRow(Tr);
             // display exif data
             this.DisplExifData(Img, byId('PaneLeftExifContent'));
@@ -347,12 +347,15 @@ define([
             this.SetImg(Img);
           }
         }
+        if (el) {
+          el.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
       }
       else {
         // find first tr and select it
         var Tr = query('.File', 'ImgExplCont')[0];
         var Img = Tr.getElementsByTagName('img').item(0);
-        if (Img) { // no next El if already last image in file list
+        if (Img) { // no next el if already last image in file list
           this.Explorer.HighlightRow(Tr);
           // display exif data
           this.DisplExifData(Img, byId('PaneLeftExifContent'));
@@ -366,9 +369,9 @@ define([
      * Go to previous image in explorer and select it.
      */
     PreviousImage: function() {
-      var El = byId(this.GetCurImgId());	// current selected image (has an Id only after ajax request completed)
-      if (El) {
-        var Tr = Tool.PreviousNode(El.parentNode.parentNode);	// img -> td -> tr
+      var el = byId(this.GetCurImgId());	// current selected image (has an Id only after ajax request completed)
+      if (el) {
+        var Tr = Tool.PreviousNode(el.parentNode.parentNode);	// img -> td -> tr
         if (/File/.test(Tr.getAttribute('class'))) {	// only process files, not folders
           var Img = Tr.getElementsByTagName('img').item(0);
           if (Img) {	// no next image if already first image in file list
@@ -379,12 +382,15 @@ define([
             this.SetImg(Img);
           }
         }
+        if (el) {
+          el.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
       }
       else {
         // find first tr and select it
         var Tr = query('.File', 'ImgExplCont')[0];
         var Img = Tr.getElementsByTagName('img').item(0);
-        if (Img) { // no next El if already last image in file list
+        if (Img) { // no next el if already last image in file list
           this.Explorer.HighlightRow(Tr);
           // display exif data
           this.DisplExifData(Img, byId('PaneLeftExifContent'));
@@ -410,16 +416,25 @@ define([
             evt.stopPropagation();
             evt.preventDefault();
             this.NextImage();
+            if (el) {
+              el.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
             break;
           case 'ArrowLeft':
             evt.stopPropagation();
             evt.preventDefault();
             this.PreviousImage();
+            if (el) {
+              el.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
             break;
           case 'ArrowUp':
             evt.stopPropagation();
             evt.preventDefault();
             this.PreviousImage();
+            if (el) {
+              el.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
             break;
           case 'Delete':
             evt.stopPropagation();
