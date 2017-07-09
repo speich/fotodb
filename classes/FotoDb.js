@@ -440,7 +440,6 @@ define([
             }
             evt.stopPropagation();
             evt.preventDefault();
-            console.log('copy');
             // if the field ImgDateOriginal is not empty we skip it to not overwrite date from exif
             let fld = byId('ImgDateOriginal');
             if (fld.value != '') {
@@ -451,12 +450,11 @@ define([
             break;
           // alt + v paste
           case 'v':
-            if (window.getSelection() !== '') {
+            if (window.getSelection().toString() !== '') {
               break;  // allow copy when text is selected
             }
             evt.stopPropagation();
             evt.preventDefault();
-            console.log('paste');
             // if ImgLat and ImgLng are not empty (set by exif), we do not overwrite when pasting
             let lat = byId('ImgLat'), lng = byId('ImgLng');
             lat.overwrite = lat.value === '';
