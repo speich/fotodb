@@ -383,7 +383,7 @@ define([
           }
         }
         if (el) {
-          el.scrollIntoView({behavior: 'smooth', block: 'start'});
+          el.scrollIntoView({behavior: 'smooth', block: 'end'});
         }
       }
       else {
@@ -416,25 +416,16 @@ define([
             evt.stopPropagation();
             evt.preventDefault();
             this.NextImage();
-            if (el) {
-              el.scrollIntoView({behavior: 'smooth', block: 'start'});
-            }
             break;
           case 'ArrowLeft':
             evt.stopPropagation();
             evt.preventDefault();
             this.PreviousImage();
-            if (el) {
-              el.scrollIntoView({behavior: 'smooth', block: 'start'});
-            }
             break;
           case 'ArrowUp':
             evt.stopPropagation();
             evt.preventDefault();
             this.PreviousImage();
-            if (el) {
-              el.scrollIntoView({behavior: 'smooth', block: 'start'});
-            }
             break;
           case 'Delete':
             evt.stopPropagation();
@@ -884,7 +875,7 @@ define([
       var Img = new Image();
       Img.src = 'layout/images/del_button.gif';
       domStyle.set(Img, {margin: '0px 5px 0px 0px', 'verticalAlign': 'bottom'});
-      on(Img, 'click', Node, function() {
+      Node.addEventListener('click', function() {
         this.parentNode.removeChild(this);
       });
       Node.appendChild(Img);
