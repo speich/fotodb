@@ -441,8 +441,8 @@ define([
             break;
           // ctrl + c copy
           case 'c':
-            if (window.getSelection().toString() !== '') {
-              break;  // allow copy when text is selectd
+            if (this.isTextSelected(evt.target)) {
+              break;  // allow copy when text is selected
             }
             evt.stopPropagation();
             evt.preventDefault();
@@ -456,7 +456,7 @@ define([
             break;
           // alt + v paste
           case 'v':
-            if (window.getSelection().toString() !== '') {
+            if (this.isTextSelected(evt.target)) {
               break;  // allow copy when text is selected
             }
             evt.stopPropagation();
@@ -470,6 +470,11 @@ define([
         }
       }
     },
+
+      isTextSelected: function(node) {
+        // window.getSelection() only works on non text input nodes
+          return window.getSelection().toString() !== '' || node.selectionStart !== undefined;
+      },
 
     /**
      * Fill in species information into form and set it as title as well as set the theme.
@@ -570,7 +575,7 @@ define([
       byId('FncSaveImg').addEventListener('click', function() {
         self.Frm.SaveAll();
       }, true);
-      window.addEventListener('keydown', function(evt) { // needs to be on window not document to capture keys before browser does.
+      window.addEventListener('keydown', function(evt) { // use keydown instead of keypress because dijit traps events and stops bubbling
         self.Keys(evt);
       }, true);
       byId('LocationName').addEventListener('keyup', function(e) {
