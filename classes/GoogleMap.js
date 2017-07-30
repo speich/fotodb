@@ -40,20 +40,6 @@ define([
 		},
 
 		/**
-		 * Fit map to tab container size.
-		 */
-		setMapDimension: function(contNode) {
-			var cont = domGeometry.position(contNode);
-
-			// set map dimensions
-			domStyle.set(byId('map-container'), {
-				width: cont.w - 20 + 'px',
-				height: cont.w - 200 + 'px'
-			});
-		},
-
-
-		/**
 		 * Convert point coordinates into location names and fill form.
 		 */
 		reverseGeocode: function(latLng) {

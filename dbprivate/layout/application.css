@@ -30,3 +30,7 @@
 }
 
 #updateExif { cursor: pointer; }
+
+#map-container {
+	height: calc(100% - 380px);
+}

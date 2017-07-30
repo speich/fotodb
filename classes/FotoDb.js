@@ -703,8 +703,6 @@ define([
           self.initEvents(self.mapTool.map);
         }
 
-        mapTool.setMapDimension(nval.domNode);
-
         mapTool.clearMarkers();
         if (lat !== '' && lng !== '') {
           mapTool.addMarker({
