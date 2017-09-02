@@ -11,8 +11,9 @@ class FotoDb extends Website {
 	// and not with a slash, but end with a slash
 	private $DbName = "FotoDb.sqlite";
 	private $DbUserPrefs = 'user.sqlite';
-	private $PathImg = 'dbprivate/images/';
-	private $PathImgPubl = 'dbpublic/images/';
+	private $PathImg = 'dbprivate/images/';  // path relative to web root
+	private $PathImgPubl = 'dbpublic/images/';   // path relative go web root
+    private $folderImageOriginal =  '/media/sf_Bilder/';    // absolute path where image originals are stored
 	private $ExecTime = 300;
 	protected $HasActiveTransaction = false;	// keep track of open transactions
 	
@@ -121,11 +122,11 @@ class FotoDb extends Website {
 	 * Insert new image data from form and from exif data.
 	 * 
 	 * This method is only called once, when the image is selected by the user for the first time.
-	 * @param string $Img image file including web root path
+	 * @param string $imgSrc image file including web root path
 	 * @return string XML file
 	 */
-	public function Insert($Img) {
-		$ImgFolder = str_replace($this->GetWebRoot().ltrim($this->GetPath('Img'), '/'), '', $Img);	// remove web images folder path part
+	public function Insert($imgSrc) {
+		$ImgFolder = str_replace($this->GetWebRoot().ltrim($this->GetPath('Img'), '/'), '', $imgSrc);	// remove web images folder path part
 		$ImgName = substr($ImgFolder, strrpos($ImgFolder, '/') + 1);
 		$ImgFolder = trim(str_replace($ImgName, '', $ImgFolder), '/');
 		$Sql = "INSERT INTO Images (Id, ImgFolder, ImgName, DateAdded, LastChange)
@@ -136,8 +137,10 @@ class FotoDb extends Website {
 		$Stmt->bindParam(':ImgFolder', $ImgFolder);
 		$Stmt->execute();
 		$ImgId = $this->Db->lastInsertId();
+       $imgSrc = $this->getImageSrc($ImgId);
 		// insert exif data
-		if (!$this->InsertExif($ImgId, $Img)) {
+       $exifData = $this->getExif($imgSrc);
+		if (!$this->InsertExif($exifData)) {
 			echo 'failed';
 			return false;
 		}
@@ -507,28 +510,41 @@ class FotoDb extends Website {
 			echo 'failed';
 		}
 	}
+
+	public function insertXmp() {
+
+   }
+
+    /**
+     * Returns the image name and folder.
+     * @param int $imgId
+     * @return string
+     */
+   public function getImageSrc($imgId) {
+       $sql = "SELECT ImgFolder, ImgName FROM Images WHERE Id = :ImgId";
+       $stmt = $this->Db->prepare($sql);
+       $stmt->bindParam(':ImgId', $imgId);
+       $stmt->execute();
+       $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+       return $row['ImgFolder'].'/'.$row['ImgName'];
+   }
+
+   public function getExif($imgSrc) {
+       $img = $this->folderImageOriginal.'/'.$imgSrc;
+       		$exifService = new \photoXplorer\ExifService();
+
+       return $exifService->getData($img);
+   }
 	
 	/**
 	 * Insert exif data read from image into fotodb.
 	 * Returns true on success or false on failure.
 	 * @return bool
-	 * @param string $Img image file including web root path
-	 * @param integer $ImgId image database id
+	 * @param integer $img image database id
 	 */
-	public function InsertExif($ImgId, $Img = null) {
-		if (is_null($Img)) {
-			$Sql = "SELECT ImgFolder, ImgName FROM Images WHERE Id = :ImgId";
-			$Stmt = $this->Db->prepare($Sql);
-			$Stmt->bindParam(':ImgId', $ImgId);
-			$Stmt->execute();
-			$Row = $Stmt->fetch(PDO::FETCH_ASSOC);
-			$Img = $this->GetPath('Img').$Row['ImgFolder'].'/'.$Row['ImgName'];
-		}
-		// Scanned slides have a lot of empty exif data
-		$pathImgOrig = '/media/sf_Bilder/';
-		$Img = $pathImgOrig.str_replace($this->getPath('Img'), '', $Img);
-		$exifService = new \photoXplorer\ExifService();
-		$exifData = $exifService->getData($Img);
+	public function InsertExif($exifData) {
+		// note: Scanned slides have a lot of empty exif data
 		$arrExif = $this->mapExif($exifData);
 		if (count($arrExif) > 0) {
 			$SqlTemp = "";
@@ -553,21 +569,21 @@ class FotoDb extends Website {
 			}
 			$Sql.= rtrim($SqlTemp, ',').");";
 			$Stmt = $this->Db->prepare($Sql);
-			$Stmt->bindParam(':ImgId', $ImgId);
+			$Stmt->bindParam(':ImgId', $imgId);
 			$Stmt->execute();
 			// Use exif DateTimeOriginal also as column value in the Images table, but
 			// not in case of scanned slides which have only date of scanning.
 			if ($arrExif['Model'] != 'Nikon SUPER COOLSCAN 5000 ED' && $arrExif['DateTimeOriginal'] != '') {
 				$Sql = 'UPDATE Images SET ImgDateOriginal = :Date WHERE Id = :ImgId';
 				$Stmt = $this->Db->prepare($Sql);
-				$Stmt->bindParam(':ImgId', $ImgId);
+				$Stmt->bindParam(':ImgId', $imgId);
 				$Stmt->bindParam(':Date', strtotime($arrExif['DateTimeOriginal']));
 				$Stmt->execute();
 			}
 			if ($arrExif['GPSLatitude'] !== '') {
 				$Sql = 'UPDATE Images SET ImgLat = :Lat, ImgLng = :Lng WHERE Id = :ImgId';
 				$Stmt = $this->Db->prepare($Sql);
-				$Stmt->bindParam(':ImgId', $ImgId);
+				$Stmt->bindParam(':ImgId', $imgId);
 				$Stmt->bindParam(':Lat', $arrExif['GPSLatitude']);
 				$Stmt->bindParam(':Lng', $arrExif['GPSLongitude']);
 				$Stmt->execute();

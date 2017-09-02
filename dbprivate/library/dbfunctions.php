@@ -22,7 +22,9 @@ if ($fnc) {
 			break;
 		case 'UpdateExif':
 			// Insert or update exif data of image
-			if ($db->InsertExif($_POST['ImgId'])) {
+          $imgSrc = $_POST['ImgId'];
+             $exifData = $db->getExif($imgSrc);
+			if ($db->InsertExif($exifData)) {
 				echo 'success';
 			}
 			else {
