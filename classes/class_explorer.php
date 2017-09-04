@@ -61,15 +61,15 @@ class Explorer extends FotoDb {
 	 *   )
 	 * ...
 	 * @param string $path
-	 * @return string|false
+	 * @return array
 	 */
 	public function ReadDirWeb($path) {
-		// TODO: make this save for live web (is the use of strlen ok?)
+		// TODO: make this safe for live web (is the use of strlen ok?)
 		// argument $Path with trailing slash but no leading slash
 		$ParentDir = substr($path, 0, strrpos(rtrim($path, '/'), '/') + 1);
 		$filePath = $_SERVER['DOCUMENT_ROOT'].$path;
 		
-		$arrFile = array();
+		$arrFile = [];
 		$files = scandir($filePath, SCANDIR_SORT_ASCENDING);
 		if ($files) {
 			$arrFile[0]['Current'] = $path;

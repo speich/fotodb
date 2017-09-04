@@ -15,69 +15,69 @@ $db->Connect();
 
 $fnc = isset($_POST['Fnc']) ? $_POST['Fnc'] : (isset($_GET['Fnc']) ? $_GET['Fnc'] : null);
 if ($fnc) {
-	switch($fnc) {
-		case 'Insert':
-			// insert new image and return new id
-			$db->Insert($_POST['Img']);
-			break;
-		case 'UpdateExif':
-			// Insert or update exif data of image
-          $imgSrc = $_POST['ImgId'];
-             $exifData = $db->getExif($imgSrc);
-			if ($db->InsertExif($exifData)) {
-				echo 'success';
-			}
-			else {
-				echo 'failed';
-			}
-			break;
-		case 'Edit':
-			// return database data as xml to edit in form
-			$db->Edit($_POST['ImgId']);
-			break;
-		case 'UpdateAll':
-			// save all form data in database
-			$db->UpdateAll($_POST['XmlData']);
-			break;
-		case 'Del':
-			// delete db data
-			$db->Delete($_POST['ImgId']);
-			break;
-		case 'FldLoadData':
-			// load specific form data, e.g. locations in a certain country or a scientific name
-			$db->LoadData();
-			break;
-	}
+    switch ($fnc) {
+        case 'Insert':
+            // insert new image and return new id
+            $db->Insert($_POST['Img']);
+            break;
+        case 'UpdateExif':
+            // Insert or update exif data of image
+            $imgId = $_POST['ImgId'];
+            $imgSrc = $db->getImageSrc($imgId);
+            $exifData = $db->getExif($imgSrc);
+            if ($db->InsertExif($imgId, $exifData)) {
+                echo 'success';
+            } else {
+                echo 'failed';
+            }
+            break;
+        case 'Edit':
+            // return database data as xml to edit in form
+            $db->Edit($_POST['ImgId']);
+            break;
+        case 'UpdateAll':
+            // save all form data in database
+            $db->UpdateAll($_POST['XmlData']);
+            break;
+        case 'Del':
+            // delete db data
+            $db->Delete($_POST['ImgId']);
+            break;
+        case 'FldLoadData':
+            // load specific form data, e.g. locations in a certain country or a scientific name
+            $db->LoadData();
+            break;
+    }
 }
 
 if (isset($_GET['Fnc'])) {
-	require_once('../../classes/PhotoDbExporter.php');
-	require_once('../../classes/PhotoDbSearch.php');
+    require_once('../../classes/PhotoDbExporter.php');
+    require_once('../../classes/PhotoDbSearch.php');
 
-	switch($_GET['Fnc']) {
-		case 'Publish':
-			/*
-			Using google search instead
-			$indexer = new PhotoDbSearch();
-			$indexer->Connect();
-			$indexer->updateIndex();
-			$indexer = null;
-			*/
-			$destDb = '/media/sf_Websites/speich.net/photo/photodb/dbfiles/photodb.sqlite';
-			$destDirImg = '/media/sf_Websites/speich.net/photo/photodb/images';
-			$exporter = new PhotoDbExporter();
-			$exporter->Connect();
-			$exporter->publish($destDb, $destDirImg);
-			$exporter = null;
-			break;
-		case 'recreateThumbs':
-			break;
-		case 'createSearchIndex':
-			// only updates local fotodb, but not speich.net
-			$indexer = new PhotoDbSearch();
-			$indexer->Connect();
-			$indexer->updateIndex(true);
-			$indexer = null;
-			break;
-	}
+    switch ($_GET['Fnc']) {
+        case 'Publish':
+            /*
+            Using google search instead
+            $indexer = new PhotoDbSearch();
+            $indexer->Connect();
+            $indexer->updateIndex();
+            $indexer = null;
+            */
+            $destDb = '/media/sf_Websites/speich.net/photo/photodb/dbfiles/photodb.sqlite';
+            $destDirImg = '/media/sf_Websites/speich.net/photo/photodb/images';
+            $exporter = new PhotoDbExporter();
+            $exporter->Connect();
+            $exporter->publish($destDb, $destDirImg);
+            $exporter = null;
+            break;
+        case 'recreateThumbs':
+            break;
+        case 'createSearchIndex':
+            // only updates local fotodb, but not speich.net
+            $indexer = new PhotoDbSearch();
+            $indexer->Connect();
+            $indexer->updateIndex(true);
+            $indexer = null;
+            break;
+    }
 }
