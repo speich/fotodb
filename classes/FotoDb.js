@@ -313,7 +313,7 @@ define([
         });
         Ajax.SetDoneFnc(this, function() {
           byId(ImgId).parentNode.setAttribute('class', 'MarkOpen');
-          byId(ImgId).id = '';
+          byId(ImgId).removeAttribute('id');
           this.SetCurImgId(null);
           this.Frm.SetCurImgId(null);
           byId('ImgPreview').src = 'none';
