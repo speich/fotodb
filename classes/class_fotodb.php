@@ -175,7 +175,7 @@ class FotoDb extends Website
 
             return false;
         }
-        if (!$this->insertXmp($imgId, $exifData)) {
+        if (array_key_exists('XMP', $exifData) && !$this->insertXmp($imgId, $exifData['XMP'])) {
             echo 'failed';
 
             return false;
@@ -517,6 +517,10 @@ class FotoDb extends Website
         $stmt->bindParam(':imgId', $imgId);
         $stmt->execute();
         $sql = "DELETE FROM Exif WHERE ImgId = :imgId";
+        $stmt = $this->Db->prepare($sql);
+        $stmt->bindParam(':imgId', $imgId);
+        $stmt->execute();
+        $sql = "DELETE FROM Xmp WHERE ImgId = :imgId";
         $stmt = $this->Db->prepare($sql);
         $stmt->bindParam(':imgId', $imgId);
         $stmt->execute();
