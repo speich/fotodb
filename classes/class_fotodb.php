@@ -876,8 +876,12 @@ class FotoDb extends Website
         $data['LensSpec'] = array_key_exists('LensSpec', $arrExif['EXIF']) ? $arrExif['EXIF']['LensSpec'] : '';
         $data['VibrationReduction'] = array_key_exists('VibrationReduction',
            $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['VibrationReduction'] : '';
-        $data['FileType'] = array_key_exists('FileType', $arrExif['File']) ? $arrExif['File']['FileType'] : '';
-        $data['FileSize'] = array_key_exists('FileSize', $arrExif['File']) ? $arrExif['File']['FileSize'] : '';
+        foreach ($arrExif['Files'] as $file) {
+            if (strtolower($file['FileType']) !== 'xmp') {
+                $data['FileType'] = $file['FileType'];
+                $data['FileSize'] = $file['FileSize'];
+            }
+        }
         $data['Lens'] = array_key_exists('Lens', $arrExif['EXIF']) ? $arrExif['EXIF']['Lens'] : '';
         $data['LensSpec'] = array_key_exists('LensID', $arrExif['Composite']) ? $arrExif['Composite']['LensID'] : '';
         $data['FocalLength'] = array_key_exists('FocalLength', $arrExif['EXIF']) ? $arrExif['EXIF']['FocalLength'] : '';
