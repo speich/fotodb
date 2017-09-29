@@ -24,7 +24,7 @@ select[id=FilmTypeId] { width: 400px; }
 
 select[id=RatingId] { width: 50px; }
 
-select[id=ImgDate] { width: 100px; }
+select[id=ImgDateManual] { width: 100px; }
 
 select[id^=SpeciesSex] { width: 100px; }
 
