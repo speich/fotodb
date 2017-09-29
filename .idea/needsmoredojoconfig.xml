@@ -12,6 +12,10 @@
         <option value="doh/main(doh" />
       </list>
     </option>
+    <option name="dojoSourcesDirectory" value="$PROJECT_DIR$/../libraries/dojo/1.12.1" />
+    <option name="preferRelativeImports" value="true" />
+    <option name="projectSourcesDirectory" value="$PROJECT_DIR$/classes" />
+    <option name="refactoringEnabled" value="true" />
     <option name="setupWarningDisabled" value="true" />
     <option name="version" value="0.7" />
   </component>

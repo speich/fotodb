@@ -2,4 +2,9 @@
 <project version="4">
   <component name="PhpDebugIgnoredPathsSettings" notify="false" />
   <component name="PhpProjectSharedConfiguration" php_language_level="7" />
+  <component name="PhpUnit">
+    <phpunit_settings>
+      <PhpUnitSettings load_method="CUSTOM_LOADER" />
+    </phpunit_settings>
+  </component>
 </project>
