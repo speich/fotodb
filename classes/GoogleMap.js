@@ -4,7 +4,7 @@ define([
 	'dojo/request/xhr',
 	'dojo/dom-geometry',
 	'dojo/dom-style',
-	'fotodb/gmapLoader!http://maps.google.com/maps/api/js?key=AIzaSyAW3fEVRPQKGe4jxsp4T0pPFVQ9eJ-o86g&v=3&language=' + dojoConfig.locale
+	'fotodb/gmapLoader!http://maps.google.com/maps/api/js?v=3&language=' + dojoConfig.locale
 ], function(declare,	Deferred, xhr, domGeometry, domStyle) {
 
 	var gmaps = google.maps,
