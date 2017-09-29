@@ -180,7 +180,7 @@ class FotoDb extends Website
 
             return false;
         }
-        $Sql = "SELECT Id, ImgFolder, ImgName, ImgDate,	ImgTechInfo, FilmTypeId, RatingId,
+        $Sql = "SELECT Id, ImgFolder, ImgName, ImgDateManual,	ImgTechInfo, FilmTypeId, RatingId,
 			DateAdded, LastChange, ImgDesc,	ImgTitle, Public, DatePublished, ImgDateOriginal, ImgLat, ImgLng, ShowLoc, CountryId
 			FROM Images WHERE Id = :ImgId";
         $Stmt = $this->Db->prepare($Sql);
@@ -193,7 +193,7 @@ class FotoDb extends Website
         $strXml .= '<Image';
         foreach ($Stmt->fetch(PDO::FETCH_ASSOC) as $Key => $Val) {
             // each col in db is attribute of xml element Image
-            if (strpos($Key, 'Date') !== false && $Key != 'ImgDate' && !is_null($Val) && $Val != '') {
+            if (strpos($Key, 'Date') !== false && $Key != 'ImgDateManual' && !is_null($Val) && $Val != '') {
                 $strXml .= ' '.$Key.'="'.date("d.m.Y H:i:s", $Val).'"';
             } else if ($Key == 'LastChange' && !is_null($Val) && $Val != '') {
                 $strXml .= ' '.$Key.'="'.date("d.m.Y H:i:s", $Val).'"';
@@ -221,7 +221,7 @@ class FotoDb extends Website
     public function Edit($ImgId)
     {
         // TODO: use DOM functions instead of string to create xml
-        $Sql = "SELECT Id, ImgFolder, ImgName, ImgDate, ImgTechInfo, FilmTypeId, RatingId,
+        $Sql = "SELECT Id, ImgFolder, ImgName, ImgDateManual, ImgTechInfo, FilmTypeId, RatingId,
 			DateAdded, LastChange, ImgDesc, ImgTitle, Public, DatePublished,
 			ImgDateOriginal, ImgLat, ImgLng, ShowLoc, CountryId
 			FROM Images	WHERE Id = :ImgId";
@@ -234,7 +234,7 @@ class FotoDb extends Website
         $strXml .= '<Image';
         foreach ($Stmt->fetch(PDO::FETCH_ASSOC) as $Key => $Val) {
             // each col in db is attribute of xml element Image
-            if (strpos($Key, 'Date') !== false && $Key != 'ImgDate' && !is_null($Val) && $Val != '') {
+            if (strpos($Key, 'Date') !== false && $Key != 'ImgDateManual' && !is_null($Val) && $Val != '') {
                 $strXml .= ' '.$Key.'="'.date("d.m.Y H:i:s", $Val).'"';
             } else if ($Key == 'LastChange' && !is_null($Val) && $Val != '') {
                 $strXml .= ' '.$Key.'="'.date("d.m.Y H:i:s", $Val).'"';
@@ -338,7 +338,7 @@ class FotoDb extends Website
         $Stmt = $this->Db->prepare($Sql);
         $Count = 0;
         foreach ($Attributes as $Attr) {
-            if (strpos($Attr->nodeName, 'Date') !== false && $Attr->nodeName != 'ImgDate') {
+            if (strpos($Attr->nodeName, 'Date') !== false && $Attr->nodeName != 'ImgDateManual') {
                 if ($Attr->nodeValue != '' && strtotime($Attr->nodeValue)) {
                     $Stmt->bindParam(":Val$Count", strtotime($Attr->nodeValue));
                 }
@@ -938,7 +938,7 @@ class FotoDb extends Website
 				[Id] INTEGER PRIMARY KEY NOT NULL,
 				[ImgFolder] VARCHAR2 NULL,
 				[ImgName] VARCHAR2 NULL,
-				[ImgDate] VARCHAR2 NULL,
+				[ImgDateManual] VARCHAR2 NULL,
 				[ImgTechInfo] VARCHAR2 NULL,
 				[FilmTypeId] INTEGER NULL,
 				[RatingId] INTEGER NULL,

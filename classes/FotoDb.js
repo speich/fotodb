@@ -554,7 +554,7 @@ define([
         ['Theme', 'Themes'],
         ['Public', 'Image'],
         ['FilmTypeId', 'Image'],
-        ['ImgDate', 'Image'],
+        ['ImgDateManual', 'Image'],
         ['RatingId', 'Image'],
         ['ImgTechInfo', 'Image'],
         ['ImgDateOriginal', 'Image'],

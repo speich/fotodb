@@ -140,8 +140,8 @@ $SpeciesSex->SetSelected('unknown', HTML_OPTION_TEXT);
 				<label for="FilmTypeId">FilmType</label><br>
 				<?php $FilmType->Render(); ?>
 				<div style="float: left">
-				<label for="ImgDate">Date</label><br>
-				<input type="text" id="ImgDate" class="FldInputTxt">
+				<label for="ImgDateManual">Date</label><br>
+				<input type="text" id="ImgDateManual" class="FldInputTxt">
 				</div>
 				<div style="margin-bottom: 5px;">
 				<label for="RatingId">Rating</label><br>
