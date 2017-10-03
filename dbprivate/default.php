@@ -11,8 +11,8 @@ $country = new SelectField('CountryId', $q->fetchAll(PDO::FETCH_NUM));
 $country->setDefaultVal('Land wählen');
 
 $q = $db->Db->query("SELECT Id, CASE WHEN Code NOT NULL THEN Name ||' ('||Code||')' ELSE Name END Name FROM FilmTypes ORDER BY Name ASC");
-$flmType = new SelectField('FilmTypeId', $q->fetchAll(PDO::FETCH_NUM));
-$flmType->setSelected(10);
+$filmType = new SelectField('FilmTypeId', $q->fetchAll(PDO::FETCH_NUM));
+$filmType->setSelected(10);
 
 $q = $db->Db->query("SELECT * FROM Rating ORDER BY Name ASC");
 $rating = new SelectField('RatingId', $q->fetchAll(PDO::FETCH_NUM));
@@ -24,8 +24,8 @@ $theme->setMultiple();
 $theme->setCssStyle('height: 200px');
 
 $q = $db->Db->query("SELECT * FROM Locations ORDER BY Name ASC");
-$Location = new SelectField('Location', $q->fetchAll(PDO::FETCH_NUM));
-$Location->setMultiple();
+$location = new SelectField('Location', $q->fetchAll(PDO::FETCH_NUM));
+$location->setMultiple();
 
 $q = $db->Db->query("SELECT * FROM Sexes ORDER BY Name ASC");
 $speciesSex = new SelectField('SpeciesSexId', $q->fetchAll(PDO::FETCH_NUM));
@@ -98,7 +98,7 @@ $speciesSex->setSelected('unknown', SelectField::SELECTED_BY_TEXT);
                         <input id="MapFindAddress" type="button" value="find">
                         <div style="float: left;">
                             <label for="CountryId">Country</label><br>
-                            <?php $country->render(); ?>
+                            <?php echo $country->render(); ?>
                         </div>
                         <div style="float: left;">
                             <label for="ImgLat">latitude</label><br>
@@ -111,7 +111,7 @@ $speciesSex->setSelected('unknown', SelectField::SELECTED_BY_TEXT);
                         <div style="float: left">
                             <label for="LocationName">Ort</label><br>
                             <input type="text" id="LocationName"><br>
-                            <?php $Location->render(); ?>
+                            <?php echo $location->render(); ?>
                         </div>
                         <div id="Locations" class="ContList"></div>
                         Show location<input type="checkbox" id="ShowLoc" checked="false">
@@ -120,7 +120,7 @@ $speciesSex->setSelected('unknown', SelectField::SELECTED_BY_TEXT);
                 <div id="Right2">
                     <div id="DivSpeciesModule">
                         <div style="float: left"><label for="SpeciesSexId">Species sex</label><br>
-                            <?php $speciesSex->render(); ?>
+                            <?php echo $speciesSex->render(); ?>
                         </div>
                         <div style="float: left"><label for="SpeciesNameDe">Species name German</label><br>
                             <input type="text" id="SpeciesNameDe" class="FldSpeciesFilter"></div>
@@ -136,7 +136,7 @@ $speciesSex->setSelected('unknown', SelectField::SELECTED_BY_TEXT);
                     <div>
                         <div style="float: left;">
                             <label for="Theme">Theme</label><br>
-                            <?php $theme->render(); ?>
+                            <?php echo $theme->render(); ?>
                             <img src="layout/images/deselect.gif" onclick="d.getElementById('Theme').selectedIndex=-1;"
                                  style="cursor: pointer" alt="deselect icon">
                         </div>
@@ -147,14 +147,14 @@ $speciesSex->setSelected('unknown', SelectField::SELECTED_BY_TEXT);
                         <div id="Keywords" class="ContList"></div>
                     </div>
                     <label for="FilmTypeId">FilmType</label><br>
-                    <?php $flmType->render(); ?>
+                    <?php echo $filmType->render(); ?>
                     <div style="float: left">
                         <label for="ImgDateManual">Date</label><br>
                         <input type="text" id="ImgDateManual" class="FldInputTxt">
                     </div>
                     <div style="margin-bottom: 5px;">
                         <label for="RatingId">Rating</label><br>
-                        <?php $rating->render(); ?>
+                        <?php echo $rating->render(); ?>
                     </div>
                     <label for="ImgTechInfo">TechInfo</label>
                     <textarea id="ImgTechInfo"></textarea>
