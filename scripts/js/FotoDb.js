@@ -17,17 +17,17 @@ define([
   "dijit/layout/TabContainer",
   'fotodb/DbForm',
   'fotodb/GoogleMap',
-  '../classes/class_tools.js',
-  '../classes/class_xmlhttp.js',
-  '../classes/class_explorer.js',
-  '../classes/class_fieldfilter.js'
+  '../scripts/js/class_tools.js',
+  '../scripts/js/class_xmlhttp.js',
+  '../scripts/js/class_explorer.js',
+  '../scripts/js/class_fieldfilter.js'
 ], function(declare, lang, query, keys, dom, xhr, on, domStyle, array, JsonRest, QueryReadStore, ComboBox, FilteringSelect, BorderContainer, ContentPane, TabContainer, DbForm, GoogleMap) {
 
   var CurImgId = null,
     d = document,
-    PHPDbFncUrl = require.toUrl('fotodb') + '/../dbprivate/library/dbfunctions.php',
-    PHPExifUrl = require.toUrl('fotodb') + '/../dbprivate/library/service-exif.php',
-    PHPExplorerUrl = require.toUrl('fotodb') + '/../dbprivate/library/explorer.php',		// url for PHP explorer script
+    PHPDbFncUrl = require.toUrl('fotodb') + '/../../php/controller/dbfunctions.php',
+    PHPExifUrl = require.toUrl('fotodb') + '/../php/controller/service-exif.php',
+    PHPExplorerUrl = require.toUrl('fotodb') + '/../php/controller/explorer.php',		// url for PHP explorer script
     Tool = new Tools(),
     gmaps = google.maps,
     /**

@@ -1,8 +1,8 @@
 <?php
-include '../../classes/class_website.php';
-include '../../classes/Database.php';
 
-$Db = new PhotoDatabase('Private');
+use PhotoDatabase\Database\Database;
+
+$Db = new Database();
 
 if (isset($_GET['Lng']) && isset($_GET['Lat'])) {
     // e.g. http://fotodb/dbprivate/library/reversegeocode.php?Lat=47.989921667414166&Lng=9.140625

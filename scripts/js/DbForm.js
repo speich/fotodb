@@ -1,13 +1,13 @@
 define([
 	'dojo/_base/declare',
 	'dojo/request/xhr',
-	'../classes/class_tools.js',
-	'../classes/class_xmlhttp.js'
+	'../scripts/js/class_tools.js',
+	'../scripts/js/class_xmlhttp.js'
 ], function(declare, xhr) {
 
 	// private vars
 	var d = document,
-		PHPDbFncUrl = require.toUrl('fotodb') + '/../dbprivate/library/dbfunctions.php',
+		PHPDbFncUrl = require.toUrl('fotodb') + '/../php/controller/dbfunctions.php',
 		CurImgId = null,
 		El = null,	// form element reference. Can only be set after page load.
 		Tool = new Tools(),

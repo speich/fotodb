@@ -1,0 +1,8 @@
+{
+  "autoload": {
+    "psr-4": {
+      "PhotoDatabase\\": "../scripts/php/class",
+      "WebsiteTemplate\\": "../scripts/php/class/WebsiteTemplate"
+    }
+  }
+}

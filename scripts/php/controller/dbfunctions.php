@@ -2,16 +2,16 @@
 // TODO: this code should only be available to authenticated users (->PHP)
 // specially the delete function!!!!
 // TODO: check all input before storing in db
+use PhotoDatabase\Database\Database;
+use PhotoDatabase\Database\Exporter;
+use PhotoDatabase\Database\Search;
+
 date_default_timezone_set('Europe/Zurich');
 error_reporting(E_ERROR);
-include '../../classes/class_website.php';
-include '../../classes/Database.php';
-include '../../classes/ExifService.php';
-
 header('Content-Type: text/html; charset=UTF-8');
 
-$db = new PhotoDatabase('Private');
-$db->Connect();
+$db = new Database();
+$db->connect();
 
 $fnc = isset($_POST['Fnc']) ? $_POST['Fnc'] : (isset($_GET['Fnc']) ? $_GET['Fnc'] : null);
 if ($fnc) {
@@ -51,7 +51,7 @@ if ($fnc) {
 }
 
 if (isset($_GET['Fnc'])) {
-    require_once('../../class/Exporter.php require_once('../../classes/Search.php  switch ($_GET['Fnc']) {
+    switch ($_GET['Fnc']) {
         case 'Publish':
             /*
             Using google search instead
@@ -63,7 +63,7 @@ if (isset($_GET['Fnc'])) {
             $destDb = '/media/sf_Websites/speich.net/photo/photodb/dbfiles/photodb.sqlite';
             $destDirImg = '/media/sf_Websites/speich.net/photo/photodb/images';
             $exporter = new Exporter();
-            $exporter->Connect();
+            $exporter->connect();
             $exporter->publish($destDb, $destDirImg);
             $exporter = null;
             break;
@@ -72,7 +72,7 @@ if (isset($_GET['Fnc'])) {
         case 'createSearchIndex':
             // only updates local fotodb, but not speich.net
             $indexer = new Search();
-            $indexer->Connect();
+            $indexer->connect();
             $indexer->updateIndex(true);
             $indexer = null;
             break;

@@ -22,7 +22,7 @@ class Database
     private $ExecTime = 300;
     protected $HasActiveTransaction = false;    // keep track of open transactions
     private $webroot = '/';
-    private $dbPath = '/../../dbprivate/dbfiles/';
+    private $dbPath = '/../../../../dbprivate/dbfiles/';
 
     /**
      * @constructor
@@ -134,7 +134,7 @@ class Database
                 $Path = $this->GetWebRoot();
                 break;   // redundant, but for convenience
             case 'Db':
-                $Path = __DIR__ . '/../../dbprivate/dbfiles/';
+                $Path = __DIR__ . $this->dbPath;
                 break;
             case 'Img':
                 $Path = $this->GetWebRoot().$this->PathImg;
