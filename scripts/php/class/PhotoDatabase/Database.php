@@ -1,31 +1,34 @@
 <?php
+namespace PhotoDatabase;
+
+use PDO;
+use PDOException;
 
 /**
  * Class to work with SQLite databases.
  * Creates the photo DB.
  *
  */
-class FotoDb extends Website
+class Database
 {
     /** @var PDO $Db db instance of SQLite */
     public $Db = null;
     // paths are always appended to webroot ('/' or a subfolder) and start therefore with a foldername
     // and not with a slash, but end with a slash
-    private $DbName = "FotoDb.sqlite";
-    private $DbUserPrefs = 'user.sqlite';
+    private $dbName = "FotoDb.sqlite";
     private $PathImg = 'dbprivate/images/';  // path relative to web root
     private $PathImgPubl = 'dbpublic/images/';   // path relative go web root
     private $folderImageOriginal = '/media/sf_Bilder/';    // absolute path where image originals are stored
     private $ExecTime = 300;
-    protected $HasActiveTransaction = false;   // keep track of open transactions
+    protected $HasActiveTransaction = false;    // keep track of open transactions
+    private $webroot = '/';
+    private $dbPath = '/../../dbprivate/dbfiles/';
 
     /**
      * @constructor
-     * @param string $Type DB type
      */
-    public function __construct($Type)
+    public function __construct()
     {
-        parent::__construct();
         set_time_limit($this->ExecTime);
     }
 
@@ -36,11 +39,11 @@ class FotoDb extends Website
      * is used instead of PDO.
      * @return PDO
      */
-    public function Connect()
+    public function connect()
     {
         if (is_null($this->Db)) {   // check if not already connected
             try {
-                $dbFile = __DIR__.'/../dbprivate/dbfiles/'.$this->DbName;
+                $dbFile = __DIR__ . $this->dbPath .$this->dbName;
                 $this->Db = new PDO('sqlite:'.$dbFile);
                 $isCreated = file_exists($dbFile);
                 if (!$isCreated) {
@@ -115,7 +118,7 @@ class FotoDb extends Website
      */
     public function GetDbName()
     {
-        return $this->DbName;
+        return $this->dbName;
     }
 
     /**
@@ -131,7 +134,7 @@ class FotoDb extends Website
                 $Path = $this->GetWebRoot();
                 break;   // redundant, but for convenience
             case 'Db':
-                $Path = __DIR__.'/../dbprivate/dbfiles/';
+                $Path = __DIR__ . '/../../dbprivate/dbfiles/';
                 break;
             case 'Img':
                 $Path = $this->GetWebRoot().$this->PathImg;
@@ -721,71 +724,6 @@ class FotoDb extends Website
     }
 
     /**
-     * Store user preference.
-     * @param string $Name preference
-     * @param string $Value value
-     * @param integer $UserId user id
-     * @return bool
-     */
-    public function SavePref($Name, $Value, $UserId)
-    {
-        try {
-            $Db = new PDO('sqlite:'.__DIR__.'/../dbprivate/dbfiles/'.$this->DbUserPrefs);
-        } catch (PDOException $Error) {
-            echo $Error->getMessage();
-        }
-        // get setting id
-        $Sql = "SELECT Id FROM Settings WHERE Name = :Name";
-        $Stmt = $Db->prepare($Sql);
-        $Stmt->bindParam(':Name', $Name);
-        $Stmt->execute();
-        $Row = $Stmt->fetch(PDO::FETCH_ASSOC);
-        $SettingId = $Row['Id'];
-        // check if this setting was already set once if not insert it otherwise update
-        $Sql = "SELECT Id FROM Prefs WHERE SettingId = :SettingId AND UserId = :UserId";
-        $Stmt = $Db->prepare($Sql);
-        $Stmt->bindParam(':SettingId', $SettingId);
-        $Stmt->bindParam(':UserId', $UserId);
-        $Stmt->execute();
-        $Row = $Stmt->fetch(PDO::FETCH_ASSOC);
-        if (!is_null($Row['Id'])) {
-            $Sql = "UPDATE Prefs SET Value = :Value WHERE SettingId = :SettingId AND UserId = :UserId";
-        } else {
-            $Sql = "INSERT INTO Prefs (SettingId, UserId, Value) VALUES (:SettingId, :UserId, :Value)";
-        }
-        $Stmt = $Db->prepare($Sql);
-        $Stmt->bindParam(':SettingId', $SettingId);
-        $Stmt->bindParam(':UserId', $UserId);
-        $Stmt->bindParam(':Value', $Value);
-
-        return $Stmt->execute();
-    }
-
-    /**
-     * Load a user preference.
-     * @return
-     * @param string $Name preference
-     * @param integer $UserId
-     */
-    public function LoadPref($Name, $UserId)
-    {
-        try {
-            $Db = new PDO('sqlite:'.__DIR__.'/../dbprivate/dbfiles/'.$this->DbUserPrefs);
-        } catch (PDOException $Error) {
-            echo $Error->getMessage();
-        }
-        // get setting id
-        $Sql = "SELECT Value FROM Prefs WHERE SettingId = (SELECT Id FROM Settings WHERE Name = :Name) AND UserId = :UserId";
-        $Stmt = $Db->prepare($Sql);
-        $Stmt->bindParam(':Name', $Name);
-        $Stmt->bindParam(':UserId', $UserId);
-        $Stmt->execute();
-        $Row = $Stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $Row['Value'];
-    }
-
-    /**
      * Adds a SQL GROUP_CONCAT function
      * Method used in the SQLite createAggregate function to implement SQL GROUP_CONCAT
      * which is not supported by PDO.
@@ -1027,5 +965,13 @@ class FotoDb extends Website
         $this->Db->exec($sql);
         print_r($this->Db->errorInfo());
 
+    }
+
+    /**
+     * @return string
+     */
+    private function GetWebRoot()
+    {
+        return $this->webroot;
     }
 }

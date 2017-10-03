@@ -1,4 +1,7 @@
 <?php
+
+use PhotoDatabase\Database;
+
 /**
  * Created by JetBrains PhpStorm.
  * User: Simon
@@ -7,7 +10,7 @@
  * To change this template use File | Settings | File Templates.
  */
  
-class PhotoDbSearch extends FotoDb {
+class Search extends Database {
 	/** @var array words that are not inserted into search index. */
 	var $stopWords = array(
 		'ab', 'aber', 'aber', 'ach', 'acht', 'achte', 'achten', 'achter', 'achtes', 'ag', 'alle', 'allein', 'allem', 'allen', 'aller', 'allerdings', 'alles', 'allgemeinen', 'als', 'als', 'also', 'am', 'an', 'andere', 'anderen', 'andern', 'anders', 'au', 'auch', 'auch', 'auf', 'aus', 'ausser', 'außer', 'ausserdem', 'außerdem',

@@ -1,19 +1,20 @@
 <?php
-
+use PhotoDatabase\Database;
 use PhotoDatabase\Preferences;
 
 include __DIR__.'/../../classes/class_website.php';
-include __DIR__ . '/../../classes/PhotoDatabase/class_fotodb.php';
+include __DIR__ . '/../../classes/PhotoDatabase/Database.php';
 include __DIR__ . '/../../classes/FileExplorer.php';
 require_once __DIR__.'/../../classes/PhotoDatabase/Preferences.php';
 error_reporting(E_ERROR);
 
 // note: all paths should end with a slash
+$web = new Website();
 $prefs = new Preferences();
-$db = new FotoDb('private');
-$db->Connect();
+$db = new Database();
+$db->connect();
 $fs = new FileExplorer($db);
-$fs->SetTopDir($fs->GetWebRoot().'dbprivate/images/');
+$fs->SetTopDir($web->GetWebRoot().'dbprivate/images/');
 
 if (isset($_GET['Type'])) {
 	if (isset($_GET['Dir'])) {

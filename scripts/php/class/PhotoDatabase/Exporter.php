@@ -1,23 +1,17 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: Simon
- * Date: 21.01.11
- * Time: 10:22
- * To change this template use File | Settings | File Templates.
- */
-require_once('class_fotodb.php');
+
+use PhotoDatabase\Database;
 
 /**
- * Class PhotoDbExporter
+ * Class Exporter
  */
-class PhotoDbExporter extends FotoDb {
+class Exporter extends Database {
 
 	/**
 	 *
 	 */
 	public function __construct() {
-		parent::__construct('Private');
+		parent::__construct();
 	}
 
 	/**

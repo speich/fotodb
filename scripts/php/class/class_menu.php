@@ -1,6 +1,6 @@
 <?php
 /**
- * This file contains two classes to create a navigation menu.
+ * This file contains two class to create a navigation menu.
  * @author Simon Speich
  * @package NAFIDAS
  */

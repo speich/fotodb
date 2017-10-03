@@ -1,5 +1,7 @@
 <?php
 
+use PhotoDatabase\Database;
+
 /**
  * File Explorer Class
  *
@@ -7,7 +9,7 @@
 class FileExplorer {
 	private $TopDir = '';
     /**
-     * @var FotoDb
+     * @var Database
      */
     private $db; // top level directory. Do not allow going outside it unless explicitly set.
 
@@ -15,9 +17,9 @@ class FileExplorer {
      * Initializes the Explorer class.
      *
      * @constructor
-     * @param FotoDb $db
+     * @param Database $db
      */
-	public function __construct(FotoDb $db) {
+	public function __construct(Database $db) {
         $this->db = $db;
     }
 

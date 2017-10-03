@@ -1,7 +1,7 @@
 <?php
-include 'library/inc_script.php';
+include 'inc_script.php';
 
-$db->Connect();
+$db->connect();
 
 $q = $db->Db->query("SELECT * FROM Countries ORDER BY NameEn ASC");
 $Country = new HtmlSelectFld('CountryId', $q->fetchAll(PDO::FETCH_NUM));
@@ -164,7 +164,7 @@ var dojoConfig = {
 	baseUrl: '/library',
 	packages: [
 		{name: 'dojo', location: '//ajax.googleapis.com/ajax/libs/dojo/1.10.3/dojo'},
-		{ name: 'fotodb', location: '../../../classes'}
+		{ name: 'fotodb', location: '../../../scripts/js'}
 	]
 };
 </script>

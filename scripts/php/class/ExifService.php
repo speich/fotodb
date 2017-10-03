@@ -48,7 +48,7 @@ class ExifService
     {
         // TODO: make this work with other than NEF by using ExifService::originalImageExists
         $imageNoExt = substr($img, 0, strrpos($img, '.'));   // remove file extension
-        $tool = __DIR__.'/..'.$this->exiftool.' '.$this->exiftoolParams;
+        $tool = __DIR__ . '/..' .$this->exiftoolParams;
         exec($tool.' '.$imageNoExt.'.NEF', $data);
         $files = [];
         if (count($data) > 0) {

@@ -1,23 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: simon
- * Date: 9/3/17
- * Time: 3:35 PM
- */
+namespace PhotoDatabase;
 
-namespace PhotoDb;
-
-use FotoDb;
 
 
 /**
- * Class DbSynchronizer
+ * Class Synchronizer
  * Helper class to synchronize image file data with the data in the photo database
  */
-class DbSynchronizer
+class Synchronizer
 {
-    public function __construct(FotoDb $db)
+    public function __construct(Database $db)
     {
         $this->db = $db;
     }
