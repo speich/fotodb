@@ -43,16 +43,16 @@ class Search extends Database {
 		mb_regex_encoding('UTF-8');
 
 		// Check if structure for searching was already created otherwise create it
-		$this->Db = $this->Connect();
+		$this->db = $this->Connect();
 		$sql = "SELECT tbl_name FROM sqlite_master
 			WHERE tbl_name IN ('searchIndex', 'searchOccurrences') AND type = 'table'";
-		$stmt = $this->Db->prepare($sql);
+		$stmt = $this->db->prepare($sql);
   		$stmt->execute();
 		$arr = $stmt->fetchAll(PDO::FETCH_NUM);
 		if (count($arr) == 0) {
 			$this->createStructure();
 		}
-		$this->Db = null;
+		$this->db = null;
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Search extends Database {
 	 */
 	public function updateIndex($full = false) {
 
-		$db = $this->Db;
+		$db = $this->db;
 		// Note: Unfortunately SQLite fulltext search is only available as of PHP 5.3
 
 		// For speed reason we turn journaling off and increase cache size.
@@ -72,7 +72,7 @@ class Search extends Database {
 		// We just start over in case of a crash.
 		// default = 2000 pages, 1 page = 1kb;
 		$sql = "PRAGMA journal_mode = OFF; PRAGMA cache_size = 10000;";
-		$this->Db->exec($sql);
+		$this->db->exec($sql);
 
   		// Loop through table images and add all words from its records
 		// concat activities, otherwise we might have more than one record per images record
@@ -202,9 +202,9 @@ class Search extends Database {
 				recordId INTEGER NOT NULL
 			);
 			COMMIT;";
-		$this->Db->exec($sql);
+		$this->db->exec($sql);
 		echo 'done creating search structure.<br/>';
-		print_r($this->Db->errorInfo());
+		print_r($this->db->errorInfo());
 	}
 
 }

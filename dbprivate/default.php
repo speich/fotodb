@@ -6,28 +6,28 @@ include 'inc_script.php';
 
 $db->connect();
 
-$q = $db->Db->query("SELECT * FROM Countries ORDER BY NameEn ASC");
+$q = $db->db->query("SELECT * FROM Countries ORDER BY NameEn ASC");
 $country = new SelectField('CountryId', $q->fetchAll(PDO::FETCH_NUM));
 $country->setDefaultVal('Land wählen');
 
-$q = $db->Db->query("SELECT Id, CASE WHEN Code NOT NULL THEN Name ||' ('||Code||')' ELSE Name END Name FROM FilmTypes ORDER BY Name ASC");
+$q = $db->db->query("SELECT Id, CASE WHEN Code NOT NULL THEN Name ||' ('||Code||')' ELSE Name END Name FROM FilmTypes ORDER BY Name ASC");
 $filmType = new SelectField('FilmTypeId', $q->fetchAll(PDO::FETCH_NUM));
 $filmType->setSelected(10);
 
-$q = $db->Db->query("SELECT * FROM Rating ORDER BY Name ASC");
+$q = $db->db->query("SELECT * FROM Rating ORDER BY Name ASC");
 $rating = new SelectField('RatingId', $q->fetchAll(PDO::FETCH_NUM));
 $rating->setSelected(2);
 
-$q = $db->Db->query("SELECT * FROM Themes ORDER BY NameDe ASC");
+$q = $db->db->query("SELECT * FROM Themes ORDER BY NameDe ASC");
 $theme = new SelectField('Theme', $q->fetchAll(PDO::FETCH_NUM));
 $theme->setMultiple();
 $theme->setCssStyle('height: 200px');
 
-$q = $db->Db->query("SELECT * FROM Locations ORDER BY Name ASC");
+$q = $db->db->query("SELECT * FROM Locations ORDER BY Name ASC");
 $location = new SelectField('Location', $q->fetchAll(PDO::FETCH_NUM));
 $location->setMultiple();
 
-$q = $db->Db->query("SELECT * FROM Sexes ORDER BY Name ASC");
+$q = $db->db->query("SELECT * FROM Sexes ORDER BY Name ASC");
 $speciesSex = new SelectField('SpeciesSexId', $q->fetchAll(PDO::FETCH_NUM));
 $speciesSex->setSelected('unknown', SelectField::SELECTED_BY_TEXT);
 ?>

@@ -1,6 +1,7 @@
 <?php
 namespace PhotoDatabase;
 
+use PDO;
 use PhotoDatabase\Database\Database;
 
 
@@ -223,7 +224,7 @@ class FileExplorer {
 	private function GetDbData($Folder) {
 		$arr = [];
 		$Sql = "SELECT Id, ImgFolder||'/'||ImgName Img, ImgTitle FROM Images WHERE ImgFolder = :Folder ORDER BY ImgName ASC";
-		$Stmt = $this->db->Db->prepare($Sql);
+		$Stmt = $this->db->db->prepare($Sql);
 		$Stmt->bindParam(':Folder', trim($Folder, '/'));
 		$Stmt->execute();
 		while ($Row = $Stmt->fetch(PDO::FETCH_ASSOC)) {

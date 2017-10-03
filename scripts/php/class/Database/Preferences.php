@@ -15,7 +15,7 @@ class Preferences
 {
     private $db;
     private $dbName = 'user.sqlite';
-    private $dbPath = '/../../dbprivate/dbfiles/';
+    private $dbPath = '/../../../../dbprivate/dbfiles/';
 
     public function __construct()
     {
