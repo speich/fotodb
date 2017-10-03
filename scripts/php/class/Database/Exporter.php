@@ -1,6 +1,7 @@
 <?php
+namespace PhotoDatabase\Database;
 
-use PhotoDatabase\Database;
+
 
 /**
  * Class Exporter

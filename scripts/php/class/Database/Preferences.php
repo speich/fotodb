@@ -1,6 +1,6 @@
 <?php
 
-namespace PhotoDatabase;
+namespace PhotoDatabase\Database;
 
 
 use PDO;
@@ -9,7 +9,7 @@ use PDOException;
 /**
  * Class Preferences
  * Store user preferences in a SQLite database
- * @package PhotoDatabase
+ * @package Database
  */
 class Preferences
 {

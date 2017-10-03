@@ -1,6 +1,5 @@
 <?php
-
-namespace photoXplorer;
+namespace PhotoDatabase;
 
 class ExifService
 {

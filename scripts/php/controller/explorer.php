@@ -3,9 +3,9 @@ use PhotoDatabase\Database;
 use PhotoDatabase\Preferences;
 
 include __DIR__.'/../../classes/class_website.php';
-include __DIR__ . '/../../classes/PhotoDatabase/Database.php';
+include __DIR__ . '/../../classes/Database/Database.php';
 include __DIR__ . '/../../classes/FileExplorer.php';
-require_once __DIR__.'/../../classes/PhotoDatabase/Preferences.php';
+require_once __DIR__.'/../../classes/Database/Preferences.php';
 error_reporting(E_ERROR);
 
 // note: all paths should end with a slash

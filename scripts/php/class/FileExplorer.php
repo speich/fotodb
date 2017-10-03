@@ -1,6 +1,8 @@
 <?php
+namespace PhotoDatabase;
 
-use PhotoDatabase\Database;
+use PhotoDatabase\Database\Database;
+
 
 /**
  * File Explorer Class

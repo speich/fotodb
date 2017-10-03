@@ -1,5 +1,5 @@
 <?php
-namespace PhotoDatabase;
+namespace PhotoDatabase\Database;
 
 
 
