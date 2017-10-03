@@ -4,17 +4,22 @@
  * File Explorer Class
  *
  */
-class Explorer extends FotoDb {
-	private $TopDir = ''; // top level directory. Do not allow going outside it unless explicitly set.
+class FileExplorer {
+	private $TopDir = '';
+    /**
+     * @var FotoDb
+     */
+    private $db; // top level directory. Do not allow going outside it unless explicitly set.
 
-	/**
-	 * Initializes the Explorer class.
-	 *
-	 * @constructor
-	 */
-	public function __construct() {
-		parent::__construct('Private');
-	}
+    /**
+     * Initializes the Explorer class.
+     *
+     * @constructor
+     * @param FotoDb $db
+     */
+	public function __construct(FotoDb $db) {
+        $this->db = $db;
+    }
 
 	/**
 	 * TopDir is the topmost website directory a user can browse to. For security reasons
@@ -90,8 +95,8 @@ class Explorer extends FotoDb {
 				$arrFile[$file]['Name'] = $file;
 				$arrFile[$file]['Size'] = number_format(filesize($filePath.$file) / 1000, 2, ".", "'")."kb";
 				if ($arrFile[$file]['Type'] == 'File' && pathinfo($file, PATHINFO_EXTENSION) == 'jpg') {
-					$arrFile[$file]['PathDbImg'] = ltrim(str_replace($this->GetPath('Img'), '', $path), '/');
-					$arrFile[$file]['DbImg'] = ltrim(str_replace($this->GetPath('Img'), '', $path).$file, '/');
+					$arrFile[$file]['PathDbImg'] = ltrim(str_replace($this->db->GetPath('Img'), '', $path), '/');
+					$arrFile[$file]['DbImg'] = ltrim(str_replace($this->db->GetPath('Img'), '', $path).$file, '/');
 				}
 			}
 		}
@@ -102,11 +107,17 @@ class Explorer extends FotoDb {
 		return $arrFile;
 	}
 
-	public function Render($arrFile, $Type = NULL, $Filter = NULL) {
+    /**
+     * Render file array as html
+     * @param array $arrFile
+     * @param null $Type
+     * @param null $Filter
+     */
+    public function render($arrFile, $Type = NULL, $Filter = NULL) {
 		// get image data (Id, Img, ImgTitle) from database and compare it with file data to
 		// see if image is unprocessed or already done and to add additional data
 
-		$Folder = ltrim(str_replace($this->GetPath('Img'), '', $arrFile[0]['Current']), '/');
+		$Folder = ltrim(str_replace($this->db->GetPath('Img'), '', $arrFile[0]['Current']), '/');
 		$arrDbImg = $this->GetDbData($Folder);
 
 		// File explorer
@@ -118,7 +129,7 @@ class Explorer extends FotoDb {
 			foreach ($arrFile as $File) {
 				if ($File['Type'] == 'Dir') {
 					echo '<tr class="'.$File['Type'].'">';
-					echo '<td><a href="'.$File['Path'].($File['Name'] == '..' ? '' : $File['Name'].'/').'"><img style="width: inherit !important" src="'.$this->GetPath('WebRoot').'dbprivate/layout/images/folder.gif"/>'.$File['Name'].'</a></td>';
+					echo '<td><a href="'.$File['Path'].($File['Name'] == '..' ? '' : $File['Name'].'/').'"><img style="width: inherit !important" src="'.$this->db->GetPath('WebRoot').'dbprivate/layout/images/folder.gif"/>'.$File['Name'].'</a></td>';
 					echo '<td></td>';
 					echo "</tr>\n";
 				}
@@ -206,13 +217,13 @@ class Explorer extends FotoDb {
 	 * @param string $Folder
 	 */
 	private function GetDbData($Folder) {
-		$arr = array();
+		$arr = [];
 		$Sql = "SELECT Id, ImgFolder||'/'||ImgName Img, ImgTitle FROM Images WHERE ImgFolder = :Folder ORDER BY ImgName ASC";
-		$Stmt = $this->Db->prepare($Sql);
+		$Stmt = $this->db->Db->prepare($Sql);
 		$Stmt->bindParam(':Folder', trim($Folder, '/'));
 		$Stmt->execute();
 		while ($Row = $Stmt->fetch(PDO::FETCH_ASSOC)) {
-			$arrTemp = array();
+			$arrTemp = [];
 			foreach ($Row as $Col => $Val) {
 				$arrTemp[$Col] = $Val;
 			}
@@ -220,5 +231,4 @@ class Explorer extends FotoDb {
 		}
 		return $arr;
 	}
-
 }

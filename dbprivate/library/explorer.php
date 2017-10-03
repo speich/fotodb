@@ -4,7 +4,7 @@ use PhotoDatabase\Preferences;
 
 include __DIR__.'/../../classes/class_website.php';
 include __DIR__ . '/../../classes/PhotoDatabase/class_fotodb.php';
-include __DIR__ . '/../../classes/FileFileExplorer.php';
+include __DIR__ . '/../../classes/FileExplorer.php';
 require_once __DIR__.'/../../classes/PhotoDatabase/Preferences.php';
 error_reporting(E_ERROR);
 
@@ -30,5 +30,5 @@ if (isset($_GET['Type'])) {
 	}
 	$arrFile = $fs->ReadDirWeb($Path);
     $prefs->save('Explorer.LastDir', $Path, 1);
-	$fs->Render($arrFile, $_GET['Type'], isset($_GET['Filter']) ? $_GET['Filter'] : false);
+	$fs->render($arrFile, $_GET['Type'], isset($_GET['Filter']) ? $_GET['Filter'] : false);
 }
