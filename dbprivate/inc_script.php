@@ -1,5 +1,5 @@
 <?php
-require_once '../library/vendor/autoload.php';
+require_once __DIR__.'/../library/vendor/autoload.php';
 
 use PhotoDatabase\Database\Database;
 use WebsiteTemplate\Website;

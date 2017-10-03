@@ -6,6 +6,8 @@ use PhotoDatabase\Database\Database;
 use PhotoDatabase\Database\Exporter;
 use PhotoDatabase\Database\Search;
 
+require_once '../../../dbprivate/inc_script.php';
+
 date_default_timezone_set('Europe/Zurich');
 error_reporting(E_ERROR);
 header('Content-Type: text/html; charset=UTF-8');

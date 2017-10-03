@@ -5,12 +5,13 @@
 //ini_set('xdebug.var_display_max_depth', -1);
 //ini_set('xdebug.var_display_max_children', -1);
 //ini_set('xdebug.var_display_max_data', -1);
+use PhotoDatabase\ExifService;
 
-require_once __DIR__.'/../../classes/ExifService.php';
+require_once '../../../dbprivate/inc_script.php';
 
 
 $lang = isset($_GET['lang']) ? filter_input(INPUT_GET, 'lang', FILTER_SANITIZE_MAGIC_QUOTES) : 'en';
-$exif = new \photoXplorer\ExifService($lang);
+$exif = new ExifService($lang);
 
 // query string should only contain path information below image root, e.g. below /dbprivate/images/
 // which will be mapped into /media/sf_Bilder/

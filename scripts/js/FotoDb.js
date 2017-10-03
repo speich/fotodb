@@ -25,7 +25,7 @@ define([
 
   var CurImgId = null,
     d = document,
-    PHPDbFncUrl = require.toUrl('fotodb') + '/../../php/controller/dbfunctions.php',
+    PHPDbFncUrl = require.toUrl('fotodb') + '/../php/controller/dbfunctions.php',
     PHPExifUrl = require.toUrl('fotodb') + '/../php/controller/service-exif.php',
     PHPExplorerUrl = require.toUrl('fotodb') + '/../php/controller/explorer.php',		// url for PHP explorer script
     Tool = new Tools(),

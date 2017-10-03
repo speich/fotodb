@@ -2,6 +2,8 @@
 
 use PhotoDatabase\Database\Database;
 
+require_once '../../../dbprivate/inc_script.php';
+
 $Db = new Database();
 
 if (isset($_GET['Lng']) && isset($_GET['Lat'])) {
@@ -57,8 +59,8 @@ if (isset($_GET['Lng']) && isset($_GET['Lat'])) {
 function getLocation($lat, $lng, $r)
 {
     $usr = 'speichnet';
-    $query = '?lat='.$lat.'&lng='.$lng.'&radius='.$r.'&username='.$usr;
-    $strFile = file_get_contents('http://api.geonames.org/findNearbyPlaceName'.$query);
+    $query = '?lat=' . $lat . '&lng=' . $lng . '&radius=' . $r . '&username=' . $usr;
+    $strFile = file_get_contents('http://api.geonames.org/findNearbyPlaceName' . $query);
 
     if (!$strFile) {
         return null;

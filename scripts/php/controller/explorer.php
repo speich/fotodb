@@ -1,11 +1,11 @@
 <?php
-use PhotoDatabase\Database;
-use PhotoDatabase\Preferences;
 
-include __DIR__.'/../../classes/class_website.php';
-include __DIR__ . '/../../classes/Database/Database.php';
-include __DIR__ . '/../../classes/FileExplorer.php';
-require_once __DIR__.'/../../classes/Database/Preferences.php';
+use PhotoDatabase\Database\Database;
+use PhotoDatabase\Database\Preferences;
+use PhotoDatabase\FileExplorer;
+use WebsiteTemplate\Website;
+
+require_once '../../../dbprivate/inc_script.php';
 error_reporting(E_ERROR);
 
 // note: all paths should end with a slash

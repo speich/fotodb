@@ -1,6 +1,8 @@
 <?php
-include_once 'inc_script.php';
-include __DIR__.'/../../classes/ExifService.php';
+
+use PhotoDatabase\ExifService;
+
+require_once '../../../dbprivate/inc_script.php';
 
 header('Content-Type: text/html; charset=utf-8');
 
@@ -15,7 +17,7 @@ if ($_SERVER['HTTP_HOST'] == 'photoxplorer.net' || $_SERVER['HTTP_HOST'] == 'www
 }
 
 if (isset($_GET['Image'])) {
-	$exif = new \photoXplorer\ExifService();
+	$exif = new ExifService();
 	$exif->setPaths($pathImgOrig, $path);
 	$arr = $exif->read($_GET['Image']);
 	$exif->render($arr);

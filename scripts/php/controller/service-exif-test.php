@@ -8,7 +8,7 @@ ini_set('xdebug.var_display_max_data', -1);
 
 $ExifToolVersion = '10.24';
 $lang = isset($_GET['lang']) ? filter_input(INPUT_GET, 'lang', FILTER_SANITIZE_MAGIC_QUOTES) : 'en';
-$tool = __DIR__.'/../../cgi-bin/Image-ExifTool-'.$ExifToolVersion.'/exiftool -c "%+.8f" -G -lang '.$lang;
+$tool = __DIR__.'/../../../cgi-bin/Image-ExifTool-'.$ExifToolVersion.'/exiftool -c "%+.8f" -G -lang '.$lang;
 
 
 $img = '/media/sf_Bilder/2016-05-Ungarn/_DSC0004.NEF';
