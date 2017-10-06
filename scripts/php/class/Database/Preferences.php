@@ -28,62 +28,56 @@ class Preferences
 
     /**
      * Store user preference.
-     * @param string $Name preference
-     * @param string $Value value
-     * @param integer $UserId user id
+     * @param string $name preference
+     * @param string $value value
+     * @param integer $userId user id
      * @return bool
      */
-    public function save($Name, $Value, $UserId)
+    public function save($name, $value, $userId)
     {
-
         // get setting id
-        $Sql = "SELECT Id FROM Settings WHERE Name = :Name";
-        $Stmt = $this->db->prepare($Sql);
-        $Stmt->bindParam(':Name', $Name);
-        $Stmt->execute();
-        $Row = $Stmt->fetch(PDO::FETCH_ASSOC);
-        $SettingId = $Row['Id'];
+        $sql = "SELECT Id FROM Settings WHERE Name = :Name";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':Name', $name);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $settingId = $row['Id'];
         // check if this setting was already set once if not insert it otherwise update
-        $Sql = "SELECT Id FROM Prefs WHERE SettingId = :SettingId AND UserId = :UserId";
-        $Stmt = $this->db->prepare($Sql);
-        $Stmt->bindParam(':SettingId', $SettingId);
-        $Stmt->bindParam(':UserId', $UserId);
-        $Stmt->execute();
-        $Row = $Stmt->fetch(PDO::FETCH_ASSOC);
-        if (!is_null($Row['Id'])) {
-            $Sql = "UPDATE Prefs SET Value = :Value WHERE SettingId = :SettingId AND UserId = :UserId";
+        $sql = "SELECT Id FROM Prefs WHERE SettingId = :SettingId AND UserId = :UserId";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':SettingId', $settingId);
+        $stmt->bindParam(':UserId', $userId);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!is_null($row['Id'])) {
+            $sql = "UPDATE Prefs SET Value = :Value WHERE SettingId = :SettingId AND UserId = :UserId";
         } else {
-            $Sql = "INSERT INTO Prefs (SettingId, UserId, Value) VALUES (:SettingId, :UserId, :Value)";
+            $sql = "INSERT INTO Prefs (SettingId, UserId, Value) VALUES (:SettingId, :UserId, :Value)";
         }
-        $Stmt = $this->db->prepare($Sql);
-        $Stmt->bindParam(':SettingId', $SettingId);
-        $Stmt->bindParam(':UserId', $UserId);
-        $Stmt->bindParam(':Value', $Value);
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':SettingId', $settingId);
+        $stmt->bindParam(':UserId', $userId);
+        $stmt->bindParam(':Value', $value);
 
-        return $Stmt->execute();
+        return $stmt->execute();
     }
 
     /**
      * Load a user preference.
-     * @return
-     * @param string $Name preference
-     * @param integer $UserId
+     * @return string
+     * @param string $name preference
+     * @param integer $userId
      */
-    public function load($Name, $UserId)
+    public function load($name, $userId)
     {
-        try {
-            $this->db = new PDO('sqlite:' . __DIR__ . '/../dbprivate/dbfiles/' . $this->dbName);
-        } catch (PDOException $Error) {
-            echo $Error->getMessage();
-        }
         // get setting id
-        $Sql = "SELECT Value FROM Prefs WHERE SettingId = (SELECT Id FROM Settings WHERE Name = :Name) AND UserId = :UserId";
-        $Stmt = $this->db->prepare($Sql);
-        $Stmt->bindParam(':Name', $Name);
-        $Stmt->bindParam(':UserId', $UserId);
-        $Stmt->execute();
-        $Row = $Stmt->fetch(PDO::FETCH_ASSOC);
+        $sql = "SELECT Value FROM Prefs WHERE SettingId = (SELECT Id FROM Settings WHERE Name = :Name) AND UserId = :UserId";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':Name', $name);
+        $stmt->bindParam(':UserId', $userId);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $Row['Value'];
+        return $row['Value'];
     }
 }
