@@ -236,4 +236,4 @@ class FileExplorer {
 		}
 		return $arr;
 	}
-}100
+}
