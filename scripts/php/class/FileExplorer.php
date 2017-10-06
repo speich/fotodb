@@ -84,10 +84,10 @@ class FileExplorer {
 		if ($files) {
 			$arrFile[0]['Current'] = $path;
 			foreach ($files as $file) {
-				if ($file == ".") {
+				if ($file === ".") {
 					continue;
 				} // ignore self link
-				if ($file == '..') { // parent directory link, do not display if already in TopDir
+				if ($file === '..') { // parent directory link, do not display if already in TopDir
 					if ($path == $this->TopDir) {
 						continue;
 					}
@@ -99,7 +99,7 @@ class FileExplorer {
 				$arrFile[$file]['Type'] = ucfirst(filetype($filePath.$file));
 				$arrFile[$file]['Name'] = $file;
 				$arrFile[$file]['Size'] = number_format(filesize($filePath.$file) / 1000, 2, ".", "'")."kb";
-				if ($arrFile[$file]['Type'] == 'File' && pathinfo($file, PATHINFO_EXTENSION) == 'jpg') {
+				if ($arrFile[$file]['Type'] === 'File' && pathinfo($file, PATHINFO_EXTENSION) === 'jpg') {
 					$arrFile[$file]['PathDbImg'] = ltrim(str_replace($this->db->GetPath('Img'), '', $path), '/');
 					$arrFile[$file]['DbImg'] = ltrim(str_replace($this->db->GetPath('Img'), '', $path).$file, '/');
 				}
@@ -126,15 +126,15 @@ class FileExplorer {
 		$arrDbImg = $this->GetDbData($Folder);
 
 		// File explorer
-		if ($Type == 'File') {
+		if ($Type === 'File') {
 			echo '<div class="FileExplorer">';
 			echo '<br><span style="font-size: 80%">'.$arrFile[0]['Current'].'</span>';
 			array_shift($arrFile);	// remove entry current
 			echo '<table>';
 			foreach ($arrFile as $File) {
-				if ($File['Type'] == 'Dir') {
+				if ($File['Type'] === 'Dir') {
 					echo '<tr class="'.$File['Type'].'">';
-					echo '<td><a href="'.$File['Path'].($File['Name'] == '..' ? '' : $File['Name'].'/').'"><img style="width: inherit !important" src="'.$this->db->GetPath('WebRoot').'dbprivate/layout/images/folder.gif"/>'.$File['Name'].'</a></td>';
+					echo '<td><a href="'.$File['Path'].($File['Name'] === '..' ? '' : $File['Name'].'/').'"><img style="width: inherit !important" src="'.$this->db->GetPath('WebRoot').'dbprivate/layout/images/folder.gif"/>'.$File['Name'].'</a></td>';
 					echo '<td></td>';
 					echo "</tr>\n";
 				}
@@ -189,11 +189,11 @@ class FileExplorer {
 		}
 
 		// Image Explorer
-		else if ($Type == 'Image') {
+		else if ($Type === 'Image') {
 			echo '<div class="ImgExplorer"><span style="font-size: 80%">'.$arrFile[0]['Current'].'</span>';
 			array_shift($arrFile);
 			foreach ($arrFile as $File) {
-				if ($File['Type'] == 'Dir') {
+				if ($File['Type'] === 'Dir') {
 					//			echo '<a href="'.$File['Path'].($File['Name'] == '..' ? '' : $File['Name']).'/"><img style="width: inherit !important" src="'.$this->GetPath('WebRoot').'layout/images/folder.gif"/>'.$File['Name'].'</a><br/>';
 				}
 				else {
@@ -236,4 +236,4 @@ class FileExplorer {
 		}
 		return $arr;
 	}
-}
+}100
