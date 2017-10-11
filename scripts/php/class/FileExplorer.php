@@ -31,7 +31,7 @@ class FileExplorer {
 	 * a user can not go outside the webroot.
 	 * @param string $TopDir directory path
 	 */
-	public function SetTopDir($Dir) {
+	public function setTopDir($Dir) {
 		// TODO: check if absolute path from webroot.
 		$this->TopDir = $Dir;
 	}
@@ -73,7 +73,7 @@ class FileExplorer {
 	 * @param string $path
 	 * @return array
 	 */
-	public function ReadDirWeb($path) {
+	public function readDirWeb($path) {
 		// TODO: make this safe for live web (is the use of strlen ok?)
 		// argument $Path with trailing slash but no leading slash
 		$ParentDir = substr($path, 0, strrpos(rtrim($path, '/'), '/') + 1);
