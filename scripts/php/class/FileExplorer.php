@@ -123,7 +123,7 @@ class FileExplorer {
 		// see if image is unprocessed or already done and to add additional data
 
 		$Folder = ltrim(str_replace($this->db->GetPath('Img'), '', $arrFile[0]['Current']), '/');
-		$arrDbImg = $this->GetDbData($Folder);
+		$arrDbImg = $this->getDbData($Folder);
 
 		// File explorer
 		if ($Type === 'File') {
@@ -219,13 +219,14 @@ class FileExplorer {
 	 *
 	 * Returns an array with
 	 * @return array
-	 * @param string $Folder
+	 * @param string $folder
 	 */
-	private function GetDbData($Folder) {
+	private function getDbData($folder) {
 		$arr = [];
 		$Sql = "SELECT Id, ImgFolder||'/'||ImgName Img, ImgTitle FROM Images WHERE ImgFolder = :Folder ORDER BY ImgName ASC";
 		$Stmt = $this->db->db->prepare($Sql);
-		$Stmt->bindParam(':Folder', trim($Folder, '/'));
+		$folder = trim($folder, '/');
+		$Stmt->bindParam(':Folder', $folder);
 		$Stmt->execute();
 		while ($Row = $Stmt->fetch(PDO::FETCH_ASSOC)) {
 			$arrTemp = [];
