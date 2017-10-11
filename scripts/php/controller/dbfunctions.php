@@ -2,18 +2,12 @@
 // TODO: this code should only be available to authenticated users (->PHP)
 // specially the delete function!!!!
 // TODO: check all input before storing in db
-use PhotoDatabase\Database\Database;
 use PhotoDatabase\Database\Exporter;
 use PhotoDatabase\Database\Search;
 
 require_once '../../../dbprivate/inc_script.php';
 
-date_default_timezone_set('Europe/Zurich');
-error_reporting(E_ERROR);
-header('Content-Type: text/html; charset=UTF-8');
 
-$db = new Database();
-$db->connect();
 
 $fnc = isset($_POST['Fnc']) ? $_POST['Fnc'] : (isset($_GET['Fnc']) ? $_GET['Fnc'] : null);
 if ($fnc) {

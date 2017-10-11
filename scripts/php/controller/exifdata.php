@@ -4,7 +4,6 @@ use PhotoDatabase\ExifService;
 
 require_once '../../../dbprivate/inc_script.php';
 
-header('Content-Type: text/html; charset=utf-8');
 
 // all paths end should end with a slash
 $path = $db->GetPath('Img');
