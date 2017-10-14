@@ -2,12 +2,10 @@ define([
 	'dojo/_base/declare',
 	'dojo/Deferred',
 	'dojo/request/xhr',
-	'dojo/dom-geometry',
-	'dojo/dom-style',
 	'fotodb/gmapLoader!http://maps.google.com/maps/api/js?v=3&language=' + dojoConfig.locale
-], function(declare,	Deferred, xhr, domGeometry, domStyle) {
+], function(declare, Deferred, xhr) {
 
-	var gmaps = google.maps,
+	var
 		/**
 		 * Shortcut for document.getElementById
 		 * @param {String} id
@@ -18,6 +16,7 @@ define([
 
 	return declare(null, {
 
+        gmaps: google.maps,
 		map: null,
 		mapLat: 45,	// initial map coordinates
 		mapLng: 12,
@@ -31,12 +30,12 @@ define([
 		 */
 		initMap: function(mapId) {
 			var mapOptions = {
-				center: new gmaps.LatLng(this.mapLat, this.mapLng),
+				center: new this.gmaps.LatLng(this.mapLat, this.mapLng),
 				zoom: this.mapZoom,
-				mapTypeId: gmaps.MapTypeId.HYBRID
+				mapTypeId: this.gmaps.MapTypeId.HYBRID
 			};
 
-			this.map = new gmaps.Map(byId(mapId), mapOptions);
+			this.map = new this.gmaps.Map(byId(mapId), mapOptions);
 		},
 
 		/**
@@ -94,10 +93,10 @@ define([
 		 */
 		findAddress: function(address, zoomLevel) {
 			var self = this,
-				geocoder = new gmaps.Geocoder();
+				geocoder = new this.gmaps.Geocoder();
 
 			geocoder.geocode({ address: address}, function(results, status) {
-				if (status === gmaps.GeocoderStatus.OK) {
+				if (status === self.gmaps.GeocoderStatus.OK) {
 					self.map.setCenter(results[0].geometry.location);
 					self.addMarker({
 						position: results[0].geometry.location
@@ -123,35 +122,35 @@ define([
 		 */
 		createMarker: function(data, type) {
 			var marker,
-				latLng = data.position || new gmaps.LatLng(data.lat, data.lng),
+				latLng = data.position || new this.gmaps.LatLng(data.lat, data.lng),
 				image;
 
 			switch(type) {
 				case 'image':
 					image = {
-						anchor: new gmaps.Point(-1, 41),
-						scaledSize: new gmaps.Size(60, 40),
+						anchor: new this.gmaps.Point(-1, 41),
+						scaledSize: new this.gmaps.Size(60, 40),
 						url: data.img
 					};
 					this.addMarker(data, 'crosshair');
 					break;
 				case 'throbber':
 					image = {
-						anchor: new gmaps.Point(8, 8),
-						scaledSize: new gmaps.Size(16, 16),
+						anchor: new this.gmaps.Point(8, 8),
+						scaledSize: new this.gmaps.Size(16, 16),
 						url: '../dbprivate/layout/images/ajax_loading.gif'
 					};
 					break;
 				case 'crosshair':
 					image = {
-						anchor: new gmaps.Point(6, 6),
-						scaledSize: new gmaps.Size(13, 13),
+						anchor: new this.gmaps.Point(6, 6),
+						scaledSize: new this.gmaps.Size(13, 13),
 						url: '../dbprivate/layout/images/crosshair.gif'
 					};
 					break;
 			}
 
-			marker = new gmaps.Marker({
+			marker = new this.gmaps.Marker({
 				icon: image || null,
 				position: latLng,
 				map: data.map || this.map
