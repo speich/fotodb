@@ -29,7 +29,7 @@ define([
     PHPExifUrl = require.toUrl('fotodb') + '/../php/controller/service-exif.php',
     PHPExplorerUrl = require.toUrl('fotodb') + '/../php/controller/explorer.php',		// url for PHP explorer script
     Tool = new Tools(),
-    gmaps = google.maps,
+
     /**
      * Shortcut for document.getElementById
      * @param {String} id
@@ -711,7 +711,7 @@ define([
             img: byId('ImgPreview').src
           }, 'image');
 
-          point = new gmaps.LatLng(lat, lng);
+          point = mapTool.gmaps.LatLng(lat, lng);
           mapTool.map.setCenter(point);
           mapTool.map.setZoom(10);
         }
@@ -725,7 +725,7 @@ define([
     initEvents: function(map) {
       var self = this;
 
-      gmaps.event.addDomListener(map, 'rightclick', function(evt) {
+      this.mapTool.gmaps.event.addDomListener(map, 'rightclick', function(evt) {
         var mapTool = self.mapTool;
 
         mapTool.clearMarkers();
