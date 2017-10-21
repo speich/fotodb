@@ -11,4 +11,6 @@ error_reporting(E_ERROR);
 require_once __DIR__.'/../../library/vendor/autoload.php';
 
 $db = new Database();
+$db->connect();
+
 $web = new Website();
