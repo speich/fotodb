@@ -23,9 +23,17 @@ class Synchronizer
 
             $arrExif = $this->db->getExif($imgSrc);
             //$exifData = $this->db->mapExif($arrExif);
-            $this->db->insertXmp($imgId, $arrExif);
-            $this->db->BeginTransaction();
+            //$this->db->insertXmp($imgId, $arrExif);
+            //$this->db->BeginTransaction();
         }
+        else {
+            trigger_error()
+        }
+
+        return true;
     }
 
+    public function syncExif($imgFolder) {
+        return true;
+    }
 }

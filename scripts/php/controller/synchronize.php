@@ -31,12 +31,11 @@ if ($method === 'PUT' && !is_null($resources)) {
     // TODO: add authorization using JSON Web Tokens - jwt.io to
     $sync = new Synchronizer($db);
     if ($controller === 'xmp' && $sync->syncXmp($imgFolder)) {
-        $response = 'synchronized XMP files in folder with database successfully'.$imgFolder;
+        $response = 'synchronized xmp data of files in folder '.$imgFolder.' with database successfully';
     }
 
     else if ($controller === 'exif' && $sync->syncExif($imgFolder)) {
-        $response = 'synchronized EXIF files in folder with database successfully'.$imgFolder;
-
+        $response = 'synchronized exif data of files in folder '.$imgFolder.' with database successfully';
     }
 
 }
