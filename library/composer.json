@@ -1,8 +1,17 @@
 {
-  "autoload": {
-    "psr-4": {
-      "PhotoDatabase\\": "../scripts/php/class",
-      "WebsiteTemplate\\": "../scripts/php/class/WebsiteTemplate"
+    "autoload": {
+        "psr-4": {
+            "PhotoDatabase\\": "../scripts/php/class",
+            "WebsiteTemplate\\": "vendor/speich.net/WebsiteTemplate/scripts/php"
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/speich/WebsiteTemplate"
+        }
+    ],
+    "require": {
+        "speich.net/WebsiteTemplate": "dev-master"
     }
-  }
 }
