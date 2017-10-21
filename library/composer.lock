@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/speich/WebsiteTemplate.git",
-                "reference": "0785089e0f2f1bcfe95b63faec4813aee31a3292"
+                "reference": "6422b30024ef0b954b4d636b00a9a171ffaab18e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/speich/WebsiteTemplate/zipball/0785089e0f2f1bcfe95b63faec4813aee31a3292",
-                "reference": "0785089e0f2f1bcfe95b63faec4813aee31a3292",
+                "url": "https://api.github.com/repos/speich/WebsiteTemplate/zipball/6422b30024ef0b954b4d636b00a9a171ffaab18e",
+                "reference": "6422b30024ef0b954b4d636b00a9a171ffaab18e",
                 "shasum": ""
             },
             "type": "library",
@@ -26,7 +26,7 @@
                 "source": "https://github.com/speich/WebsiteTemplate/tree/master",
                 "issues": "https://github.com/speich/WebsiteTemplate/issues"
             },
-            "time": "2017-10-20 15:24:37"
+            "time": "2017-10-21 16:27:39"
         }
     ],
     "packages-dev": [],
