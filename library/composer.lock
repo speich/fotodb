@@ -1,0 +1,42 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "db126e3278007edca7338f8f1961161a",
+    "content-hash": "d6e03298e8341bd5da96a58b3870bd47",
+    "packages": [
+        {
+            "name": "speich.net/WebsiteTemplate",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/speich/WebsiteTemplate.git",
+                "reference": "0785089e0f2f1bcfe95b63faec4813aee31a3292"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/speich/WebsiteTemplate/zipball/0785089e0f2f1bcfe95b63faec4813aee31a3292",
+                "reference": "0785089e0f2f1bcfe95b63faec4813aee31a3292",
+                "shasum": ""
+            },
+            "type": "library",
+            "support": {
+                "source": "https://github.com/speich/WebsiteTemplate/tree/master",
+                "issues": "https://github.com/speich/WebsiteTemplate/issues"
+            },
+            "time": "2017-10-20 15:24:37"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "speich.net/websitetemplate": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
