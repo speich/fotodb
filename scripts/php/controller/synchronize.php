@@ -7,6 +7,7 @@
 // synchronize xmp data of all xmp files in {folder} with database table Xmp
 // PUT /xmp/{folder}
 
+use PhotoDatabase\Database\Synchronizer;
 use WebsiteTemplate\Error;
 use WebsiteTemplate\Controller;
 use WebsiteTemplate\Header;
@@ -14,9 +15,34 @@ use WebsiteTemplate\Header;
 require_once __DIR__.'/../inc_script.php';
 
 $header = new Header();
+$header->setContentType('json');
 $err = new Error();
-$ctr = new Controller($header, $err);
-$data = $ctr->getDataAsObject();
-$resource = $ctr->getResources(true);
+$ctrl = new Controller($header, $err);
+$resources = $ctrl->getResources();
+$method = $ctrl->getMethod();
+$response = null;
 
-//if ($data)
+
+
+if ($method === 'PUT' && !is_null($resources)) {
+    $controller = array_shift($resources);
+    $imgFolder = implode('/', $resources);
+
+    // TODO: add authorization using JSON Web Tokens - jwt.io to
+    $sync = new Synchronizer($db);
+    if ($controller === 'xmp' && $sync->syncXmp($imgFolder)) {
+        $response = 'synchronized XMP files in folder with database successfully'.$imgFolder;
+    }
+
+    else if ($controller === 'exif' && $sync->syncExif($imgFolder)) {
+        $response = 'synchronized EXIF files in folder with database successfully'.$imgFolder;
+
+    }
+
+}
+
+if (is_null($response)) {
+	$ctrl->notFound = true;
+}
+$ctrl->printHeader();
+$ctrl->printBody($response);
