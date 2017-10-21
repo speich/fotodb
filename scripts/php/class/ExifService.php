@@ -15,7 +15,7 @@ class ExifService
      */
     public function __construct($lang = 'en')
     {
-        $this->exiftoolParams .= ' -lang '.$lang;    // TODO: ceck input which is passed as an argument to exiftool
+        $this->exiftoolParams .= ' -lang '.$lang;    // TODO: check input which is passed as an argument to exiftool
     }
 
     public function checkForUpdate()

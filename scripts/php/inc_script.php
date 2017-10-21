@@ -10,7 +10,10 @@ error_reporting(E_ERROR);
 
 require_once __DIR__.'/../../library/vendor/autoload.php';
 
-$db = new Database();
+$file = file_get_contents(__DIR__.'/config.json');
+$config = json_decode($file);
+$db = new Database($config);
 $db->connect();
 
 $web = new Website();
+

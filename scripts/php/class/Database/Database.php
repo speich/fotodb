@@ -20,20 +20,22 @@ class Database
     // paths are always appended to webroot ('/' or a subfolder) and start therefore with a foldername
     // and not with a slash, but end with a slash
     private $dbName = "FotoDb.sqlite";
-    private $PathImg = 'dbprivate/images/';  // path relative to web root
-    private $PathImgPubl = 'dbpublic/images/';   // path relative go web root
-    private $folderImageOriginal = '/media/sf_Bilder/';    // absolute path where image originals are stored
+    // TODO: get these two paths from config.
+    private $PathImg = null;  // path relative to web root of private db images
+    private $folderImageOriginal = null;    // absolute path where image originals are stored*/
     private $ExecTime = 300;
     protected $HasActiveTransaction = false;    // keep track of open transactions
     private $webroot = '/';
-    private $dbPath = '/../../../../dbprivate/dbfiles/';
+    private $dbPath = '/../../../../dbprivate/dbfiles/';    // relative to this class
 
     /**
      * @constructor
      */
-    public function __construct()
+    public function __construct($config)
     {
         set_time_limit($this->ExecTime);
+        $this->PathImg = $config->paths->image;
+        $this->folderImageOriginal = $config->paths->imageOriginal;
     }
 
     /**
@@ -141,10 +143,7 @@ class Database
                 $Path = __DIR__ . $this->dbPath;
                 break;
             case 'Img':
-                $Path = $this->GetWebRoot().$this->PathImg;
-                break;
-            case 'ImgPubl':
-                $Path = $this->GetWebRoot().$this->PathImgPubl;
+                $Path = $this->PathImg;
                 break;
             case 'ImgOriginal':
                 $Path = $this->folderImageOriginal;

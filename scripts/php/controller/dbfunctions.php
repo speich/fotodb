@@ -58,7 +58,7 @@ if (isset($_GET['Fnc'])) {
             */
             $destDb = '/media/sf_Websites/speich.net/photo/photodb/dbfiles/photodb.sqlite';
             $destDirImg = '/media/sf_Websites/speich.net/photo/photodb/images';
-            $exporter = new Exporter();
+            $exporter = new Exporter($config);
             $exporter->connect();
             $exporter->publish($destDb, $destDirImg);
             $exporter = null;
@@ -67,7 +67,7 @@ if (isset($_GET['Fnc'])) {
             break;
         case 'createSearchIndex':
             // only updates local fotodb, but not speich.net
-            $indexer = new Search();
+            $indexer = new Search($config);
             $indexer->connect();
             $indexer->updateIndex(true);
             $indexer = null;

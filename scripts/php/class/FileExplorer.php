@@ -121,8 +121,8 @@ class FileExplorer {
     public function render($arrFile, $Type = NULL, $Filter = NULL) {
 		// get image data (Id, Img, ImgTitle) from database and compare it with file data to
 		// see if image is unprocessed or already done and to add additional data
-
-		$Folder = ltrim(str_replace($this->db->GetPath('Img'), '', $arrFile[0]['Current']), '/');
+        $folderPrefix = $this->db->GetPath('Img');
+		$Folder = ltrim(str_replace($folderPrefix, '', $arrFile[0]['Current']), '/');
 		$arrDbImg = $this->getDbData($Folder);
 
 		// File explorer
@@ -233,7 +233,7 @@ class FileExplorer {
 			foreach ($Row as $Col => $Val) {
 				$arrTemp[$Col] = $Val;
 			}
-			$arr[$Row['Img']] = $arrTemp; // e.g. $Row['Img'] = 'us002/us002-001.jpg'
+			$arr[$Row['Img']] = '/'.$arrTemp; // e.g. $Row['Img'] = 'us002/us002-001.jpg'
 		}
 		return $arr;
 	}

@@ -38,8 +38,8 @@ class Search extends Database {
 		'z.b', 'zehn', 'zehnte', 'zehnten', 'zehnter', 'zehntes', 'zeit', 'zu', 'zuerst', 'zugleich', 'zum', 'zum', 'zunächst', 'zur', 'zurück', 'zusammen', 'zwanzig', 'zwar', 'zwei', 'zweite', 'zweiten', 'zweiter', 'zweites', 'zwischen', 'zwölf'
     ];
 
-	public function __construct() {
-		parent::__construct();
+	public function __construct($config) {
+		parent::__construct($config);
 
 		mb_internal_encoding('UTF-8');
 		mb_regex_encoding('UTF-8');
