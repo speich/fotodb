@@ -2,7 +2,7 @@
 
 use WebsiteTemplate\html\SelectField;
 
-include 'inc_script.php';
+require_once '../scripts/php/inc_script.php';
 
 $db->connect();
 
