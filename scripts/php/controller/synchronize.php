@@ -11,7 +11,7 @@ use WebsiteTemplate\Error;
 use WebsiteTemplate\Controller;
 use WebsiteTemplate\Header;
 
-require_once __DIR__ . '/../../../dbprivate/inc_script.php';
+require_once __DIR__.'/../inc_script.php';
 
 $header = new Header();
 $err = new Error();
@@ -19,4 +19,4 @@ $ctr = new Controller($header, $err);
 $data = $ctr->getDataAsObject();
 $resource = $ctr->getResources(true);
 
-if ($data)
+//if ($data)

@@ -1,6 +1,8 @@
 <?php
 namespace PhotoDatabase\Database;
 
+use PDO;
+
 
 /**
  * Created by JetBrains PhpStorm.
@@ -43,7 +45,7 @@ class Search extends Database {
 		mb_regex_encoding('UTF-8');
 
 		// Check if structure for searching was already created otherwise create it
-		$this->db = $this->Connect();
+		$this->db = $this->connect();
 		$sql = "SELECT tbl_name FROM sqlite_master
 			WHERE tbl_name IN ('searchIndex', 'searchOccurrences') AND type = 'table'";
 		$stmt = $this->db->prepare($sql);
@@ -176,7 +178,7 @@ class Search extends Database {
 	 * @return array
 	 */
 	public function getWords($text) {
-		$arr = array();
+		$arr = [];
 		$words = $this->splitText($text);
 		foreach ($words as $word) {
 			if (strlen($word) < 3) {

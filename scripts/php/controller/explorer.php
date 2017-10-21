@@ -5,7 +5,7 @@ use PhotoDatabase\Database\Preferences;
 use PhotoDatabase\FileExplorer;
 use WebsiteTemplate\Website;
 
-require_once '../../../dbprivate/inc_script.php';
+require_once '../inc_script.php';
 
 // note: all paths should end with a slash
 $web = new Website();

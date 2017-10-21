@@ -1,8 +1,12 @@
 <?php
 namespace PhotoDatabase\Database;
 
+use DOMDocument;
 use PDO;
 use PDOException;
+use SQLite3;
+use PhotoDatabase\ExifService;
+
 
 /**
  * Class to work with SQLite databases.
@@ -597,7 +601,7 @@ class Database
     public function getExif($imgSrc)
     {
         $img = $this->folderImageOriginal.'/'.$imgSrc;
-        $exifService = new \photoXplorer\ExifService();
+        $exifService = new ExifService();
 
         return $exifService->getData($img);
     }

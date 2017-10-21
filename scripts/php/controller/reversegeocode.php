@@ -1,7 +1,6 @@
 <?php
 
-
-require_once '../../../dbprivate/inc_script.php';
+require_once '../inc_script.php';
 
 
 if (isset($_GET['Lng']) && isset($_GET['Lat'])) {

@@ -5,7 +5,7 @@
 use PhotoDatabase\Database\Exporter;
 use PhotoDatabase\Database\Search;
 
-require_once '../../../dbprivate/inc_script.php';
+require_once '../inc_script.php';
 
 
 

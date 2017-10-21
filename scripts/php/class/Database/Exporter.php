@@ -1,6 +1,7 @@
 <?php
 namespace PhotoDatabase\Database;
 
+use PDO;
 
 
 /**
@@ -60,7 +61,7 @@ class Exporter extends Database {
 		// thumbnails that are no longer public.
 		// We purposely do not use WHERE IN, instead we update records in a loop one at a time after creation of
 		// the thumbnail (since we don't use a transaction because journaling mode is off for speed)
-		$srcDb = $this->Connect();
+		$srcDb = $this->connect();
 		$sql = "SELECT Id, ImgFolder, ImgFolder||'/'||ImgName Img, Public FROM Images
 			WHERE (LastChange > DatePublished OR DatePublished IS NULL)";
 		$stmt = $srcDb->prepare($sql);
