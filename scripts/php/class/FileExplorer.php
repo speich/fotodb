@@ -122,7 +122,7 @@ class FileExplorer {
 		// get image data (Id, Img, ImgTitle) from database and compare it with file data to
 		// see if image is unprocessed or already done and to add additional data
         $folderPrefix = $this->db->GetPath('Img');
-		$Folder = ltrim(str_replace($folderPrefix, '', $arrFile[0]['Current']), '/');
+		$Folder = trim(str_replace($folderPrefix, '', $arrFile[0]['Current']), '/');
 		$arrDbImg = $this->getDbData($Folder);
 
 		// File explorer
@@ -215,26 +215,22 @@ class FileExplorer {
 	}
 
 	/**
-	 * Used to check if image file is already in db or not.
-	 *
-	 * Returns an array with
-	 * @return array
-	 * @param string $folder
+	 * Return images from database.
+	 * Returns a 2-dim array with image paths as keys and an array as value with Id, Img and ImgTitle as keys.
+	 * @param string $folder folder to query
+	 * @return array 2-dim array
 	 */
 	private function getDbData($folder) {
 		$arr = [];
-		$Sql = "SELECT Id, ImgFolder||'/'||ImgName Img, ImgTitle FROM Images WHERE ImgFolder = :Folder ORDER BY ImgName ASC";
-		$Stmt = $this->db->db->prepare($Sql);
+		$sql = "SELECT Id, ImgFolder||'/'||ImgName Img, ImgTitle FROM Images WHERE ImgFolder = :Folder ORDER BY ImgName ASC";
+		$stmt = $this->db->db->prepare($sql);
 		$folder = trim($folder, '/');
-		$Stmt->bindParam(':Folder', $folder);
-		$Stmt->execute();
-		while ($Row = $Stmt->fetch(PDO::FETCH_ASSOC)) {
-			$arrTemp = [];
-			foreach ($Row as $Col => $Val) {
-				$arrTemp[$Col] = $Val;
-			}
-			$arr[$Row['Img']] = '/'.$arrTemp; // e.g. $Row['Img'] = 'us002/us002-001.jpg'
+		$stmt->bindParam(':Folder', $folder);
+		$stmt->execute();
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			$arr[$row['Img']] = $row; // e.g. $row['Img'] = 'us002/us002-001.jpg'
 		}
+
 		return $arr;
 	}
 }
