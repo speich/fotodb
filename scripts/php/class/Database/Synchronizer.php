@@ -9,16 +9,31 @@ namespace PhotoDatabase\Database;
  */
 class Synchronizer
 {
-    public function __construct(Database $db)
+    /** @var Database  */
+    private $db;
+
+    /** @var string absolute path to folder with original images */
+    private $pathImageOriginal;
+
+    /**
+     * Synchronizer constructor.
+     * @param Database $db
+     * @param string $pathImageOriginal
+     */
+    public function __construct(Database $db, $pathImageOriginal)
     {
+        $this->pathImageOriginal = $pathImageOriginal;
         $this->db = $db;
     }
 
-    public function syncXmp($imageFolder)
+    /**
+     * Update XMP data in database from files in folder.
+     * @param string $imageFolder folder with XMP data to update
+     * @return string json
+     */
+    public function updateXmp($imageFolder)
     {
-        $imgFolderOriginal = $this->db->GetPath('ImgOriginal').'/'.$imageFolder;
-
-        $files = scandir($imageFolder);
+        $files = scandir($this->pathImageOriginal.'/'.$imageFolder, null);
         if ($files) {
 
             $arrExif = $this->db->getExif($imgSrc);
@@ -27,13 +42,18 @@ class Synchronizer
             //$this->db->BeginTransaction();
         }
         else {
-            trigger_error()
+            //trigger_error();
         }
 
         return true;
     }
 
-    public function syncExif($imgFolder) {
+    /**
+     * Update EXIF data in database from files in folder
+     * @param string $imageFolder folder with XMP data to update
+     * @return bool
+     */
+    public function updateExif($imgFolder) {
         return true;
     }
 }

@@ -75,6 +75,23 @@ class ExifService
         }
     }
 
+    public function getExif()
+    {
+        $tool = __DIR__.'/../../..'.$this->exiftool.' '.$this->exiftoolParams;
+        exec($tool.' '.$imageNoExt.'.NEF', $data);
+        $files = [];
+        if (count($data) > 0) {
+            $data = implode('', $data);
+            $data1 = json_decode($data, true);
+            $data1 = array_pop($data1);
+            $files[0] = $data1['File']; // $data1['File'] NEF would be overwritten by $data2['File'] XMP
+            unset($data1['File']);
+    }
+
+    public function getXmp() {
+
+    }
+
     /**
      * Print exif data as a HTML table.
      * @param array $data array returned from exiftool

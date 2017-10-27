@@ -14,6 +14,8 @@ use WebsiteTemplate\Header;
 
 require_once __DIR__.'/../inc_script.php';
 
+$config = json_decode(file_get_contents('../config.json'));
+
 $header = new Header();
 $header->setContentType('json');
 $err = new Error();
@@ -23,24 +25,22 @@ $method = $ctrl->getMethod();
 $response = null;
 
 
-
-if ($method === 'PUT' && !is_null($resources)) {
+$method = 'PUT';
+if ($method === 'PUT' && $resources !== null) {
     $controller = array_shift($resources);
     $imgFolder = implode('/', $resources);
-
     // TODO: add authorization using JSON Web Tokens - jwt.io to
-    $sync = new Synchronizer($db);
-    if ($controller === 'xmp' && $sync->syncXmp($imgFolder)) {
+    $sync = new Synchronizer($db, $config->paths->imageOriginal);
+    if ($controller === 'xmp' && $sync->updateXmp($imgFolder)) {
         $response = 'synchronized xmp data of files in folder '.$imgFolder.' with database successfully';
     }
 
-    else if ($controller === 'exif' && $sync->syncExif($imgFolder)) {
+    else if ($controller === 'exif' && $sync->updateExif($imgFolder)) {
         $response = 'synchronized exif data of files in folder '.$imgFolder.' with database successfully';
     }
-
 }
 
-if (is_null($response)) {
+if ($response === null) {
 	$ctrl->notFound = true;
 }
 $ctrl->printHeader();
