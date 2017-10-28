@@ -20,7 +20,7 @@ $header = new Header();
 $header->setContentType('json');
 $err = new Error();
 $ctrl = new Controller($header, $err);
-$resources = $ctrl->getResources();
+$resources = $ctrl->getResource();
 $method = $ctrl->getMethod();
 $response = null;
 

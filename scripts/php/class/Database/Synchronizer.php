@@ -34,6 +34,7 @@ class Synchronizer
     public function updateXmp($imageFolder)
     {
         $files = scandir($this->pathImageOriginal.'/'.$imageFolder, null);
+        $files = array_diff($files, ['.', '..']);
         if ($files) {
 
             $arrExif = $this->db->getExif($imgSrc);

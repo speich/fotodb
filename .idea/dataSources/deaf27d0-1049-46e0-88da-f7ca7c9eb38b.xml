@@ -146,7 +146,8 @@
     </column>
     <column id="55" parent="7" name="SyncDate">
       <Position>24</Position>
-      <DataType>DATE|0</DataType>
+      <DataType>TEXT|0</DataType>
+      <DefaultExpression>null</DefaultExpression>
     </column>
     <column id="56" parent="8" name="Id">
       <Position>1</Position>
@@ -450,7 +451,8 @@ ScientificNameId</ColNames>
     </column>
     <column id="125" parent="22" name="SyncDate">
       <Position>7</Position>
-      <DataType>DATE|0</DataType>
+      <DataType>TEXT|0</DataType>
+      <DefaultExpression>null</DefaultExpression>
     </column>
     <column id="126" parent="23" name="id">
       <Position>1</Position>

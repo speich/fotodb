@@ -10,7 +10,7 @@ use PhotoDatabase\Database\Database;
  *
  */
 class FileExplorer {
-	private $TopDir = '';
+	private $topDir = '';
     /**
      * @var Database
      */
@@ -33,7 +33,7 @@ class FileExplorer {
 	 */
 	public function setTopDir($Dir) {
 		// TODO: check if absolute path from webroot.
-		$this->TopDir = $Dir;
+		$this->topDir = trim($Dir, DIRECTORY_SEPARATOR);
 	}
 
 	/**
@@ -41,8 +41,22 @@ class FileExplorer {
 	 * @return string
 	 */
 	public function GetTopDir() {
-		return $this->TopDir;
+		return $this->topDir;
 	}
+
+	public function CheckTopDirOutside($path) {
+        $topSegments = explode(DIRECTORY_SEPARATOR, $this->topDir);
+        $pathSegments = explode(DIRECTORY_SEPARATOR, $path);
+        // TODO: use SPL FilesystemIterator FilsystemInfo
+        if (trim($path, DIRECTORY_SEPARATOR) === trim($this->TopDir, DIRECTORY_SEPARATOR)) {
+            $outside = true;
+        }
+        else {
+             $outside = false;
+        }
+
+	    return $outside;
+    }
 
 	/**
 	 * Reads a directory and returns an 2-dim array with information about the containing image files.
@@ -80,17 +94,17 @@ class FileExplorer {
 		$filePath = $_SERVER['DOCUMENT_ROOT'].$path;
 		
 		$arrFile = [];
+		$arrRemove = ['.'];
+        if ($this->CheckTopDirOutside($path)) {
+            // parent directory link, do not display if already in TopDir
+            array_push($arrRemove, '..');
+        }
 		$files = scandir($filePath, SCANDIR_SORT_ASCENDING);
+        $files = array_diff($files, $arrRemove);
 		if ($files) {
 			$arrFile[0]['Current'] = $path;
 			foreach ($files as $file) {
-				if ($file === ".") {
-					continue;
-				} // ignore self link
-				if ($file === '..') { // parent directory link, do not display if already in TopDir
-					if ($path == $this->TopDir) {
-						continue;
-					}
+				if ($file === '..') {
 					$arrFile[$file]['Path'] = $ParentDir;
 				}
 				else {
