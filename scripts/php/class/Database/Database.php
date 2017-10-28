@@ -563,8 +563,8 @@ class Database
      */
     public function insertXmp($imgId, $exifData)
     {
-        $sql = "INSERT OR REPLACE INTO Xmp (ImgId, CropTop, CropLeft, CropBottom, CropRight, CropAngle) 
-            VALUES (:imgId, :cropTop, :cropLeft, :cropBottom, :cropRight, :cropAngle)";
+        $sql = "INSERT OR REPLACE INTO Xmp (ImgId, CropTop, CropLeft, CropBottom, CropRight, CropAngle, SyncDate) 
+            VALUES (:imgId, :cropTop, :cropLeft, :cropBottom, :cropRight, :cropAngle, CURRENT_TIMESTAMP)";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':imgId', $imgId);
         $stmt->bindParam(':cropTop', $exifData['CropTop']);
@@ -624,7 +624,7 @@ class Database
             foreach ($arrExif as $Key => $Val) {   // column names
                 $SqlTemp .= "$Key,";
             }
-            $Sql .= rtrim($SqlTemp, ',').") VALUES (:ImgId,";
+            $Sql .= rtrim($SqlTemp, ',').", SyncDate) VALUES (:ImgId,";
             $SqlTemp = "";
             foreach ($arrExif as $Key => $Val) {   // column data
                 if (strpos($Key, 'Date') !== false) {
@@ -637,7 +637,7 @@ class Database
                     $SqlTemp .= "'".$this->sqlite_escape_string($Val)."',";
                 }
             }
-            $Sql .= rtrim($SqlTemp, ',').");";
+            $Sql .= rtrim($SqlTemp, ',').", CURRENT_TIMESTAMP);";
             $Stmt = $this->db->prepare($Sql);
             $Stmt->bindParam(':ImgId', $imgId);
             $Stmt->execute();
