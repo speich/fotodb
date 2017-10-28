@@ -42,7 +42,7 @@ define([
 		 * Convert point coordinates into location names and fill form.
 		 */
 		reverseGeocode: function(latLng) {
-			var dfd = new Deferred();
+			let dfd = new Deferred();
 
 			if (!latLng) {
 				// user only clicked (closed) info marker window
@@ -50,7 +50,7 @@ define([
 				return dfd;
 			}
 
-			var target = '../dbprivate/library/reversegeocode.php?Lat=' + latLng.lat() + '&Lng=' + latLng.lng(),
+			var target = '../scripts/php/controller/reversegeocode.php?Lat=' + latLng.lat() + '&Lng=' + latLng.lng(),
 				marker = this.addMarker({ position: latLng }, 'throbber');
 
 			return xhr.get(target, {
