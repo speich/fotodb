@@ -46,6 +46,7 @@ class ExifService
     public function getData($img)
     {
         // TODO: make this work with other than NEF by using ExifService::originalImageExists
+        // TODO: split into getExif and getXmp. Also use spl FileSystemInfo?
         $imageNoExt = substr($img, 0, strrpos($img, '.'));   // remove file extension
         $tool = __DIR__.'/../../..'.$this->exiftool.' '.$this->exiftoolParams;
         exec($tool.' '.$imageNoExt.'.NEF', $data);
@@ -75,8 +76,10 @@ class ExifService
         }
     }
 
-    public function getExif()
+    public function getExif($img)
     {
+        // TODO
+        $imageNoExt = substr($img, 0, strrpos($img, '.'));   // remove file extension
         $tool = __DIR__.'/../../..'.$this->exiftool.' '.$this->exiftoolParams;
         exec($tool.' '.$imageNoExt.'.NEF', $data);
         $files = [];
@@ -86,10 +89,11 @@ class ExifService
             $data1 = array_pop($data1);
             $files[0] = $data1['File']; // $data1['File'] NEF would be overwritten by $data2['File'] XMP
             unset($data1['File']);
+        }
     }
 
     public function getXmp() {
-
+        // TODO
     }
 
     /**
