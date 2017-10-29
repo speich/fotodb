@@ -2,6 +2,7 @@
 namespace PhotoDatabase\Database;
 
 use DOMDocument;
+use DOMElement;
 use PDO;
 use PDOException;
 use SQLite3;
@@ -382,6 +383,7 @@ class Database
             $Sql4 = "SELECT Id FROM Keywords WHERE Name = :Name";
             $Stmt4 = $this->db->prepare($Sql4);
             $Stmt4->bindParam(':Name', $Keyword);
+            /** @var DOMElement[] $Children */
             foreach ($Children as $Child) {
                 $KeywordId = $Child->getAttribute('Id');
                 $Keyword = $Child->getAttribute('Name');
@@ -419,6 +421,7 @@ class Database
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->bindParam(':ThemeId', $ThemeId);
+        /** @var DOMElement[] $Children  */
         foreach ($Children as $Child) {
             $ThemeId = $Child->getAttribute('Id');
             $Stmt->execute();
