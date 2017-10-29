@@ -19,7 +19,8 @@ define([ 'dojo/_base/kernel'], function(kernel) {
 				cb = null;
 				loadCallback();
 			};
-			require([param + "&callback=" + cb]);
+            param += '?v=3&language=' + dojoConfig.locale + '&key=' + dojoConfig.gmapsApiKey;
+            require([param + "&callback=" + cb]);
 		}
 	};
 });

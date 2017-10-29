@@ -2,7 +2,7 @@ define([
 	'dojo/_base/declare',
 	'dojo/Deferred',
 	'dojo/request/xhr',
-	'fotodb/gmapLoader!http://maps.google.com/maps/api/js?v=3&language=' + dojoConfig.locale
+	'fotodb/gmapLoader!http://maps.google.com/maps/api/js'
 ], function(declare, Deferred, xhr) {
 
 	var

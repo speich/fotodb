@@ -172,6 +172,7 @@ $speciesSex->setSelected('unknown', SelectField::SELECTED_BY_TEXT);
     var dojoConfig = {
         async: true,
         locale: 'de',
+        gmapsApiKey: 'AIzaSyAW3fEVRPQKGe4jxsp4T0pPFVQ9eJ-o86g',
         baseUrl: '/library',
         packages: [
             {name: 'dojo', location: '../library/dojo/1.12.1/dojo'},
