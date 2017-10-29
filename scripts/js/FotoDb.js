@@ -235,11 +235,6 @@ define([
     placeImage: function(Img) {
       var Self = this,
         Canvas = byId('CanvasImgPreview'),
-        H = parseInt(document.defaultView.getComputedStyle(Canvas, null).getPropertyValue("height")),
-        W = parseInt(document.defaultView.getComputedStyle(Canvas, null).getPropertyValue("width")),
-        // Img.width and Img.height are the scaled thumbnail size and not the full original one,
-        // therefore remove ImgPreview from canvas and append image to get original size
-        // in Gecko you could use naturalWidth/naturalHeight
         ImgPrev = new Image();
 
       ImgPrev.src = Img.src;
@@ -250,16 +245,6 @@ define([
       ImgPrev.addEventListener('click', function() {
         Self.ZoomImg(Img, ImgPrev.width, ImgPrev.height);
       }, false);
-      if (parseInt(ImgPrev.width) > W) {
-        ImgPrev.style.width = W + 'px';
-      }
-      if (parseInt(ImgPrev.height) > H) {
-        ImgPrev.style.height = H + 'px';
-      }
-      if (parseInt(ImgPrev.style.width) > parseInt(ImgPrev.style.height)) {
-        ImgPrev.style.top = H / 2 - parseInt(ImgPrev.height) / 2 + 'px';
-        ImgPrev.style.left = W / 2 - parseInt(ImgPrev.width) / 2 + 'px';
-      }
       ImgPrev = Canvas.appendChild(ImgPrev);
     },
 
