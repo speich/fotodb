@@ -85,7 +85,7 @@ class Exporter extends Database {
 		$stmt2->bindParam(':ImgId', $imgId);
 
 		foreach ($arrData as $row) {
-			$srcImg = $this->GetDocRoot().ltrim($this->GetPath('Img').$row['Img'], '/');
+			$srcImg = __DIR__.'/../../../../'.$this->GetPath('Img').'/'.$row['Img'];
 			$destImg = $destDirImg.'/'.$row['Img'];
 			// copy image
 			if ($row['Public'] === '1') {
@@ -108,8 +108,8 @@ class Exporter extends Database {
 				$succ = $this->createThumb($destImg, 180);
 				// update rec where img is exported so in case of a resume we do not have to re-export it
 				if ($succ) {
-					$Time = time();
-					$imgId = $row['Id'];
+					$Time = time(); // bound to sql query above
+					$imgId = $row['Id']; // bound to sql query above
 					$stmt->execute();
 					$stmt1->execute();
 					$stmt2->execute();
