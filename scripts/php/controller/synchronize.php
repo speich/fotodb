@@ -46,12 +46,14 @@ if ($dir !== '') {
 }
 $stmt->execute();
 foreach ($stmt as $row) {
+    // create array lookup with image path as id
     $key = explode('.', $row['Img']);
 	$arrImages[$key[0]] = $row;
 }
-//var_dump($arrImages);
+
+
 /*
- * get images to sync from filesystem
+ * get and filter images to sync from filesystem
  */
 $dir = $config->paths->imagesOriginal.'/'.$dir;
 
@@ -62,6 +64,8 @@ $filteredFiles = new FilterFilesXmp($files);
 $filteredFiles = new FilterSyncXmp($filteredFiles, $arrImages, $config->paths->imagesOriginal);
 $filteredFiles = new RecursiveIteratorIterator($filteredFiles);
 foreach($filteredFiles as $fileinfo) {
+    // INSERT OR REPLACE INTO Xmp
+    // Database::insertXmp()
     var_dump($fileinfo);
 }
 
