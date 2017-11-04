@@ -45,6 +45,7 @@ class FileExplorer {
 	}
 
 	public function CheckTopDirOutside($path) {
+	    // TODO: find a way to check if we are in or above top dir
         $topSegments = explode(DIRECTORY_SEPARATOR, $this->topDir);
         $pathSegments = explode(DIRECTORY_SEPARATOR, $path);
         // TODO: use SPL FilesystemIterator FilsystemInfo
@@ -236,7 +237,7 @@ class FileExplorer {
 	 */
 	private function getDbData($folder) {
 		$arr = [];
-		$sql = "SELECT Id, ImgFolder||'/'||ImgName Img, ImgTitle FROM Images WHERE ImgFolder = :Folder ORDER BY ImgName ASC";
+		$sql = "SELECT Id, ImgFolder||'/'||ImgName Img, ImgTitle FROM Images WHERE ImgFolder = :Folder";
 		$stmt = $this->db->db->prepare($sql);
 		$folder = trim($folder, '/');
 		$stmt->bindParam(':Folder', $folder);
