@@ -10,7 +10,7 @@ require_once '../inc_script.php';
 // note: all paths should end with a slash
 $prefs = new Preferences();
 $fs = new FileExplorer($db);
-$fs->setTopDir($config->paths->image);
+$fs->setTopDir($config->paths->imagesWebRoot);
 
 if (isset($_GET['Type'])) {
 	if (isset($_GET['Dir'])) {

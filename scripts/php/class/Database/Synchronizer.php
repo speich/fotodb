@@ -1,6 +1,7 @@
 <?php
 namespace PhotoDatabase\Database;
 
+use stdClass;
 
 
 /**
@@ -13,16 +14,16 @@ class Synchronizer
     private $db;
 
     /** @var string absolute path to folder with original images */
-    private $pathImageOriginal;
+    private $pathImagesOriginal;
 
     /**
      * Synchronizer constructor.
      * @param Database $db
-     * @param string $pathImageOriginal
+     * @param stdClass $config
      */
-    public function __construct(Database $db, $pathImageOriginal)
+    public function __construct(Database $db, $config)
     {
-        $this->pathImageOriginal = $pathImageOriginal;
+        $this->pathImagesOriginal = $config->paths->imagesOriginal;
         $this->db = $db;
     }
 
@@ -33,7 +34,7 @@ class Synchronizer
      */
     public function updateXmp($imageFolder)
     {
-        $files = scandir($this->pathImageOriginal.'/'.$imageFolder, null);
+        $files = scandir($this->pathImagesOriginal.'/'.$imageFolder, null);
         $files = array_diff($files, ['.', '..']);
         if ($files) {
 

@@ -3,14 +3,6 @@ namespace PhotoDatabase\Database;
 
 use PDO;
 
-
-/**
- * Created by JetBrains PhpStorm.
- * User: Simon
- * Date: 21.01.11
- * Time: 18:47
- * To change this template use File | Settings | File Templates.
- */
  
 class Search extends Database {
 	/** @var array words that are not inserted into search index. */

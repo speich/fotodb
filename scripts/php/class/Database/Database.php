@@ -35,8 +35,8 @@ class Database
     public function __construct($config)
     {
         set_time_limit($this->ExecTime);
-        $this->PathImg = $config->paths->image;
-        $this->folderImageOriginal = $config->paths->imageOriginal;
+        $this->PathImg = $config->paths->imagesWebRoot;
+        $this->folderImageOriginal = $config->paths->imagesOriginal;
     }
 
     /**
