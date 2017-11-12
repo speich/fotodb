@@ -21,7 +21,7 @@ class FilterSyncXmp extends RecursiveFilterIterator
      * @param FilterFilesXmp $iterator
      * @param array $dbRecords
      */
-    public function __construct(FilterFilesXmp $iterator, $dbRecords, $pathPrefix)
+    public function __construct($iterator, $dbRecords, $pathPrefix)
     {
         parent::__construct($iterator);
         $this->dbRecords = $dbRecords;
@@ -42,6 +42,16 @@ class FilterSyncXmp extends RecursiveFilterIterator
     }
 
     /**
+     * Returns the path with the prefix removed.
+     * @return string
+     */
+    public function getNonPrefixedPath() {
+        $pathLength = mb_strlen($this->pathPrefix) + 1;   // will remove slash
+
+        return mb_substr($this->getRealPath(), $pathLength);
+    }
+
+    /**
      * Check whether the current element of the iterator is acceptable
      * @link http://php.net/manual/en/filteriterator.accept.php
      * @return bool true if the current element is acceptable, otherwise false.
@@ -49,12 +59,23 @@ class FilterSyncXmp extends RecursiveFilterIterator
      */
     public function accept()
     {
-        $imageRootLength = mb_strlen($this->pathPrefix) + 1;   // will remove slash
-        $pathFileNoRoot = mb_substr($this->getRealPath(), $imageRootLength);
-        // note: file can have more than one extension
-        $arr = explode('.', $pathFileNoRoot);
-        $record = $this->dbRecords[$arr[0]];
+        if ($this->isDir()) {
 
-        return isset($record) && $this->checkSyncDate($record);
+            return true;
+        }
+
+        $pathNoPrefix = $this->getNonPrefixedPath();
+        // note: file can have more than one extension
+        $arr = explode('.', $pathNoPrefix);
+        $record = $this->dbRecords[$arr[0]];
+        $accept = isset($record) && $this->checkSyncDate($record);
+
+        return $accept;
+    }
+
+    public function getChildren()
+    {
+
+        return new self($this->getInnerIterator()->getChildren(), $this->dbRecords, $this->pathPrefix);
     }
 }

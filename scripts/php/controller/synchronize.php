@@ -8,8 +8,6 @@
 // PUT /xmp/{folder}
 
 use PhotoDatabase\Database\Synchronizer;
-use PhotoDatabase\FilterFilesXmp;
-use PhotoDatabase\FilterSyncXmp;
 use WebsiteTemplate\Error;
 use WebsiteTemplate\Controller;
 use WebsiteTemplate\Header;
@@ -27,47 +25,12 @@ $method = $ctrl->getMethod();
 $response = null;
 
 
-
-
-
+// directory to sync from image root
 $dir = 'ch/2017-10-Fenalet';
+$dir = 'ch';
+$sync = new Synchronizer($db, $config);
+$sync->updateXmp($dir);
 
-/*
- * get images to sync from database
- */
-$arrImages = [];
-$dirParam = $dir.'%';
-$sql = "SELECT i.Id, i.ImgFolder||'/'||i.ImgName Img, x.SyncDate FROM Images i
-    LEFT JOIN Xmp x ON i.id = x.ImgId";
-$sql .= $dir === '' ? '' : ' WHERE i.ImgFolder LIKE :Folder';
-$stmt = $db->db->prepare($sql);
-if ($dir !== '') {
-    $stmt->bindParam(':Folder', $dirParam);
-}
-$stmt->execute();
-foreach ($stmt as $row) {
-    // create array lookup with image path as id
-    $key = explode('.', $row['Img']);
-	$arrImages[$key[0]] = $row;
-}
-
-
-/*
- * get and filter images to sync from filesystem
- */
-$dir = $config->paths->imagesOriginal.'/'.$dir;
-
-/*$webRoot = realpath($_SERVER['DOCUMENT_ROOT'].'/'.$config->paths->imagesWebRoot);
-$webRootLength = mb_strlen($webRoot);*/
-$files = new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS);
-$filteredFiles = new FilterFilesXmp($files);
-$filteredFiles = new FilterSyncXmp($filteredFiles, $arrImages, $config->paths->imagesOriginal);
-$filteredFiles = new RecursiveIteratorIterator($filteredFiles);
-foreach($filteredFiles as $fileinfo) {
-    // INSERT OR REPLACE INTO Xmp
-    // Database::insertXmp()
-    var_dump($fileinfo);
-}
 
 
 

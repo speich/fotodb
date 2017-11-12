@@ -7,19 +7,19 @@ use RecursiveFilterIterator;
 
 
 /**
- * Class RecursiveFilterIteratorXmp
+ * Class FilterFilesXmp
  * @package PhotoDatabase
  */
 class FilterFilesXmp extends RecursiveFilterIterator
 {
-    private $validExtension = 'xmp';
+    protected $validExtension = 'xmp';
 
     /**
      * Create a RecursiveFilterIterator from a RecursiveDirectoryIterator
      * @link http://php.net/manual/en/recursivefilteriterator.construct.php
-     * @param RecursiveDirectoryIterator $iterator
+     * @param PhotoDbDirectoryIterator $iterator
      */
-    public function __construct(RecursiveDirectoryIterator $iterator)
+    public function __construct($iterator)
     {
         parent::__construct($iterator);
     }
@@ -32,6 +32,8 @@ class FilterFilesXmp extends RecursiveFilterIterator
      */
     public function accept()
     {
-        return $this->isDir() || strtolower($this->getExtension()) === $this->validExtension;
+        $accept = $this->isDir() || strtolower($this->getExtension()) === $this->validExtension;
+
+        return $accept;
     }
 }
