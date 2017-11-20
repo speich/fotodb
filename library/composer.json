@@ -9,9 +9,14 @@
         {
             "type": "vcs",
             "url": "https://github.com/speich/WebsiteTemplate"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mkardakov/ExifTool_PHP_Stayopen"
         }
     ],
     "require": {
-        "speich.net/WebsiteTemplate": "dev-master"
+        "speich.net/WebsiteTemplate": "dev-master",
+        "tsmgeek/exif-tool_php_stayopen":  "dev-master"
     }
 }

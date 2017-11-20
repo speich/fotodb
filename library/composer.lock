@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "db126e3278007edca7338f8f1961161a",
-    "content-hash": "d6e03298e8341bd5da96a58b3870bd47",
+    "hash": "1b7db17855af7746a1e81d7f9d558a73",
+    "content-hash": "63d94d984d9eb9c5d8ce19ce489ac119",
     "packages": [
         {
             "name": "speich.net/WebsiteTemplate",
@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/speich/WebsiteTemplate.git",
-                "reference": "55548af72897f95c694d9fc76312089587aba5d3"
+                "reference": "4f6bcb8918bf33cb3336d492656bbbfa17d99e5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/speich/WebsiteTemplate/zipball/55548af72897f95c694d9fc76312089587aba5d3",
-                "reference": "55548af72897f95c694d9fc76312089587aba5d3",
+                "url": "https://api.github.com/repos/speich/WebsiteTemplate/zipball/4f6bcb8918bf33cb3336d492656bbbfa17d99e5a",
+                "reference": "4f6bcb8918bf33cb3336d492656bbbfa17d99e5a",
                 "shasum": ""
             },
             "type": "library",
@@ -28,17 +28,56 @@
                 }
             },
             "support": {
-                "source": "https://github.com/speich/WebsiteTemplate/tree/master",
+                "source": "https://github.com/speich/WebsiteTemplate/tree/v1.3",
                 "issues": "https://github.com/speich/WebsiteTemplate/issues"
             },
-            "time": "2017-10-27 13:58:55"
+            "time": "2017-11-14 12:21:41"
+        },
+        {
+            "name": "tsmgeek/exif-tool_php_stayopen",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mkardakov/ExifTool_PHP_Stayopen.git",
+                "reference": "b006bfdf4f364ef1e2e96726d11a9e0047e6c1af"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mkardakov/ExifTool_PHP_Stayopen/zipball/b006bfdf4f364ef1e2e96726d11a9e0047e6c1af",
+                "reference": "b006bfdf4f364ef1e2e96726d11a9e0047e6c1af",
+                "shasum": ""
+            },
+            "require": {
+                "ext-pcntl": "*",
+                "php": ">=5.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Exiftool\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0"
+            ],
+            "description": "PHP ultra-fast library to allow accessing the ExifTool",
+            "keywords": [
+                "exiftool",
+                "meta-data"
+            ],
+            "support": {
+                "docs": "https://www.sno.phy.queensu.ca/~phil/exiftool/faq.html",
+                "source": "https://github.com/mkardakov/ExifTool_PHP_Stayopen/tree/master"
+            },
+            "time": "2017-10-08 14:16:46"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "speich.net/websitetemplate": 20
+        "speich.net/websitetemplate": 20,
+        "tsmgeek/exif-tool_php_stayopen": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
