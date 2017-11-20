@@ -2,10 +2,9 @@
 namespace PhotoDatabase\Database;
 
 use FilesystemIterator;
-use PhotoDatabase\FilterFilesXmp;
-use PhotoDatabase\FilterSyncXmp;
-use PhotoDatabase\PhotoDbDirectoryIterator;
-use RecursiveDirectoryIterator;
+use PhotoDatabase\Iterator\FilterFilesXmp;
+use PhotoDatabase\Iterator\FilterSyncXmp;
+use PhotoDatabase\Iterator\PhotoDbDirectoryIterator;
 use RecursiveIteratorIterator;
 use stdClass;
 
@@ -40,17 +39,14 @@ class Synchronizer
      */
     public function updateXmp($dir)
     {
-
         // get images to sync from database and create array where keys are the image path without file extension
         $imagesDb = $this->getImagesDb($dir);
 
-
         // get and filter images to sync from filesystem
         $dir = $this->pathImagesOriginal.'/'.$dir;
-        $files = new PhotoDbDirectoryIterator($dir, $imagesDb, $this->pathImagesOriginal, FilesystemIterator::SKIP_DOTS);
-        $files = new RecursiveDirectoryIterator($dir,FilesystemIterator::SKIP_DOTS);
-        $filteredFiles = new FilterFilesXmp($files);
-        $filteredFiles = new FilterSyncXmp($filteredFiles, $imagesDb, $this->pathImagesOriginal);
+        $files = new PhotoDbDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS, $imagesDb, $this->pathImagesOriginal);
+        //$filteredFiles = new FilterFilesXmp($files);
+        $filteredFiles = new FilterSyncXmp($files);
         $filteredFiles = new RecursiveIteratorIterator($filteredFiles);
 
         foreach($filteredFiles as $fileinfo) {

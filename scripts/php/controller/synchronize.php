@@ -27,7 +27,7 @@ $response = null;
 
 // directory to sync from image root
 $dir = 'ch/2017-10-Fenalet';
-$dir = 'ch';
+//$dir = 'ch';
 $sync = new Synchronizer($db, $config);
 $sync->updateXmp($dir);
 

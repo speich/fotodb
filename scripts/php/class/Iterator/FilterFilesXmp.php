@@ -1,8 +1,8 @@
 <?php
 
-namespace PhotoDatabase;
+namespace PhotoDatabase\Iterator;
 
-use RecursiveDirectoryIterator;
+use PhotoDatabase\Iterator\PhotoDbDirectoryIterator;
 use RecursiveFilterIterator;
 
 
