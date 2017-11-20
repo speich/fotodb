@@ -3,6 +3,14 @@ namespace PhotoDatabase;
 
 class ExifService
 {
+    /** return only xmp data */
+    const FETCH_XMP = 1;
+
+    /** return only exif data */
+    const FETCH_EXIF = 2;
+
+    /** return both xmp and exif data */
+    const FETCH_BOTH = 3;
 
     private $exiftool = '/cgi-bin/Image-ExifTool-10.24/exiftool';
     private $exiftoolParams = '-c "%+.8f" -g -s2 -j';

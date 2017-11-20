@@ -602,6 +602,7 @@ class Database
      */
     public function getExif($imgSrc)
     {
+        // TODO: use https://github.com/tsmgeek/ExifTool_PHP_Stayopen
         $img = $this->folderImageOriginal.'/'.$imgSrc;
         $exifService = new ExifService();
 

@@ -1,7 +1,10 @@
 <?php
 namespace PhotoDatabase\Database;
 
+use Exiftool\Exceptions\ExifToolBatchException;
+use Exiftool\ExifToolBatch;
 use FilesystemIterator;
+use PhotoDatabase\ExifService;
 use PhotoDatabase\Iterator\FilterFilesXmp;
 use PhotoDatabase\Iterator\FilterSyncXmp;
 use PhotoDatabase\Iterator\PhotoDbDirectoryIterator;
@@ -45,21 +48,29 @@ class Synchronizer
         // get and filter images to sync from filesystem
         $dir = $this->pathImagesOriginal.'/'.$dir;
         $files = new PhotoDbDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS, $imagesDb, $this->pathImagesOriginal);
-        //$filteredFiles = new FilterFilesXmp($files);
         $filteredFiles = new FilterSyncXmp($files);
         $filteredFiles = new RecursiveIteratorIterator($filteredFiles);
 
+        $exifService = ExifToolBatch::getInstance('/media/sf_Websites/fotodb/cgi-bin/Image-ExifTool-10.24/exiftool');
+//        $exifService = new ExifService();
         foreach($filteredFiles as $fileinfo) {
-            // INSERT OR REPLACE INTO Xmp
-            // Database::insertXmp()
-            var_dump($fileinfo);
-            //$this->db->insertXmp($imgId, $arrExif);
+
+            // TODO: getting exif info this way is expensive, use https://github.com/tsmgeek/ExifTool_PHP_Stayopen
+            $imgId = $fileinfo->getImgId();
+            $imgSrc = $fileinfo->getRealPath();
+            $exifService->add($imgSrc);
+            try {
+                $arrExif = $exifService->fetchDecoded(true);
+                $this->db->insertXmp($imgId, $arrExif[0]['XMP']);
+                echo "syncing $imgSrc successful<br>";
+            }
+            catch (ExifToolBatchException $exception) {
+                // TODO: write to log which files failed?
+                echo "syncing $imgSrc failed<br>";
+            }
         }
 
         /*if ($files) {
-
-            //$arrExif = $this->db->getExif($imgSrc);
-            //$exifData = $this->db->mapExif($arrExif);
 
         } else {
             //trigger_error();
@@ -78,6 +89,11 @@ class Synchronizer
         return true;
     }
 
+    /**
+     * Query images to sync from database and create array where the keys are the image path without file extension
+     * @param string $dir
+     * @return array
+     */
     private function getImagesDb($dir)
     {
         $images = [];
