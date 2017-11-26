@@ -7,6 +7,7 @@
 // synchronize xmp data of all xmp files in {folder} with database table Xmp
 // PUT /xmp/{folder}
 
+use Exiftool\Exceptions\ExifToolBatchException;
 use PhotoDatabase\Database\Synchronizer;
 use WebsiteTemplate\Error;
 use WebsiteTemplate\Controller;
@@ -30,8 +31,6 @@ $response = null;
 $dir = '2017-03-Florida';
 $sync = new Synchronizer($db, $config);
 $sync->updateXmp($dir);
-
-
 
 
 

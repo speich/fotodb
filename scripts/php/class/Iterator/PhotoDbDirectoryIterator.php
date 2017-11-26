@@ -70,7 +70,8 @@ class PhotoDbDirectoryIterator extends RecursiveDirectoryIterator
         $record = $this->getRecord();
         if ($record) {
             $obj->setImgId($record['Id']);
-            $obj->setSyncDate($record['SyncDate']);
+            $obj->setSyncDateExif($record['SyncDateExif']);
+            $obj->setSyncDateXmp($record['SyncDateXmp']);
         }
 
         return $obj;

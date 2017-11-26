@@ -8,6 +8,7 @@ use RecursiveFilterIterator;
 
 /**
  * Class FilterFilesXmp
+ * Only returns XMP files from directories and subdirectory recursively.
  * @package PhotoDatabase
  */
 class FilterFilesXmp extends RecursiveFilterIterator

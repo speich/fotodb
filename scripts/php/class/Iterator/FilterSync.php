@@ -9,16 +9,30 @@ use DateTime;
  * Class FilterSyncXmp
  * @package PhotoDatabase
  */
-class FilterSyncXmp extends FilterFilesXmp
+class FilterSync extends FilterFilesXmp
 {
+    const XMP = 1;
+
+    const EXIF = 2;
+
+    public function __construct(\PhotoDatabase\Iterator\PhotoDbDirectoryIterator $iterator)
+    {
+        parent::__construct($iterator);
+    }
+
+    private function getSyncDate() {
+
+    }
 
     /**
      * Checks if the xml data from the file has to be updated in the the database.
+     * @param integer $type FilterSync::XMP or FilterSync::EXIF
      * @return bool
      */
     public function checkSyncDate()
     {
-        $date2 = $this->current()->getSyncDate();
+        $date2 = $this->current()->getSyncDateXmp();
+        return null;
         if ($date2 === null) {
 
             return true;
