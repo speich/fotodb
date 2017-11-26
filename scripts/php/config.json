@@ -1,6 +1,7 @@
 {
     "paths": {
         "imagesWebRoot": "/dbprivate/images",
-        "imagesOriginal": "/media/sf_Bilder"
+        "imagesOriginal": "/media/sf_Bilder",
+        "exifTool": "/media/sf_Websites/fotodb/cgi-bin/Image-ExifTool-10.24"
     }
 }
