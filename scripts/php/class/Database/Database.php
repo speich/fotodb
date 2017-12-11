@@ -37,6 +37,7 @@ class Database
         set_time_limit($this->ExecTime);
         $this->PathImg = $config->paths->imagesWebRoot;
         $this->folderImageOriginal = $config->paths->imagesOriginal;
+        $this->exiftool = $config->paths->exifTool.'/exiftool';
     }
 
     /**
@@ -604,7 +605,7 @@ class Database
     {
         // TODO: use https://github.com/tsmgeek/ExifTool_PHP_Stayopen
         $img = $this->folderImageOriginal.'/'.$imgSrc;
-        $exifService = new ExifService();
+        $exifService = new ExifService($this->exiftool);
 
         return $exifService->getData($img);
     }
@@ -789,8 +790,8 @@ class Database
     public function mapExif($arrExif)
     {
         $data = [];
-        $data['ImageWidth'] = $arrExif['EXIF']['ImageWidth'];
-        $data['ImageHeight'] = $arrExif['EXIF']['ImageHeight'];
+        $data['ImageWidth'] = $arrExif['XMP']['ImageWidth'];    // exif does not report correct image size
+        $data['ImageHeight'] = $arrExif['XMP']['ImageHeight'];
         $data['DateTimeOriginal'] = array_key_exists('DateTimeOriginal',
            $arrExif['EXIF']) ? $arrExif['EXIF']['DateTimeOriginal'] : '';
         $data['ExposureTime'] = array_key_exists('ExposureTime',

@@ -12,7 +12,8 @@ class ExifService
     /** return both xmp and exif data */
     const FETCH_BOTH = 3;
 
-    private $exiftool = '/cgi-bin/Image-ExifTool-10.24/exiftool';
+    private $exiftool;
+
     private $exiftoolParams = '-c "%+.8f" -g -s2 -j';
     //private $exiftoolParams = '-config /cgi-bin/.ExifTool_config -c "%+.8f" -g -s2 -j';  // config does not work, wrong path?
     //private $exiftoolParams = '-G';
@@ -21,8 +22,9 @@ class ExifService
      * ExifService constructor.
      * @param string $lang
      */
-    public function __construct($lang = 'en')
+    public function __construct($path, $lang = 'en')
     {
+        $this->exiftool = $path;
         $this->exiftoolParams .= ' -lang '.$lang;    // TODO: check input which is passed as an argument to exiftool
     }
 
@@ -56,7 +58,7 @@ class ExifService
         // TODO: make this work with other than NEF by using ExifService::originalImageExists
         // TODO: split into getExif and getXmp. Also use spl FileSystemInfo?
         $imageNoExt = substr($img, 0, strrpos($img, '.'));   // remove file extension
-        $tool = __DIR__.'/../../..'.$this->exiftool.' '.$this->exiftoolParams;
+        $tool = $this->exiftool.' '.$this->exiftoolParams;
         exec($tool.' '.$imageNoExt.'.NEF', $data);
         $files = [];
         if (count($data) > 0) {
@@ -88,7 +90,7 @@ class ExifService
     {
         // TODO
         $imageNoExt = substr($img, 0, strrpos($img, '.'));   // remove file extension
-        $tool = __DIR__.'/../../..'.$this->exiftool.' '.$this->exiftoolParams;
+        $tool = $this->exiftool.' '.$this->exiftoolParams;
         exec($tool.' '.$imageNoExt.'.NEF', $data);
         $files = [];
         if (count($data) > 0) {
