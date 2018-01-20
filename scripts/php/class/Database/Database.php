@@ -1,4 +1,5 @@
 <?php
+
 namespace PhotoDatabase\Database;
 
 use DOMDocument;
@@ -51,7 +52,7 @@ class Database
     {
         if (is_null($this->db)) {   // check if not already connected
             try {
-                $dbFile = __DIR__ . $this->dbPath .$this->dbName;
+                $dbFile = __DIR__.$this->dbPath.$this->dbName;
                 $this->db = new PDO('sqlite:'.$dbFile);
                 $isCreated = file_exists($dbFile);
                 if (!$isCreated) {
@@ -60,7 +61,7 @@ class Database
                 $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
                 // Do every time you connect since they are only valid during connection (not permanent)
                 $this->db->sqliteCreateAggregate('GROUP_CONCAT', [$this, 'groupConcatStep'],
-                   [$this, 'groupConcatFinalize']);
+                    [$this, 'groupConcatFinalize']);
                 $this->db->sqliteCreateFunction('STRTOTIME', [$this, 'strToTime']);
 //				$this->Db->sqliteCreateFunction('LOCALE', array($this, 'GetSortOrder'), 1);
                 $this->db->exec("pragma short_column_names = 1");
@@ -142,7 +143,7 @@ class Database
                 $Path = $this->GetWebRoot();
                 break;   // redundant, but for convenience
             case 'Db':
-                $Path = __DIR__ . $this->dbPath;
+                $Path = __DIR__.$this->dbPath;
                 break;
             case 'Img':
                 $Path = $this->PathImg;
@@ -164,7 +165,7 @@ class Database
     public function Insert($img)
     {
         $ImgFolder = str_replace($this->GetWebRoot().ltrim($this->GetPath('Img'), '/'), '',
-           $img);   // remove web images folder path part
+            $img);   // remove web images folder path part
         $ImgName = substr($ImgFolder, strrpos($ImgFolder, '/') + 1);
         $ImgFolder = trim(str_replace($ImgName, '', $ImgFolder), '/');
         $Sql = "INSERT INTO Images (Id, ImgFolder, ImgName, DateAdded, LastChange)
@@ -285,11 +286,11 @@ class Database
         $strXml .= '<ScientificNames Id="'.$ImgId.'">';
         foreach ($Stmt->fetchAll(PDO::FETCH_ASSOC) as $Row) {
             $strXml .= '<ScientificName Id="'.$Row['ScientificNameId'].'" NameDe="'.htmlspecialchars($Row['NameDe'],
-                  ENT_QUOTES, 'UTF-8');
+                    ENT_QUOTES, 'UTF-8');
             $strXml .= '" NameEn="'.htmlspecialchars($Row['NameEn'], ENT_QUOTES,
-                  'UTF-8').'" NameLa="'.htmlspecialchars($Row['NameLa'], ENT_QUOTES, 'UTF-8').'"';
+                    'UTF-8').'" NameLa="'.htmlspecialchars($Row['NameLa'], ENT_QUOTES, 'UTF-8').'"';
             $strXml .= ' SexId="'.$Row['SexId'].'" SexText="'.htmlspecialchars($Row['SexText'], ENT_QUOTES,
-                  'UTF-8').'"/>';
+                    'UTF-8').'"/>';
         }
         $strXml .= '</ScientificNames>';
         // locations
@@ -313,7 +314,7 @@ class Database
                 $strXml .= '" CountryId="'.$CountryId.'">';
             }
             $strXml .= '<Location Id="'.$Row['LocId'].'" Name="'.htmlspecialchars($Row['LocName'], ENT_QUOTES,
-                  'UTF-8').'"/>';
+                    'UTF-8').'"/>';
         }
         $strXml .= '</Locations>';
         $strXml .= '</HtmlFormData>';
@@ -422,7 +423,7 @@ class Database
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->bindParam(':ThemeId', $ThemeId);
-        /** @var DOMElement[] $Children  */
+        /** @var DOMElement[] $Children */
         foreach ($Children as $Child) {
             $ThemeId = $Child->getAttribute('Id');
             $Stmt->execute();
@@ -697,9 +698,9 @@ class Database
             case 'KeywordName':
                 $Query = (isset($_GET['Name']) && $_GET['Name'] != '') ? $_GET['Name'] : '';
                 $Limit = (isset($_GET['count']) && preg_match('/^[0-9]+$/',
-                      $_GET['count']) === 1) ? $_GET['count'] : 50;
+                        $_GET['count']) === 1) ? $_GET['count'] : 50;
                 $Offset = (isset($_GET['start']) && preg_match('/^[0-9]+$/',
-                      $_GET['start']) === 1) ? $_GET['start'] : 0;
+                        $_GET['start']) === 1) ? $_GET['start'] : 0;
                 $Sql = "SELECT Id, Name FROM Keywords WHERE Name LIKE '%'||:Query||'%' ORDER BY Name ASC
 					LIMIT :Limit OFFSET :Offset";
                 $Stmt = $this->db->prepare($Sql);
@@ -713,11 +714,11 @@ class Database
             case 'ScientificName':
                 $Query = (isset($_POST['Val']) && $_POST['Val'] != '') ? $_POST['Val'] : '';
                 $ColName = (isset($_POST['ColName']) && preg_match('/^\w+$/',
-                      $_POST['ColName']) === 1) ? $_POST['ColName'] : 'NameDe';
+                        $_POST['ColName']) === 1) ? $_POST['ColName'] : 'NameDe';
                 $Limit = (isset($_POST['count']) && preg_match('/[0-9]+/',
-                      $_POST['count']) !== false) ? $_POST['count'] : 50;
+                        $_POST['count']) !== false) ? $_POST['count'] : 50;
                 $Offset = (isset($_POST['start']) && preg_match('/[0-9]+/',
-                      $_POST['start']) !== false) ? $_POST['start'] : 0;
+                        $_POST['start']) !== false) ? $_POST['start'] : 0;
                 $Sql = "SELECT Id, NameDe, NameEn, NameLa, ThemeId FROM ScientificNames WHERE $ColName LIKE '%'||:Query||'%' LIMIT :Limit OFFSET :Offset";
                 $Stmt = $this->db->prepare($Sql);
                 $Stmt->bindParam(':Query', $Query);
@@ -793,18 +794,18 @@ class Database
         $data['ImageWidth'] = $arrExif['XMP']['ImageWidth'];    // exif does not report correct image size
         $data['ImageHeight'] = $arrExif['XMP']['ImageHeight'];
         $data['DateTimeOriginal'] = array_key_exists('DateTimeOriginal',
-           $arrExif['EXIF']) ? $arrExif['EXIF']['DateTimeOriginal'] : '';
+            $arrExif['EXIF']) ? $arrExif['EXIF']['DateTimeOriginal'] : '';
         $data['ExposureTime'] = array_key_exists('ExposureTime',
-           $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureTime'] : '';
+            $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureTime'] : '';
         $data['FNumber'] = array_key_exists('FNumber', $arrExif['EXIF']) ? $arrExif['EXIF']['FNumber'] : '';
         $data['ISO'] = array_key_exists('ISO', $arrExif['EXIF']) ? $arrExif['EXIF']['ISO'] : '';
         $data['ExposureProgram'] = array_key_exists('ExposureProgram',
-           $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureProgram'] : '';
+            $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureProgram'] : '';
         $data['MeteringMode'] = array_key_exists('MeteringMode',
-           $arrExif['EXIF']) ? $arrExif['EXIF']['MeteringMode'] : '';
+            $arrExif['EXIF']) ? $arrExif['EXIF']['MeteringMode'] : '';
         $data['Flash'] = array_key_exists('Flash', $arrExif['EXIF']) ? $arrExif['EXIF']['Flash'] : '';
         $data['FocusDistance'] = array_key_exists('FocusDistance',
-           $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['FocusDistance'] : '';
+            $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['FocusDistance'] : '';
         if (array_key_exists('GPSPosition', $arrExif['EXIF'])) {
             $arr = explode(',', $arrExif['EXIF']['GPSPosition']);
             $data['GPSLatitude'] = str_replace('+', '', $arr[0]);
@@ -818,10 +819,10 @@ class Database
         }
         $data['GPSAltitude'] = array_key_exists('GPSAltitude', $arrExif['EXIF']) ? $arrExif['EXIF']['GPSAltitude'] : '';
         $data['GPSAltitudeRef'] = array_key_exists('GPSAltitudeRef',
-           $arrExif['EXIF']) ? $arrExif['EXIF']['GPSAltitudeRef'] : '';
+            $arrExif['EXIF']) ? $arrExif['EXIF']['GPSAltitudeRef'] : '';
         $data['LensSpec'] = array_key_exists('LensSpec', $arrExif['EXIF']) ? $arrExif['EXIF']['LensSpec'] : '';
         $data['VibrationReduction'] = array_key_exists('VibrationReduction',
-           $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['VibrationReduction'] : '';
+            $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['VibrationReduction'] : '';
         foreach ($arrExif['Files'] as $file) {
             if (strtolower($file['FileType']) !== 'xmp') {
                 $data['FileType'] = $file['FileType'];
@@ -833,7 +834,7 @@ class Database
         $data['FocalLength'] = array_key_exists('FocalLength', $arrExif['EXIF']) ? $arrExif['EXIF']['FocalLength'] : '';
         $data['Make'] = array_key_exists('Make', $arrExif['EXIF']) ? $arrExif['EXIF']['Make'] : 'Nikon';
         $data['Model'] = array_key_exists('Model',
-           $arrExif['EXIF']) ? $arrExif['EXIF']['Model'] : 'Nikon SUPER COOLSCAN 5000 ED';
+            $arrExif['EXIF']) ? $arrExif['EXIF']['Model'] : 'Nikon SUPER COOLSCAN 5000 ED';
 
         return $data;
     }
@@ -845,131 +846,228 @@ class Database
     private function createStructure()
     {
         $sql = "BEGIN;
-			CREATE TABLE 'Countries' (
-				'Id' INTEGER PRIMARY KEY  NOT NULL,
-				'NameEn' VARCHAR2,
-				'NameDe' VARCHAR2
-			);
-			CREATE TABLE 'Exif' (
-				'Make' VARCHAR2,
-				'Model' VARCHAR2,
-				'ImageWidth' INTEGER,
-				'ImageHeight' INTEGER,
-				'FileSize' VARCHAR2,
-				'DateTimeOriginal' INTEGER,
-				'ExposureTime' VARCHAR2,
-				'FNumber' INTEGER,
-				'ISO' INTEGER,
-				'ExposureProgram' VARCHAR2,
-				'MeteringMode' VARCHAR2,
-				'Flash' VARCHAR2,
-				'FocusDistance' NUMERIC,
-				'ImgId' INTEGER NOT NULL,
-				'GPSLatitude' FLOAT,
-				'GPSLongitude' FLOAT,
-				'GPSAltitude' INTEGER,
-				'GPSAltitudeRef' INTEGER,
-				'LensSpec' VARCHAR,
-				'VibrationReduction' TEXT,
-				'FileType' VARCHAR,
-				'Lens' VARCHAR,
-				'FocalLength' VARCHAR
-			);
-			CREATE TABLE FilmTypes (
-				Id INTEGER NOT NULL PRIMARY KEY,
-				Name VARCHAR2,
-				`Code` VARCHAR2
-			);
-			CREATE TABLE [Images] (
-				[Id] INTEGER PRIMARY KEY NOT NULL,
-				[ImgFolder] VARCHAR2 NULL,
-				[ImgName] VARCHAR2 NULL,
-				[ImgDateManual] VARCHAR2 NULL,
-				[ImgTechInfo] VARCHAR2 NULL,
-				[FilmTypeId] INTEGER NULL,
-				[RatingId] INTEGER NULL,
-				[DateAdded] INTEGER NULL,
-				[LastChange] INTEGER NULL,
-				[ImgDesc] VARCHAR2 NULL,
-				[ImgTitle] VARCHAR2 NULL,
-				[Public] INTEGER NULL,
-				[DatePublished] INTEGER NULL,
-				[ImgDateOriginal] INTEGER NULL,
-				[ImgLat] FLOAT NULL,
-				[ImgLng] FLOAT NULL
-				,
-				'ShowLoc' INTEGER DEFAULT 1,
-				'CountryId' INTEGER
-			);
-			CREATE TABLE Images_Keywords (
-				ImgId INTEGER NOT NULL,
-				KeywordId INTEGER NOT NULL
-			);
-			CREATE TABLE [Images_Locations] (
-				[ImgId] INTEGER NULL,
-				[LocationId] INTEGER NULL
-			);
-			CREATE TABLE [Images_ScientificNames] (
-				[ImgId] INTEGER NOT NULL,
-				[ScientificNameId] INTEGER NOT NULL,
-				[SexId] INTEGER NOT NULL,
-				PRIMARY KEY ([ImgId], [ScientificNameId])
-			);
-			CREATE TABLE Images_Themes (
-				ImgId INTEGER NOT NULL,
-				ThemeId INTEGER NOT NULL
-			);
-			CREATE TABLE Keywords (
-				Id INTEGER NOT NULL PRIMARY KEY,
-				Name VARCHAR2
-			);
-			CREATE TABLE [Locations] (
-				[Id] INTEGER NOT NULL PRIMARY KEY,
-				[Name] VARCHAR(1024) NULL
-			);
-			CREATE TABLE [Locations_Countries] (
-				[LocationId] INTEGER NULL,
-				[CountryId] INTEGER NULL
-			);
-			CREATE TABLE Rating (
-				Id INTEGER NOT NULL PRIMARY KEY,
-				Name VARCHAR2
-			);
-			CREATE TABLE 'ScientificNames' (
-				'Id' INTEGER PRIMARY KEY  NOT NULL,
-				'NameDe' VARCHAR2,
-				'NameEn' VARCHAR2,
-				'NameLa' VARCHAR2,
-				'ThemeId' INTEGER DEFAULT (NULL)
-			);
-			CREATE TABLE Sexes (
-				Id INTEGER NOT NULL PRIMARY KEY,
-				Name VARCHAR2
-			);
-			CREATE TABLE 'SubjectAreas' (
-				'Id' INTEGER PRIMARY KEY  NOT NULL,
-				'NameDe' VARCHAR,
-				'NameEn' VARCHAR
-			);
-			CREATE TABLE 'Themes' (
-				'Id' INTEGER PRIMARY KEY  NOT NULL,
-				'NameDe' VARCHAR2,
-				'SubjectAreaId' INTEGER,
-				'NameEn' VARCHAR
-			);
-			CREATE TABLE 'birds' (
-				'lat',
-				'dng'
-			);
-			CREATE TABLE searchIndex (
-				id INTEGER PRIMARY KEY,
-				word TEXT UNIQUE ON CONFLICT IGNORE
-			);
-			CREATE TABLE searchOccurrences (
-				wordId INTEGER NOT NULL,
-				recordId INTEGER NOT NULL
-			);
-			COMMIT;";
+        create table Countries
+        (
+        	Id INTEGER not null
+        		primary key,
+        	NameEn VARCHAR2,
+        	NameDe VARCHAR2
+        )
+        ;
+        
+        create table Exif
+        (
+        	Make VARCHAR2,
+        	Model VARCHAR2,
+        	ImageWidth INTEGER,
+        	ImageHeight INTEGER,
+        	FileSize VARCHAR2,
+        	DateTimeOriginal INTEGER,
+        	ExposureTime VARCHAR2,
+        	FNumber INTEGER,
+        	ISO INTEGER,
+        	ExposureProgram VARCHAR2,
+        	MeteringMode VARCHAR2,
+        	Flash VARCHAR2,
+        	FocusDistance NUMERIC,
+        	ImgId INTEGER not null,
+        	GPSLatitude FLOAT,
+        	GPSLongitude FLOAT,
+        	GPSAltitude INTEGER,
+        	GPSAltitudeRef INTEGER,
+        	LensSpec VARCHAR,
+        	VibrationReduction TEXT,
+        	FileType VARCHAR,
+        	Lens VARCHAR,
+        	FocalLength VARCHAR,
+        	SyncDate TEXT default null
+        )
+        ;
+        
+        create unique index Exif_ImgId_uindex
+        	on Exif (ImgId)
+        ;
+        
+        create table FilmTypes
+        (
+        	Id INTEGER not null
+        		primary key,
+        	Name VARCHAR2,
+        	Code VARCHAR2
+        )
+        ;
+        
+        create table Images
+        (
+        	Id INTEGER not null
+        		primary key,
+        	ImgFolder VARCHAR2,
+        	ImgName VARCHAR2,
+        	ImgDateManual VARCHAR2,
+        	ImgTechInfo VARCHAR2,
+        	FilmTypeId INTEGER,
+        	RatingId INTEGER,
+        	DateAdded INTEGER,
+        	LastChange INTEGER,
+        	ImgDesc VARCHAR2,
+        	ImgTitle VARCHAR2,
+        	Public INTEGER,
+        	DatePublished INTEGER,
+        	ImgDateOriginal INTEGER,
+        	ImgLat FLOAT,
+        	ImgLng FLOAT,
+        	ShowLoc INTEGER default 1,
+        	CountryId INTEGER
+        )
+        ;
+        
+        alter table Exif
+        	add constraint Exif_Images_Id_fk
+        		foreign key (ImgId) references Images
+        ;
+        
+        create table Images_Keywords
+        (
+        	ImgId INTEGER not null,
+        	KeywordId INTEGER not null
+        )
+        ;
+        
+        create table Images_Locations
+        (
+        	ImgId INTEGER,
+        	LocationId INTEGER
+        )
+        ;
+        
+        create table Images_ScientificNames
+        (
+        	ImgId INTEGER not null,
+        	ScientificNameId INTEGER not null,
+        	SexId INTEGER not null,
+        	primary key (ImgId, ScientificNameId)
+        )
+        ;
+        
+        create table Images_Themes
+        (
+        	ImgId INTEGER not null,
+        	ThemeId INTEGER not null
+        )
+        ;
+        
+        create table Keywords
+        (
+        	Id INTEGER not null
+        		primary key,
+        	Name VARCHAR2
+        )
+        ;
+        
+        create table Locations
+        (
+        	Id INTEGER not null
+        		primary key,
+        	Name VARCHAR(1024)
+        )
+        ;
+        
+        create table Locations_Countries
+        (
+        	LocationId INTEGER,
+        	CountryId INTEGER
+        )
+        ;
+        
+        create table Rating
+        (
+        	Id INTEGER not null
+        		primary key,
+        	Name VARCHAR2
+        )
+        ;
+        
+        create table ScientificNames
+        (
+        	Id INTEGER not null
+        		primary key,
+        	NameDe VARCHAR2,
+        	NameEn VARCHAR2,
+        	NameLa VARCHAR2,
+        	ThemeId INTEGER default null
+        )
+        ;
+        
+        create table Sexes
+        (
+        	Id INTEGER not null
+        		primary key,
+        	Name VARCHAR2
+        )
+        ;
+        
+        create table SubjectAreas
+        (
+        	Id INTEGER not null
+        		primary key,
+        	NameDe VARCHAR,
+        	NameEn VARCHAR
+        )
+        ;
+        
+        create table Themes
+        (
+        	Id INTEGER not null
+        		primary key,
+        	NameDe VARCHAR2,
+        	SubjectAreaId INTEGER,
+        	NameEn VARCHAR
+        )
+        ;
+        
+        create table Xmp
+        (
+        	ImgId INT
+        		constraint Xmp_Images_Id_fk
+        			references Images,
+        	CropTop FLOAT,
+        	CropLeft FLOAT,
+        	CropBottom FLOAT,
+        	CropRight FLOAT,
+        	CropAngle FLOAT,
+        	SyncDate TEXT default null
+        )
+        ;
+        
+        create unique index Xmp_ImgId_uindex
+        	on Xmp (ImgId)
+        ;
+        
+        create table searchIndex
+        (
+        	id INTEGER
+        		primary key,
+        	word TEXT
+        		unique
+        		on conflict ignore
+        )
+        ;
+        
+        create table searchOccurrences
+        (
+        	wordId INTEGER not null,
+        	recordId INTEGER not null
+        )
+        ;
+        
+        create table sqlite_stat1
+        (
+        	tbl,
+        	idx,
+        	stat
+        )
+        ;
+        			COMMIT;";
         $this->db->exec($sql);
         print_r($this->db->errorInfo());
 
