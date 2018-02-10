@@ -1,5 +1,11 @@
 <?php
+
 namespace PhotoDatabase;
+
+use Exiftool\Exceptions\ExifToolBatchException;
+use Exiftool\ExifToolBatch;
+use PhotoDatabase\Iterator\FileInfoImage;
+
 
 class ExifService
 {
@@ -15,8 +21,6 @@ class ExifService
     private $exiftool;
 
     private $exiftoolParams = '-c "%+.8f" -g -s2 -j';
-    //private $exiftoolParams = '-config /cgi-bin/.ExifTool_config -c "%+.8f" -g -s2 -j';  // config does not work, wrong path?
-    //private $exiftoolParams = '-G';
 
     /**
      * ExifService constructor.
@@ -36,74 +40,40 @@ class ExifService
     }
 
     /**
-     * Checks if a XMP sidecar file exists.
-     * @param $img
-     * @return bool
-     */
-    public function hasSeparateXmpFile($img)
-    {
-        $imageNoExt = substr($img, 0, strrpos($img, '.'));   // remove file extension
-
-        return file_exists($imageNoExt.'.'.'xmp');
-    }
-
-    /**
-     * Returns exif data as a multidimensional array.
+     * Returns exif data from raw and xmp as a multidimensional array.
      * Calls the exif tool for NEF and xmp
      * @param string $img full path of image
      * @return array mixed
      */
     public function getData($img)
     {
-        // TODO: make this work with other than NEF by using ExifService::originalImageExists
-        // TODO: split into getExif and getXmp. Also use spl FileSystemInfo?
-        $imageNoExt = substr($img, 0, strrpos($img, '.'));   // remove file extension
-        $tool = $this->exiftool.' '.$this->exiftoolParams;
-        exec($tool.' '.$imageNoExt.'.NEF', $data);
-        $files = [];
-        if (count($data) > 0) {
-            $data = implode('', $data);
-            $data1 = json_decode($data, true);
-            $data1 = array_pop($data1);
-            $files[0] = $data1['File']; // $data1['File'] NEF would be overwritten by $data2['File'] XMP
-            unset($data1['File']);
-            $data2 = [];
-            if ($this->hasSeparateXmpFile($img)) {
-                exec($tool.' '.$imageNoExt.'.xmp', $data);   // note: exec appends the data
-                $data = implode('', $data);
-                $data2 = json_decode($data, true);
-                $data2 = array_pop($data2);
-                $files[1] = $data2['File'];
-                unset($data2['File']);
-            }
+        $imgInfo = new FileInfoImage($img);
+        $extRaw = $imgInfo->getRealPathRaw();
+        $extXmp = $imgInfo->getRealPathXmp();
 
-            $data = array_merge($data1, $data2);
-            $data['Files'] = $files;
-
-            return $data;
-        } else {
-            return $data;
+        $exifService = ExifToolBatch::getInstance($this->exiftool.'/exiftool', $this->exiftoolParams);
+        if ($extRaw !== null) {
+            $files[] = $extRaw;
         }
-    }
-
-    public function getExif($img)
-    {
-        // TODO
-        $imageNoExt = substr($img, 0, strrpos($img, '.'));   // remove file extension
-        $tool = $this->exiftool.' '.$this->exiftoolParams;
-        exec($tool.' '.$imageNoExt.'.NEF', $data);
-        $files = [];
-        if (count($data) > 0) {
-            $data = implode('', $data);
-            $data1 = json_decode($data, true);
-            $data1 = array_pop($data1);
-            $files[0] = $data1['File']; // $data1['File'] NEF would be overwritten by $data2['File'] XMP
-            unset($data1['File']);
+        if ($extXmp !== null) {
+            $files[] = $extXmp;
         }
-    }
+        $exifService->add($files);
+        try {
+            $data = $exifService->fetchAllDecoded(true);
+        } catch (ExifToolBatchException $exception) {
+            $data = [];
+        }
 
-    public function getXmp() {
-        // TODO
+        // merge xmp and exif arrays into one without overwriting $data[0]['File'] of NEF and of $data[1]['File'] XMP
+        $files[0] = $data[0]['File'];
+        $files[1] = $data[1]['File'];
+        unset($data[0]['File']);
+        unset($data[1]['File']);
+        $data = array_merge($data[0], $data[1]);
+        $data['Files'] = $files;
+
+        return $data;
     }
 
     /**

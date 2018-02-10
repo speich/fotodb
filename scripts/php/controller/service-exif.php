@@ -11,7 +11,7 @@ require_once '../inc_script.php';
 $config = json_decode(file_get_contents('../config.json'));
 
 $lang = isset($_GET['lang']) ? filter_input(INPUT_GET, 'lang', FILTER_SANITIZE_MAGIC_QUOTES) : 'en';
-$exif = new ExifService($config->paths->exifTool.'/exiftool', $lang);
+$exif = new ExifService($config->paths->exifTool, $lang);
 
 // query string should only contain path information below image root, e.g. below /dbprivate/images/
 // which will be mapped into /media/sf_Bilder/

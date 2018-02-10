@@ -38,7 +38,7 @@ class Database
         set_time_limit($this->ExecTime);
         $this->PathImg = $config->paths->imagesWebRoot;
         $this->folderImageOriginal = $config->paths->imagesOriginal;
-        $this->exiftool = $config->paths->exifTool.'/exiftool';
+        $this->exiftool = $config->paths->exifTool;
     }
 
     /**
