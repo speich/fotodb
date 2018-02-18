@@ -848,228 +848,227 @@ class Database
     private function createStructure()
     {
         $sql = "BEGIN;
-        create table Countries
-        (
-        	Id INTEGER not null
-        		primary key,
-        	NameEn VARCHAR2,
-        	NameDe VARCHAR2
-        )
-        ;
-        
-        create table Exif
-        (
-        	Make VARCHAR2,
-        	Model VARCHAR2,
-        	ImageWidth INTEGER,
-        	ImageHeight INTEGER,
-        	FileSize VARCHAR2,
-        	DateTimeOriginal INTEGER,
-        	ExposureTime VARCHAR2,
-        	FNumber INTEGER,
-        	ISO INTEGER,
-        	ExposureProgram VARCHAR2,
-        	MeteringMode VARCHAR2,
-        	Flash VARCHAR2,
-        	FocusDistance NUMERIC,
-        	ImgId INTEGER not null,
-        	GPSLatitude FLOAT,
-        	GPSLongitude FLOAT,
-        	GPSAltitude INTEGER,
-        	GPSAltitudeRef INTEGER,
-        	LensSpec VARCHAR,
-        	VibrationReduction TEXT,
-        	FileType VARCHAR,
-        	Lens VARCHAR,
-        	FocalLength VARCHAR,
-        	SyncDate TEXT default null
-        )
-        ;
-        
-        create unique index Exif_ImgId_uindex
-        	on Exif (ImgId)
-        ;
-        
-        create table FilmTypes
-        (
-        	Id INTEGER not null
-        		primary key,
-        	Name VARCHAR2,
-        	Code VARCHAR2
-        )
-        ;
-        
-        create table Images
-        (
-        	Id INTEGER not null
-        		primary key,
-        	ImgFolder VARCHAR2,
-        	ImgName VARCHAR2,
-        	ImgDateManual VARCHAR2,
-        	ImgTechInfo VARCHAR2,
-        	FilmTypeId INTEGER,
-        	RatingId INTEGER,
-        	DateAdded INTEGER,
-        	LastChange INTEGER,
-        	ImgDesc VARCHAR2,
-        	ImgTitle VARCHAR2,
-        	Public INTEGER,
-        	DatePublished INTEGER,
-        	ImgDateOriginal INTEGER,
-        	ImgLat FLOAT,
-        	ImgLng FLOAT,
-        	ShowLoc INTEGER default 1,
-        	CountryId INTEGER
-        )
-        ;
-        
-        alter table Exif
-        	add constraint Exif_Images_Id_fk
-        		foreign key (ImgId) references Images
-        ;
-        
-        create table Images_Keywords
-        (
-        	ImgId INTEGER not null,
-        	KeywordId INTEGER not null
-        )
-        ;
-        
-        create table Images_Locations
-        (
-        	ImgId INTEGER,
-        	LocationId INTEGER
-        )
-        ;
-        
-        create table Images_ScientificNames
-        (
-        	ImgId INTEGER not null,
-        	ScientificNameId INTEGER not null,
-        	SexId INTEGER not null,
-        	primary key (ImgId, ScientificNameId)
-        )
-        ;
-        
-        create table Images_Themes
-        (
-        	ImgId INTEGER not null,
-        	ThemeId INTEGER not null
-        )
-        ;
-        
-        create table Keywords
-        (
-        	Id INTEGER not null
-        		primary key,
-        	Name VARCHAR2
-        )
-        ;
-        
-        create table Locations
-        (
-        	Id INTEGER not null
-        		primary key,
-        	Name VARCHAR(1024)
-        )
-        ;
-        
-        create table Locations_Countries
-        (
-        	LocationId INTEGER,
-        	CountryId INTEGER
-        )
-        ;
-        
-        create table Rating
-        (
-        	Id INTEGER not null
-        		primary key,
-        	Name VARCHAR2
-        )
-        ;
-        
-        create table ScientificNames
-        (
-        	Id INTEGER not null
-        		primary key,
-        	NameDe VARCHAR2,
-        	NameEn VARCHAR2,
-        	NameLa VARCHAR2,
-        	ThemeId INTEGER default null
-        )
-        ;
-        
-        create table Sexes
-        (
-        	Id INTEGER not null
-        		primary key,
-        	Name VARCHAR2
-        )
-        ;
-        
-        create table SubjectAreas
-        (
-        	Id INTEGER not null
-        		primary key,
-        	NameDe VARCHAR,
-        	NameEn VARCHAR
-        )
-        ;
-        
-        create table Themes
-        (
-        	Id INTEGER not null
-        		primary key,
-        	NameDe VARCHAR2,
-        	SubjectAreaId INTEGER,
-        	NameEn VARCHAR
-        )
-        ;
-        
-        create table Xmp
-        (
-        	ImgId INT
-        		constraint Xmp_Images_Id_fk
-        			references Images,
-        	CropTop FLOAT,
-        	CropLeft FLOAT,
-        	CropBottom FLOAT,
-        	CropRight FLOAT,
-        	CropAngle FLOAT,
-        	SyncDate TEXT default null
-        )
-        ;
-        
-        create unique index Xmp_ImgId_uindex
-        	on Xmp (ImgId)
-        ;
-        
-        create table searchIndex
-        (
-        	id INTEGER
-        		primary key,
-        	word TEXT
-        		unique
-        		on conflict ignore
-        )
-        ;
-        
-        create table searchOccurrences
-        (
-        	wordId INTEGER not null,
-        	recordId INTEGER not null
-        )
-        ;
-        
-        create table sqlite_stat1
-        (
-        	tbl,
-        	idx,
-        	stat
-        )
-        ;
-        			COMMIT;";
+            create table Countries
+            (
+                Id INTEGER not null
+                    primary key,
+                NameEn VARCHAR2,
+                NameDe VARCHAR2
+            )
+            ;
+            
+            create table FilmTypes
+            (
+                Id INTEGER not null
+                    primary key,
+                Name VARCHAR2,
+                Code VARCHAR2
+            )
+            ;
+            
+            create table Images
+            (
+                Id INTEGER not null
+                    primary key,
+                ImgFolder VARCHAR2,
+                ImgName VARCHAR2,
+                ImgDateManual VARCHAR2,
+                ImgTechInfo VARCHAR2,
+                FilmTypeId INTEGER,
+                RatingId INTEGER,
+                DateAdded INTEGER,
+                LastChange INTEGER,
+                ImgDesc VARCHAR2,
+                ImgTitle VARCHAR2,
+                Public INTEGER,
+                DatePublished INTEGER,
+                ImgDateOriginal INTEGER,
+                ImgLat FLOAT,
+                ImgLng FLOAT,
+                ShowLoc INTEGER default 1,
+                CountryId INTEGER
+            )
+            ;
+            
+            create table Exif
+            (
+                Make VARCHAR2,
+                Model VARCHAR2,
+                ImageWidth INTEGER,
+                ImageHeight INTEGER,
+                FileSize VARCHAR2,
+                DateTimeOriginal INTEGER,
+                ExposureTime VARCHAR2,
+                FNumber INTEGER,
+                ISO INTEGER,
+                ExposureProgram VARCHAR2,
+                MeteringMode VARCHAR2,
+                Flash VARCHAR2,
+                FocusDistance NUMERIC,
+                ImgId INTEGER not null
+                    constraint Exif_Images_Id_fk
+                        references Images,
+                GPSLatitude FLOAT,
+                GPSLongitude FLOAT,
+                GPSAltitude INTEGER,
+                GPSAltitudeRef INTEGER,
+                LensSpec VARCHAR,
+                VibrationReduction TEXT,
+                FileType VARCHAR,
+                Lens VARCHAR,
+                FocalLength VARCHAR,
+                SyncDate TEXT default null
+            )
+            ;
+            
+            create unique index Exif_ImgId_uindex
+                on Exif (ImgId)
+            ;
+            
+            create table Images_Keywords
+            (
+                ImgId INTEGER not null,
+                KeywordId INTEGER not null
+            )
+            ;
+            
+            create table Images_Locations
+            (
+                ImgId INTEGER,
+                LocationId INTEGER
+            )
+            ;
+            
+            create table Images_ScientificNames
+            (
+                ImgId INTEGER not null,
+                ScientificNameId INTEGER not null,
+                SexId INTEGER not null,
+                primary key (ImgId, ScientificNameId)
+            )
+            ;
+            
+            create table Images_Themes
+            (
+                ImgId INTEGER not null,
+                ThemeId INTEGER not null
+            )
+            ;
+            
+            create table Keywords
+            (
+                Id INTEGER not null
+                    primary key,
+                Name VARCHAR2
+            )
+            ;
+            
+            create table Locations
+            (
+                Id INTEGER not null
+                    primary key,
+                Name VARCHAR(1024)
+            )
+            ;
+            
+            create table Locations_Countries
+            (
+                LocationId INTEGER,
+                CountryId INTEGER
+            )
+            ;
+            
+            create table Rating
+            (
+                Id INTEGER not null
+                    primary key,
+                Name VARCHAR2
+            )
+            ;
+            
+            create table ScientificNames
+            (
+                Id INTEGER not null
+                    primary key,
+                NameDe VARCHAR2,
+                NameEn VARCHAR2,
+                NameLa VARCHAR2,
+                ThemeId INTEGER default null
+            )
+            ;
+            
+            create table Sexes
+            (
+                Id INTEGER not null
+                    primary key,
+                NameEn VARCHAR2,
+                NameDe VARCHAR2,
+                Symbol TEXT
+            )
+            ;
+            
+            create table SubjectAreas
+            (
+                Id INTEGER not null
+                    primary key,
+                NameDe VARCHAR,
+                NameEn VARCHAR
+            )
+            ;
+            
+            create table Themes
+            (
+                Id INTEGER not null
+                    primary key,
+                NameDe VARCHAR2,
+                SubjectAreaId INTEGER,
+                NameEn VARCHAR
+            )
+            ;
+            
+            create table Xmp
+            (
+                ImgId INT
+                    constraint Xmp_Images_Id_fk
+                        references Images,
+                CropTop FLOAT,
+                CropLeft FLOAT,
+                CropBottom FLOAT,
+                CropRight FLOAT,
+                CropAngle FLOAT,
+                SyncDate TEXT default null
+            )
+            ;
+            
+            create unique index Xmp_ImgId_uindex
+                on Xmp (ImgId)
+            ;
+            
+            create table searchIndex
+            (
+                id INTEGER
+                    primary key,
+                word TEXT
+                    unique
+                    on conflict ignore
+            )
+            ;
+            
+            create table searchOccurrences
+            (
+                wordId INTEGER not null,
+                recordId INTEGER not null
+            )
+            ;
+            
+            create table sqlite_stat1
+            (
+                tbl,
+                idx,
+                stat
+            )
+            ;
+            COMMIT;";
         $this->db->exec($sql);
         print_r($this->db->errorInfo());
 
