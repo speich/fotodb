@@ -28,9 +28,9 @@ $location = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'Location');
 $location->setMultiple();
 $location->setDefaultVal(false);
 
-$q = $db->db->query("SELECT * FROM Sexes ORDER BY Name ASC");
+$q = $db->db->query("SELECT Id, NameDe FROM Sexes ORDER BY NameDe ASC");
 $speciesSex = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'SpeciesSexId');
-$speciesSex->setSelected('unknown', SelectField::SELECTED_BY_TEXT);
+$speciesSex->setSelected('4');
 ?>
 <!DOCTYPE html>
 <html>

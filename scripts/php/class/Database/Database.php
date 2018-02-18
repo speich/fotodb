@@ -275,7 +275,9 @@ class Database
         }
         $strXml .= '</Keywords>';
         // species
-        $Sql = "SELECT ScientificNameId, NameDe, NameEn, NameLa, SexId, ss.Name SexText 
+        $Sql = "SELECT isn.ScientificNameId, isn.SexId,
+                sn.NameDe, sn.NameEn, sn.NameLa, 
+                ss.NameEn SexEn, ss.NameDe SexDe 
 			FROM Images_ScientificNames isn 
 			INNER JOIN ScientificNames sn ON isn.ScientificNameId = sn.Id
 			INNER JOIN Sexes ss ON isn.SexId = ss.Id
@@ -289,7 +291,7 @@ class Database
                     ENT_QUOTES, 'UTF-8');
             $strXml .= '" NameEn="'.htmlspecialchars($Row['NameEn'], ENT_QUOTES,
                     'UTF-8').'" NameLa="'.htmlspecialchars($Row['NameLa'], ENT_QUOTES, 'UTF-8').'"';
-            $strXml .= ' SexId="'.$Row['SexId'].'" SexText="'.htmlspecialchars($Row['SexText'], ENT_QUOTES,
+            $strXml .= ' SexId="'.$Row['SexId'].'" SexText="'.htmlspecialchars($Row['SexDe'], ENT_QUOTES,
                     'UTF-8').'"/>';
         }
         $strXml .= '</ScientificNames>';
