@@ -4,21 +4,31 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1b7db17855af7746a1e81d7f9d558a73",
-    "content-hash": "63d94d984d9eb9c5d8ce19ce489ac119",
+    "content-hash": "76213c578b4e4db4fbe3d1b493f9f81e",
     "packages": [
         {
+            "name": "exiftool/exiftool",
+            "version": "10.75",
+            "dist": {
+                "type": "tar",
+                "url": "https://sno.phy.queensu.ca/~phil/exiftool/Image-ExifTool-10.75.tar.gz",
+                "reference": null,
+                "shasum": null
+            },
+            "type": "library"
+        },
+        {
             "name": "speich.net/WebsiteTemplate",
-            "version": "dev-master",
+            "version": "v1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/speich/WebsiteTemplate.git",
-                "reference": "4f6bcb8918bf33cb3336d492656bbbfa17d99e5a"
+                "reference": "d5bd516fcbe8bf7cd928b21bb1535b207d28d46e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/speich/WebsiteTemplate/zipball/4f6bcb8918bf33cb3336d492656bbbfa17d99e5a",
-                "reference": "4f6bcb8918bf33cb3336d492656bbbfa17d99e5a",
+                "url": "https://api.github.com/repos/speich/WebsiteTemplate/zipball/d5bd516fcbe8bf7cd928b21bb1535b207d28d46e",
+                "reference": "d5bd516fcbe8bf7cd928b21bb1535b207d28d46e",
                 "shasum": ""
             },
             "type": "library",
@@ -28,10 +38,10 @@
                 }
             },
             "support": {
-                "source": "https://github.com/speich/WebsiteTemplate/tree/v1.3",
+                "source": "https://github.com/speich/WebsiteTemplate/tree/v1.5",
                 "issues": "https://github.com/speich/WebsiteTemplate/issues"
             },
-            "time": "2017-11-14 12:21:41"
+            "time": "2017-11-24T09:43:26+00:00"
         },
         {
             "name": "tsmgeek/exif-tool_php_stayopen",
@@ -69,14 +79,13 @@
                 "docs": "https://www.sno.phy.queensu.ca/~phil/exiftool/faq.html",
                 "source": "https://github.com/mkardakov/ExifTool_PHP_Stayopen/tree/master"
             },
-            "time": "2017-10-08 14:16:46"
+            "time": "2017-10-08T14:16:46+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "speich.net/websitetemplate": 20,
         "tsmgeek/exif-tool_php_stayopen": 20
     },
     "prefer-stable": false,
