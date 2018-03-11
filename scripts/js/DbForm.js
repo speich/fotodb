@@ -399,29 +399,30 @@ define([
 			this.fotoDb.ReloadLocation();	// after adding new location data update list of locations to reflect that
 		},
 
-		updateLocation: function(data) {
-			// fill locations part of form
-			var self = this,
-			nodes = data.getElementsByTagName('GeoName'),
-			i = 0, len = nodes.length,
-			opt, target,
-			el = byId('CountryId');
 
-			if (!data) {
-				alert('Reverse geocoding failed');
-				return;
-			}
+		/**
+		 * Populate locations part of form
+		 * @param {json} geonames
+		 */
+		updateLocation: function(geonames) {
+			let self = this,
+				len = geonames.length,
+				i, adminName,
+				opt, target,
+				el = byId('CountryId');
 
-			if (len > 0) {
-				for (i = 0; i < len; i++) {
-					var name = data.getElementsByTagName('GeoName')[i].firstChild.nodeValue;
-					self.fotoDb.createLocationElements('', name);	// id is given after insert into database
+			for (i = 0; i < len; i++) {
+				self.fotoDb.createLocationElements('', geonames[i].name);	// id of HtmlDivElement is given after insert into database
+				if (geonames[i].adminName1 && (adminName === undefined || adminName !== geonames[i].adminName1)) {
+					// also add administrative unit name if not added previously
+					self.fotoDb.createLocationElements('', geonames[i].adminName1);
+					adminName = geonames[i].adminName;
 				}
 			}
 
 			// set HTMLSelectElement CountryId selected
 			for (i = 0, len = el.options.length; i < len; i++) {
-				var countryName = data.getElementsByTagName('CountryName').item(0).firstChild.data;
+				let countryName = geonames[0].countryName;
 
 				opt = el.options[i];
 				if (opt.text === countryName) {
@@ -430,6 +431,7 @@ define([
 				}
 			}
 
+			// update HtmlSelectElement with countries
 			target = PHPDbFncUrl + '?Fnc=FldLoadData&FldName=Location&CountryId=' + opt.value;
 			xhr.post(target,  {
 				handleAs: 'text'

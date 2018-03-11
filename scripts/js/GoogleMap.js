@@ -16,13 +16,18 @@ define([
 
 	return declare(null, {
 
-        gmaps: google.maps,
+    gmaps: google.maps,
 		map: null,
 		mapLat: 45,	// initial map coordinates
 		mapLng: 12,
 		mapZoom: 5,	// initial map zoom
 		markers: [],
 		fotoDb: null,
+		/** initial radius for reverse geocoding */
+		geonamesRadius: 1,
+		geonamesRadiusMax: 33,
+		/** user name for geonames service */
+		geonamesUser: 'speichnet',
 
 		/**
 		 *
@@ -39,28 +44,47 @@ define([
 		},
 
 		/**
-		 * Convert point coordinates into location names and fill form.
+		 * Use coordinates and radius to lookup geonames.
 		 */
-		reverseGeocode: function(latLng) {
-			let dfd = new Deferred();
+		reverseGeocode: function(latLng, radius = this.geonamesRadius) {
+			let promise, marker,
+				url = 'https://secure.geonames.org/findNearbyPlaceNameJSON',
+				query = '?lat=' + latLng.lat() + '&lng=' + latLng.lng() + '&radius=' + radius + '&username=' + this.geonamesUser;
 
-			if (!latLng) {
-				// user only clicked (closed) info marker window
-				dfd.cancel();
-				return dfd;
-			}
+			marker = this.addMarker({position: latLng}, 'throbber');
 
-			var target = '../scripts/php/controller/reversegeocode.php?Lat=' + latLng.lat() + '&Lng=' + latLng.lng(),
-				marker = this.addMarker({ position: latLng }, 'throbber');
+			promise = fetch(url + query, {
+				mode: 'cors',
+				credentials: 'omit',
+				method: 'GET'
+			})
+				.then(response => {
+					if (response.ok) {
+						return response.json();
+					}
+					else {
+						throw new Error(response.status + ' ' + response.statusText);
+					}
+				})
+				.then(json => {
+					if (json.geonames.length === 0 && radius < this.geonamesRadiusMax) {
+						radius *= 2;
+						return this.reverseGeocode(latLng, radius);
+					}
+					else {
 
-			return xhr.get(target, {
-				handleAs: 'xml'
+						return json.geonames;
+					}
+				})
+				.catch(error => {
+					alert('Reverse geocoding failed: ' + error);
+				})
+				.then(geonames => {
+					marker.setMap(null);	// remove the loading icon
+					return geonames;
+				});
 
-			}).then(function(result) {
-
-				marker.setMap(null);	// remove the loading icon
-				return result;
-			});
+			return promise;
 		},
 
 		/**
