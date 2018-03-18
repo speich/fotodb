@@ -1,15 +1,4 @@
-.ImgExplorer div {
-	margin: 1px;
-	background-color: #cccccc;
-	float: left;
-	font-size: 11px;
-	padding: 20px;
-}
 
-.ImgExplorer img {
-	width: 180px;
-	border: 1px solid black;
-}
 
 #ImgExplTop {
 	overflow: auto;
@@ -20,12 +9,21 @@
 	vertical-align: top;
 }
 
+.FileExplorer td:nth-child(2) {
+	text-align: right;
+}
+
 .FileExplorer img {
 	width: 80px;
 	border: 1px solid grey;
 }
 
 .FileExplorer a { text-decoration: none; }
+
+
+.FileExplorer .selected {
+	background-color: #00aaff;
+}
 
 .MarkDone {
 	background-color: green;

@@ -90,6 +90,7 @@ define([
 
       // ajax done loading selected image or directory
       this.Explorer.SetDoneFnc(this.Explorer, function() {
+
         if (this.Type == 'File') {
           var arrTr = Self.Explorer.ParEl.getElementsByTagName('tr');
           var i = arrTr.length - 1;
@@ -107,9 +108,53 @@ define([
               }, false);
             }
           }
+
+	        Self.queryAllImagesLoaded('.FileExplorer img')
+		        .then(() => {
+			        let id, img, oldHash = location.hash;
+
+			        // browser scroll to hash on load because images are not loaded yet
+			        // but a specidif hash can only be set once, so reset if fist, check if all images loaded (because setting it
+			        // to early will scoll to wrong heigth, because of every thumbnail being loaded changes the height of the explorer.
+			        //      window.location.hash = oldHash;
+			        id = oldHash.slice(1);
+			        if (id !== '') {
+				        img = byId(id);
+				        img.scrollIntoView({behavior: 'smooth', block: 'center'});
+				        img.parentNode.parentNode.classList.add('selected');
+			        }
+		        });
         }
       });
-      this.Explorer.LoadFiles();
+	    this.Explorer.LoadFiles();
+    },
+
+	  /**
+	   *
+	   * @param {DOMString} selectors css selectors to match
+	   * @returns {Promise<any[]>}
+	   */
+    queryAllImagesLoaded: function(selectors) {
+	    let images = document.querySelectorAll(selectors),
+		    promises = [];
+
+	    images.forEach(function(img) {
+		    let promise;
+
+		    if (img.complete) {
+			    // in case image is already loaded before we add the onload event
+			    promise = Promise.resolve();
+		    }
+		    else {
+			    promise = new Promise((resolve, reject) => {
+				    img.onload = resolve;
+			    });
+		    }
+		    promises.push(promise);
+
+	    });
+
+		  return Promise.all(promises);
     },
 
     /**
@@ -157,6 +202,8 @@ define([
         this.Frm.Fill(xml);
         // mark image if its in the database
         byId(Img.id).parentNode.setAttribute('class', 'MarkDone');
+        // set hash for autoscroll on load
+	      window.history.pushState(null, null, '#' + Img.id);
         this.Frm.EnableFields();
         Img.parentNode.parentNode.style.opacity = 1;
         byId('SpeciesSexId').focus();
@@ -307,7 +354,7 @@ define([
           var arrTr = this.Explorer.ParEl.getElementsByTagName('tr');
           var i = arrTr.length - 1;
           for (; i > -1; i--) {
-            arrTr[i].style.backgroundColor = 'inherit';
+            arrTr[i].classList.remove('selected');
           }
         });
         Ajax.LoadData(PHPDbFncUrl);

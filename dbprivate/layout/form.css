@@ -5,11 +5,7 @@ input, textarea, select {
 	width: 180px;
 }
 
-input, select { height: 16px; }
-
-select { height: 18px; }
-
-input, textarea {  padding: 1px 1px 1px 1px } 
+input, textarea {  padding: 1px 1px 1px 1px }
 
 textarea { font-size: inherit; font-family: inherit; }
 
@@ -67,6 +63,7 @@ input[type=button] { width: 50px; background-color: blue; color: white}
 
 .FldSpeciesFilter, .FldSpeciesList { width: 140px; }
 
+#Theme { height: 200px; }
 #Locations { width: 430px; margin: 15px 0 0 15px; height:150px }
 #Location { height: 280px; }
 #Species { width: 515px; height: 160px; }

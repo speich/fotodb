@@ -176,7 +176,7 @@ class FileExplorer {
 						echo ' id="'.$arrDbImg[$File['DbImg']]['Id'].'"';
 					}
 					echo '/></td>';
-					echo '<td style="text-align: right;">';
+					echo '<td>';
 					echo (array_key_exists($File['DbImg'], $arrDbImg) && $arrDbImg[$File['DbImg']]['ImgTitle'] != '' ? $arrDbImg[$File['DbImg']]['ImgTitle'].'<br/>' : '');
 					echo $File['Name'].'<br/>';
 					echo $File['Size'];

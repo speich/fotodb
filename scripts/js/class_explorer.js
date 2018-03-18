@@ -93,7 +93,11 @@ Explorer.prototype.HighlightRow = function(Row) {
 	// remove previous highlighted tr
 	var arrNode = this.ParEl.getElementsByTagName('tr');
 	var j = arrNode.length - 1;
-	for (; j > -1; j--) { if (arrNode[j].style) { arrNode[j].style.backgroundColor = 'inherit'; }}
-	Row.style.backgroundColor = 'grey';
+	for (; j > -1; j--) {
+		if (arrNode[j].style) {
+			arrNode[j].classList.remove('selected');
+		}
+	}
+	Row.classList.add('selected');
 }
 
