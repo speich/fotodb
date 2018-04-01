@@ -146,8 +146,9 @@ define([
 			    promise = Promise.resolve();
 		    }
 		    else {
-			    promise = new Promise((resolve, reject) => {
-				    img.onload = resolve;
+			    promise = new Promise((resolve) => {
+				    img.addEventListener('load', resolve);
+				    img.addEventListener('error', resolve);
 			    });
 		    }
 		    promises.push(promise);
