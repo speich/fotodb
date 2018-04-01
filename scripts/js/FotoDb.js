@@ -109,7 +109,7 @@ define([
             }
           }
 
-	        Self.queryAllImagesLoaded('.FileExplorer img')
+	        Self.queryAllImagesSettled('.FileExplorer img')
 		        .then(() => {
 			        let id, img, oldHash = location.hash;
 
@@ -134,7 +134,7 @@ define([
 	   * @param {DOMString} selectors css selectors to match
 	   * @returns {Promise<any[]>}
 	   */
-    queryAllImagesLoaded: function(selectors) {
+    queryAllImagesSettled: function(selectors) {
 	    let images = document.querySelectorAll(selectors),
 		    promises = [];
 
