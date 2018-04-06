@@ -807,7 +807,6 @@ define([
 			Child.setAttribute('style', 'float: left; margin-right: 10px;');
 			Child.appendChild(d.createTextNode(SexText));
 			Child = El.appendChild(d.createElement('div'));			// del Species
-			Child.setAttribute('style', 'cursor: pointer;');
 			Child.addEventListener('click', function() {
 				this.parentNode.parentNode.removeChild(this.parentNode);
 			}, false);
@@ -851,7 +850,6 @@ define([
 			Child.setAttribute('style', 'float: left; margin-right: 10px;');
 			Child.appendChild(d.createTextNode(Name));
 			Child = El.appendChild(d.createElement('div'));			// del location button
-			Child.setAttribute('style', 'cursor: pointer;');
 			Child.addEventListener('click', function() {
 				this.parentNode.parentNode.removeChild(this.parentNode);
 			}, false);
