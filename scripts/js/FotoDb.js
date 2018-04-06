@@ -91,14 +91,15 @@ define([
       // ajax done loading selected image or directory
       this.Explorer.SetDoneFnc(this.Explorer, function() {
 
-        if (this.Type == 'File') {
-          var arrTr = self.Explorer.ParEl.getElementsByTagName('tr');
-          var i = arrTr.length - 1;
+        if (this.Type === 'File') {
+          var img, i, arrTr = self.Explorer.ParEl.getElementsByTagName('tr');
+
+          i = arrTr.length - 1;
           for (; i > -1; i--) {
             // setup image click event
-            if (/File/.test(arrTr[i].getAttribute('class'))) {
+            if (!arrTr[i].classList.contains('dir')) {
               arrTr[i].addEventListener('click', function() {
-                var img = this.getElementsByTagName('img').item(0);
+                img = this.getElementsByTagName('img').item(0);
                 // row highlighting, remove previously selected rows
                 self.Explorer.HighlightRow(this);
                 // display exif data
@@ -114,12 +115,12 @@ define([
 			        let id, img, oldHash = location.hash;
 
 			        // browser scroll to hash on load because images are not loaded yet
-			        // but a specidif hash can only be set once, so reset if fist, check if all images loaded (because setting it
-			        // to early will scoll to wrong heigth, because of every thumbnail being loaded changes the height of the explorer.
+			        // but a specific hash can only be set once, so reset if fist, check if all images loaded (because setting it
+			        // to early will scroll to wrong height because of every thumbnail being loaded changes the height of the explorer.
 			        //      window.location.hash = oldHash;
 			        id = oldHash.slice(1);
-			        if (id !== '') {
-				        img = byId(id);
+			        if (id !== '' && byId(id)) {  // image with id might no longer exist in database
+                img = byId(id);
 				        img.scrollIntoView({behavior: 'smooth', block: 'center'});
 				        img.parentNode.parentNode.classList.add('selected');
                 self.SetImg(img);
@@ -368,13 +369,14 @@ define([
      */
     NextImage: function() {
       // current selected image (has an Id only after ajax request completed)
-      var el = byId(this.GetCurImgId());
+      let img, tr, el = byId(this.GetCurImgId());
+
       if (el) {
-        var Tr = Tool.NextNode(el.parentNode.parentNode);	// img -> td -> tr
-        if (/File/.test(Tr.getAttribute('class'))) {	// only process files, not folders
-          var img = Tr.getElementsByTagName('img').item(0);
+        tr = Tool.NextNode(el.parentNode.parentNode);	// img -> td -> tr
+        if (!tr.classList.contains('dir')) {	// only process files, not folders
+          img = tr.getElementsByTagName('img').item(0);
           if (img) {	// no next el if already last image in file list
-            this.Explorer.HighlightRow(Tr);
+            this.Explorer.HighlightRow(tr);
             // display exif data
             this.DisplExifData(img, byId('PaneLeftExifContent'));
             // update/edit/insert image
@@ -387,10 +389,10 @@ define([
       }
       else {
         // find first tr and select it
-        var Tr = query('.File', 'ImgExplCont')[0];
-        var img = Tr.getElementsByTagName('img').item(0);
+        tr = document.querySelector('#ImgExplCont tr:not(dir)');
+        img = tr.getElementsByTagName('img').item(0);
         if (img) { // no next el if already last image in file list
-          this.Explorer.HighlightRow(Tr);
+          this.Explorer.HighlightRow(tr);
           // display exif data
           this.DisplExifData(img, byId('PaneLeftExifContent'));
           // update/edit/insert image
@@ -403,13 +405,13 @@ define([
      * Go to previous image in explorer and select it.
      */
     PreviousImage: function() {
-      var el = byId(this.GetCurImgId());	// current selected image (has an Id only after ajax request completed)
+      var img, tr, el = byId(this.GetCurImgId());	// current selected image (has an Id only after ajax request completed)
       if (el) {
-        var Tr = Tool.PreviousNode(el.parentNode.parentNode);	// img -> td -> tr
-        if (/File/.test(Tr.getAttribute('class'))) {	// only process files, not folders
-          var img = Tr.getElementsByTagName('img').item(0);
+        tr = Tool.PreviousNode(el.parentNode.parentNode);	// img -> td -> tr
+        if (!tr.classList.contains('dir')) {	// only process files, not folders
+          img = tr.getElementsByTagName('img').item(0);
           if (img) {	// no next image if already first image in file list
-            this.Explorer.HighlightRow(Tr);
+            this.Explorer.HighlightRow(tr);
             // display exif data
             this.DisplExifData(img, byId('PaneLeftExifContent'));
             // update/edit/insert image
@@ -422,10 +424,10 @@ define([
       }
       else {
         // find first tr and select it
-        var Tr = query('.File', 'ImgExplCont')[0];
-        var img = Tr.getElementsByTagName('img').item(0);
+	      tr = document.querySelector('#ImgExplCont tr:not(dir)');
+        img = tr.getElementsByTagName('img').item(0);
         if (img) { // no next el if already last image in file list
-          this.Explorer.HighlightRow(Tr);
+          this.Explorer.HighlightRow(tr);
           // display exif data
           this.DisplExifData(img, byId('PaneLeftExifContent'));
           // update/edit/insert image
@@ -470,7 +472,6 @@ define([
           case 's':
             evt.stopPropagation();
             evt.preventDefault();
-            console.log('save');
             this.Frm.SaveAll();
             break;
           // ctrl + c copy
