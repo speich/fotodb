@@ -148,7 +148,7 @@ class FileExplorer {
 			echo '<table>';
 			foreach ($arrFile as $File) {
 				if ($File['Type'] === 'Dir') {
-					echo '<tr class="'.$File['Type'].'">';
+					echo '<tr class="dir">';
 					echo '<td><a href="'.$File['Path'].($File['Name'] === '..' ? '' : $File['Name'].'/').'"><img style="width: inherit !important" src="'.$this->db->GetPath('WebRoot').'dbprivate/layout/images/folder.gif"/>'.$File['Name'].'</a></td>';
 					echo '<td></td>';
 					echo "</tr>\n";
@@ -160,7 +160,7 @@ class FileExplorer {
 					if ($Filter == 2 && !array_key_exists($File['Img'], $arrDbImg)) {
 						continue;
 					}
-					echo '<tr class="'.$File['Type'].'">';
+					echo '<tr>';
 					echo '<td';
 					if (array_key_exists($File['DbImg'], $arrDbImg)) {
 						// image file is already in db
