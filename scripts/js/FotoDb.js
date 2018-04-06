@@ -56,7 +56,7 @@ define([
     },
 
     SetupExplorer: function() {
-      var Self = this;
+      var self = this;
       this.Explorer = new Explorer(byId('ImgExplCont'), PHPExplorerUrl, 'File');
 
       // file list filters
@@ -64,26 +64,26 @@ define([
       var F1 = byId('FEFilterNotDone');
       var F2 = byId('FEFilterDone');
       F1.addEventListener('click', function() {
-        F1.checked ? Self.Explorer.Filter += 1: Self.Explorer.Filter -= 1;
+        F1.checked ? self.Explorer.Filter += 1: self.Explorer.Filter -= 1;
         if (!F1.checked && !F2.checked) {
           F1.checked = true;
-          Self.Explorer.Filter += 1;
+          self.Explorer.Filter += 1;
         }
-        Self.Explorer.LoadFiles(Self.Explorer.Dir);
+        self.Explorer.LoadFiles(self.Explorer.Dir);
       }, false);
       F2.addEventListener('click', function() {
-        F2.checked ? Self.Explorer.Filter += 2: Self.Explorer.Filter -= 2;
+        F2.checked ? self.Explorer.Filter += 2: self.Explorer.Filter -= 2;
         if (!F1.checked && !F2.checked) {
           F1.checked = true;
-          Self.Explorer.Filter += 1;
+          self.Explorer.Filter += 1;
         }
-        Self.Explorer.LoadFiles(Self.Explorer.Dir);
+        self.Explorer.LoadFiles(self.Explorer.Dir);
       }, false);
       F1.checked = 'checked';
       F2.checked = 'checked';
       byId('FEType').addEventListener('change', function() {
-        Self.Explorer.Type = this.value;
-        Self.Explorer.LoadFiles(Self.Explorer.Dir);
+        self.Explorer.Type = this.value;
+        self.Explorer.LoadFiles(self.Explorer.Dir);
       }, false);
 
       //this.Explorer.SetLoadingFnc(this.Explorer)
@@ -92,24 +92,24 @@ define([
       this.Explorer.SetDoneFnc(this.Explorer, function() {
 
         if (this.Type == 'File') {
-          var arrTr = Self.Explorer.ParEl.getElementsByTagName('tr');
+          var arrTr = self.Explorer.ParEl.getElementsByTagName('tr');
           var i = arrTr.length - 1;
           for (; i > -1; i--) {
             // setup image click event
             if (/File/.test(arrTr[i].getAttribute('class'))) {
               arrTr[i].addEventListener('click', function() {
-                var Img = this.getElementsByTagName('img').item(0);
+                var img = this.getElementsByTagName('img').item(0);
                 // row highlighting, remove previously selected rows
-                Self.Explorer.HighlightRow(this);
+                self.Explorer.HighlightRow(this);
                 // display exif data
-                Self.DisplExifData(Img, byId('PaneLeftExifContent'));
+                self.DisplExifData(img, byId('PaneLeftExifContent'));
                 // update/edit/insert image
-                Self.SetImg(Img);
+                self.SetImg(img);
               }, false);
             }
           }
 
-	        Self.queryAllImagesSettled('.FileExplorer img')
+	        self.queryAllImagesSettled('.FileExplorer img')
 		        .then(() => {
 			        let id, img, oldHash = location.hash;
 
@@ -122,6 +122,7 @@ define([
 				        img = byId(id);
 				        img.scrollIntoView({behavior: 'smooth', block: 'center'});
 				        img.parentNode.parentNode.classList.add('selected');
+                self.SetImg(img);
 			        }
 		        });
         }
@@ -161,26 +162,26 @@ define([
     /**
      * Handles communication between js and database when an image is clicked in the image/file explorer.
      *
-     * @param {object} Img HTMLImageElement reference
+     * @param {object} img HTMLImageElement reference
      * @return {Promise}
      */
-    SetImg: function(Img) {
+    SetImg: function(img) {
       let request;
 
       this.Frm.GetFormEl().reset();
       // disable form input on until insert image has completed. Otherwise CurImgId not correctly set for form
       this.Frm.DisableFields();
-      Img.parentNode.parentNode.style.opacity = 0.3;	// set visual clue that image data is being set
+      img.parentNode.parentNode.style.opacity = 0.3;	// set visual clue that image data is being set
 
-      this.placeImage(Img);
+      this.placeImage(img);
 
-      // if Img has id then edit else insert
-      if (Img.id) {
-        request = this.editImage(Img).then(xml => {
+      // if img has id then edit else insert
+      if (img.id) {
+        request = this.editImage(img).then(xml => {
           let id = this.getImgIdXml(xml);
 
           // make sure the returned id is the same as the selected image
-          if (Img.id === id) {
+          if (img.id === id) {
             return xml;
           }
           else {
@@ -190,23 +191,23 @@ define([
         }).catch(console.log.bind(console));
       }
       else {
-        request = this.insertImage(Img).then(xml => {
-          Img.id = this.getImgIdXml(xml);
+        request = this.insertImage(img).then(xml => {
+          img.id = this.getImgIdXml(xml);
 
           return xml;
         }).catch(console.log.bind(console));
       }
 
       return request.then(xml => {
-        this.SetCurImgId(Img.id);
-        this.Frm.SetCurImgId(Img.id);
+        this.SetCurImgId(img.id);
+        this.Frm.SetCurImgId(img.id);
         this.Frm.Fill(xml);
         // mark image if its in the database
-        byId(Img.id).parentNode.setAttribute('class', 'MarkDone');
+        byId(img.id).parentNode.setAttribute('class', 'MarkDone');
         // set hash for autoscroll on load
-	      window.history.pushState(null, null, '#' + Img.id);
+	      window.history.pushState(null, null, '#' + img.id);
         this.Frm.EnableFields();
-        Img.parentNode.parentNode.style.opacity = 1;
+        img.parentNode.parentNode.style.opacity = 1;
         byId('SpeciesSexId').focus();
       }).catch(err => {
         alert(err);
@@ -227,7 +228,7 @@ define([
       imgSrc = new URL(img.src);
       request = new Request(PHPDbFncUrl, {
         method: 'post',
-        body: new URLSearchParams('Fnc=Insert&Img=' + imgSrc.pathname)
+        body: new URLSearchParams('Fnc=Insert&img=' + imgSrc.pathname)
       });
 
       return fetch(request).then(response => {
@@ -240,12 +241,12 @@ define([
       }).catch(console.log.bind(console));
     },
 
-    editImage: function(Img) {
+    editImage: function(img) {
       let request;
 
       request = new Request(PHPDbFncUrl, {
         method: 'post',
-        body: new URLSearchParams('Fnc=Edit&ImgId=' + Img.id) // init object not implemented yet in FF
+        body: new URLSearchParams('Fnc=Edit&ImgId=' + img.id) // init object not implemented yet in FF
       });
 
       return fetch(request).then(response => {
@@ -278,20 +279,20 @@ define([
 
     /**
      * Place image element on canvas.
-     * @param Img
+     * @param img
      */
-    placeImage: function(Img) {
-      var Self = this,
+    placeImage: function(img) {
+      var self = this,
         Canvas = byId('CanvasImgPreview'),
         ImgPrev = new Image();
 
-      ImgPrev.src = Img.src;
+      ImgPrev.src = img.src;
       while (Canvas.firstChild) {
         Canvas.removeChild(Canvas.firstChild);
       }
       ImgPrev.setAttribute('id', 'ImgPreview');
       ImgPrev.addEventListener('click', function() {
-        Self.ZoomImg(Img, ImgPrev.width, ImgPrev.height);
+        self.ZoomImg(img, ImgPrev.width, ImgPrev.height);
       }, false);
       ImgPrev = Canvas.appendChild(ImgPrev);
     },
@@ -299,20 +300,20 @@ define([
     /**
      * Show image in full size centered on screen.
      *
-     * @param {object} Img HTMLImgElement
+     * @param {object} img HTMLImgElement
      * @param {object} object with width (obj.W) and height (obj.H) attribute
      */
     ZoomImg: function(ElImg, Dim) {
-      var Img = new Image();
-      Img.src = ElImg.src;
+      var img = new Image();
+      img.src = ElImg.src;
       if (Dim && typeof Dim.W != 'undefined') {
-        Img.style.width = Dim.W + 'px';
+        img.style.width = Dim.W + 'px';
       }
       if (Dim && typeof Dim.H != 'undefined') {
-        Img.style.height = Dim.H + 'px';
+        img.style.height = Dim.H + 'px';
       }
       var El = d.createElement('div');
-      El.appendChild(Img);
+      El.appendChild(img);
       var Div = d.createElement('div');
       Div.appendChild(El);
       El = d.createElement('div');
@@ -371,13 +372,13 @@ define([
       if (el) {
         var Tr = Tool.NextNode(el.parentNode.parentNode);	// img -> td -> tr
         if (/File/.test(Tr.getAttribute('class'))) {	// only process files, not folders
-          var Img = Tr.getElementsByTagName('img').item(0);
-          if (Img) {	// no next el if already last image in file list
+          var img = Tr.getElementsByTagName('img').item(0);
+          if (img) {	// no next el if already last image in file list
             this.Explorer.HighlightRow(Tr);
             // display exif data
-            this.DisplExifData(Img, byId('PaneLeftExifContent'));
+            this.DisplExifData(img, byId('PaneLeftExifContent'));
             // update/edit/insert image
-            this.SetImg(Img);
+            this.SetImg(img);
           }
         }
         if (el) {
@@ -387,13 +388,13 @@ define([
       else {
         // find first tr and select it
         var Tr = query('.File', 'ImgExplCont')[0];
-        var Img = Tr.getElementsByTagName('img').item(0);
-        if (Img) { // no next el if already last image in file list
+        var img = Tr.getElementsByTagName('img').item(0);
+        if (img) { // no next el if already last image in file list
           this.Explorer.HighlightRow(Tr);
           // display exif data
-          this.DisplExifData(Img, byId('PaneLeftExifContent'));
+          this.DisplExifData(img, byId('PaneLeftExifContent'));
           // update/edit/insert image
-          this.SetImg(Img);
+          this.SetImg(img);
         }
       }
     },
@@ -406,13 +407,13 @@ define([
       if (el) {
         var Tr = Tool.PreviousNode(el.parentNode.parentNode);	// img -> td -> tr
         if (/File/.test(Tr.getAttribute('class'))) {	// only process files, not folders
-          var Img = Tr.getElementsByTagName('img').item(0);
-          if (Img) {	// no next image if already first image in file list
+          var img = Tr.getElementsByTagName('img').item(0);
+          if (img) {	// no next image if already first image in file list
             this.Explorer.HighlightRow(Tr);
             // display exif data
-            this.DisplExifData(Img, byId('PaneLeftExifContent'));
+            this.DisplExifData(img, byId('PaneLeftExifContent'));
             // update/edit/insert image
-            this.SetImg(Img);
+            this.SetImg(img);
           }
         }
         if (el) {
@@ -422,13 +423,13 @@ define([
       else {
         // find first tr and select it
         var Tr = query('.File', 'ImgExplCont')[0];
-        var Img = Tr.getElementsByTagName('img').item(0);
-        if (Img) { // no next el if already last image in file list
+        var img = Tr.getElementsByTagName('img').item(0);
+        if (img) { // no next el if already last image in file list
           this.Explorer.HighlightRow(Tr);
           // display exif data
-          this.DisplExifData(Img, byId('PaneLeftExifContent'));
+          this.DisplExifData(img, byId('PaneLeftExifContent'));
           // update/edit/insert image
-          this.SetImg(Img);
+          this.SetImg(img);
         }
       }
     },
@@ -808,9 +809,9 @@ define([
       Child.addEventListener('click', function() {
         this.parentNode.parentNode.removeChild(this.parentNode);
       }, false);
-      var Img = d.createElement('img');
-      Img.setAttribute('src', '../dbprivate/layout/images/del_button.gif');
-      Child.appendChild(Img);
+      var img = d.createElement('img');
+      img.setAttribute('src', '../dbprivate/layout/images/del_button.gif');
+      Child.appendChild(img);
       byId('Species').appendChild(El);
     },
 
@@ -852,9 +853,9 @@ define([
       Child.addEventListener('click', function() {
         this.parentNode.parentNode.removeChild(this.parentNode);
       }, false);
-      var Img = d.createElement('img');
-      Img.setAttribute('src', '../dbprivate/layout/images/del_button.gif');
-      Child.appendChild(Img);
+      var img = d.createElement('img');
+      img.setAttribute('src', '../dbprivate/layout/images/del_button.gif');
+      Child.appendChild(img);
       byId('Locations').appendChild(El);
     },
 
@@ -908,13 +909,13 @@ define([
       Node.setAttribute('id', Id);
       Node.XmlInclude = true;
       Node.XmlElName = 'Keywords';
-      var Img = new Image();
-      Img.src = 'layout/images/del_button.gif';
-      domStyle.set(Img, {margin: '0px 5px 0px 0px', 'verticalAlign': 'bottom'});
+      var img = new Image();
+      img.src = 'layout/images/del_button.gif';
+      domStyle.set(img, {margin: '0px 5px 0px 0px', 'verticalAlign': 'bottom'});
       Node.addEventListener('click', function() {
         this.parentNode.removeChild(this);
       });
-      Node.appendChild(Img);
+      Node.appendChild(img);
       Node.appendChild(document.createTextNode(Text));
       byId('Keywords').appendChild(Node);
     },
