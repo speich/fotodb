@@ -229,7 +229,7 @@ define([
 			imgSrc = new URL(img.src);
 			request = new Request(PHPDbFncUrl, {
 				method: 'post',
-				body: new URLSearchParams('Fnc=Insert&img=' + imgSrc.pathname)
+				body: new URLSearchParams('Fnc=Insert&Img=' + imgSrc.pathname)
 			});
 
 			return fetch(request).then(response => {
