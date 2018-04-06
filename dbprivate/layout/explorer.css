@@ -4,6 +4,10 @@
 	overflow: auto;
 }
 
+.FileExplorer tr {
+	cursor: pointer;
+}
+
 .FileExplorer td {
 	padding: 4px;
 	vertical-align: top;

@@ -50,8 +50,7 @@ Explorer.prototype.DisplayFiles = function() {
 		var arrTr = this.ParEl.getElementsByTagName('tr');
 		var i = arrTr.length-1;
 		for (i; i >= 0; i--) {
-			arrTr[i].style.cursor = 'pointer';
-			if (/Dir/.test(arrTr[i].getAttribute('class'))) {
+			if (arrTr[i].classList.contains('dir')) {
 				arrTr[i].addEventListener('click', function(e) { Self.ChangeDir(e); }, false);
 			}
 		}
