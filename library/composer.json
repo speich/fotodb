@@ -13,10 +13,22 @@
         {
             "type": "vcs",
             "url": "https://github.com/mkardakov/ExifTool_PHP_Stayopen"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "philharvey/exiftool",
+                "version": "10.75",
+                "dist": {
+                    "url": "https://sno.phy.queensu.ca/~phil/exiftool/Image-ExifTool-10.75.tar.gz",
+                    "type": "tar"
+                }
+            }
         }
     ],
     "require": {
-        "speich.net/WebsiteTemplate": "dev-master",
-        "tsmgeek/exif-tool_php_stayopen":  "dev-master"
+        "speich.net/WebsiteTemplate": "1.*",
+        "tsmgeek/exif-tool_php_stayopen": "dev-master",
+        "philharvey/exiftool": "10.*"
     }
 }

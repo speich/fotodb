@@ -4,10 +4,10 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "76213c578b4e4db4fbe3d1b493f9f81e",
+    "content-hash": "a9ad8995d126695069f76ca82f8974b2",
     "packages": [
         {
-            "name": "exiftool/exiftool",
+            "name": "philharvey/exiftool",
             "version": "10.75",
             "dist": {
                 "type": "tar",

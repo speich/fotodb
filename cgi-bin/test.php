@@ -4,7 +4,8 @@ ini_set('xdebug.var_display_max_depth', -1);
 ini_set('xdebug.var_display_max_children', -1);
 ini_set('xdebug.var_display_max_data', -1);
 
-$ExifToolVersion = '10.24';
+$ExifToolVersion = '10.68';
+$ExifToolPath =
 
 // Read EXIF from jpg
 $img = 'test.jpg';
