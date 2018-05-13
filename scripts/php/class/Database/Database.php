@@ -58,7 +58,7 @@ class Database
                 if (!$isCreated) {
                     $this->createStructure();
                 }
-                $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+                $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 // Do every time you connect since they are only valid during connection (not permanent)
                 $this->db->sqliteCreateAggregate('GROUP_CONCAT', [$this, 'groupConcatStep'],
                     [$this, 'groupConcatFinalize']);
@@ -164,17 +164,16 @@ class Database
      */
     public function Insert($img)
     {
-        $ImgFolder = str_replace($this->GetWebRoot().ltrim($this->GetPath('Img'), '/'), '',
-            $img);   // remove web images folder path part
+        $ImgFolder = str_replace($this->GetWebRoot().ltrim($this->GetPath('Img'), '/'), '', $img);   // remove web images folder path part
         $ImgName = substr($ImgFolder, strrpos($ImgFolder, '/') + 1);
         $ImgFolder = trim(str_replace($ImgName, '', $ImgFolder), '/');
         $Sql = "INSERT INTO Images (Id, ImgFolder, ImgName, DateAdded, LastChange)
 			VALUES (NULL, :ImgFolder, :ImgName,".time().",".time().")";
         $this->BeginTransaction();
-        $Stmt = $this->db->prepare($Sql);
-        $Stmt->bindParam(':ImgName', $ImgName);
-        $Stmt->bindParam(':ImgFolder', $ImgFolder);
-        $Stmt->execute();
+        $stmt = $this->db->prepare($Sql);
+        $stmt->bindParam(':ImgName', $ImgName);
+        $stmt->bindParam(':ImgFolder', $ImgFolder);
+        $stmt->execute();
         $imgId = $this->db->lastInsertId();
         $imgSrc = $ImgFolder.'/'.$ImgName;
         // insert exif data
@@ -189,18 +188,18 @@ class Database
 
             return false;
         }
-        $Sql = "SELECT Id, ImgFolder, ImgName, ImgDateManual,	ImgTechInfo, FilmTypeId, RatingId,
+        $Sql = "SELECT Id, ImgFolder, ImgName, ImgDateManual, ImgTechInfo, FilmTypeId, RatingId,
 			DateAdded, LastChange, ImgDesc,	ImgTitle, Public, DatePublished, ImgDateOriginal, ImgLat, ImgLng, ShowLoc, CountryId
 			FROM Images WHERE Id = :ImgId";
-        $Stmt = $this->db->prepare($Sql);
-        $Stmt->bindParam(':ImgId', $imgId);
-        $Stmt->execute();
+        $stmt = $this->db->prepare($Sql);
+        $stmt->bindParam(':ImgId', $imgId);
+        $stmt->execute();
         $this->Commit();
         $strXml = '<?xml version="1.0" encoding="UTF-8"?>';
         $strXml .= '<HtmlFormData xml:lang="de-CH">';
         // image data
         $strXml .= '<Image';
-        foreach ($Stmt->fetch(PDO::FETCH_ASSOC) as $Key => $Val) {
+        foreach ($stmt->fetch(PDO::FETCH_ASSOC) as $Key => $Val) {
             // each col in db is attribute of xml element Image
             if (strpos($Key, 'Date') !== false && $Key != 'ImgDateManual' && !is_null($Val) && $Val != '') {
                 $strXml .= ' '.$Key.'="'.date("d.m.Y H:i:s", $Val).'"';

@@ -32,7 +32,6 @@ class FilterSync extends FilterFilesXmp
     public function checkSyncDate()
     {
         $date2 = $this->current()->getSyncDateXmp();
-        return null;
         if ($date2 === null) {
 
             return true;

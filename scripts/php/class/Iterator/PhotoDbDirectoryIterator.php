@@ -2,7 +2,6 @@
 
 namespace PhotoDatabase\Iterator;
 
-use PhotoDatabase\Iterator\SplFileInfo;
 use RecursiveDirectoryIterator;
 
 
@@ -60,13 +59,13 @@ class PhotoDbDirectoryIterator extends RecursiveDirectoryIterator
     /**
      * The current file
      * @link http://php.net/manual/en/filesystemiterator.current.php
-     * @return SplFileInfo $this
+     * @return FileInfoImage $this
      * See the FilesystemIterator constants.
      * @since 5.3.0
      */
     public function current()
     {
-        $obj = new SplFileInfo($this->getRealPath());
+        $obj = $this->getFileInfo();
         $record = $this->getRecord();
         if ($record) {
             $obj->setImgId($record['Id']);

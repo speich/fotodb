@@ -4,6 +4,7 @@ namespace PhotoDatabase\Database;
 use Exiftool\Exceptions\ExifToolBatchException;
 use Exiftool\ExifToolBatch;
 use FilesystemIterator;
+use PDO;
 use PhotoDatabase\Iterator\FilterSync;
 use PhotoDatabase\Iterator\PhotoDbDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -48,6 +49,7 @@ class Synchronizer
         // get and filter images to sync from filesystem
         $dir = $this->pathImagesOriginal.'/'.$dir;
         $files = new PhotoDbDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS, $imagesDb, $this->pathImagesOriginal);
+        $files->setInfoClass('\PhotoDatabase\Iterator\FileInfoImage');
         $filteredFiles = new FilterSync($files);
         $filteredFiles = new RecursiveIteratorIterator($filteredFiles);
 
@@ -58,7 +60,6 @@ class Synchronizer
             $exifService->add($imgSrc);
             try {
                 $arrExif = $exifService->fetchDecoded(true);
-                var_dump($arrExif[0]['EXIF']);
                 //$this->db->insertXmp($imgId, $arrExif[0]['XMP']);
                 echo "syncing $imgSrc successful<br>";
             }
@@ -126,11 +127,12 @@ class Synchronizer
             $stmt->bindParam(':Folder', $dirParam);
         }
         $stmt->execute();
-        $row = $stmt->fetch()
-        foreach ($stmt as $row) {
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        while ($row) {
             // create array lookup with image path as id
             $key = explode('.', $row['Img']);
             $images[$key[0]] = $row;
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
         }
 
         return $images;
