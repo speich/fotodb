@@ -1,3 +1,4 @@
+-- create initial test data
 CREATE TABLE Test (id INTEGER PRIMARY KEY, cont);
 --CREATE TABLE Test_noint (id PRIMARY KEY, cont);
 INSERT INTO Test (id, cont) VALUES (75, 'bla');
@@ -52,14 +53,17 @@ UPDATE Test SET cont = 'aha' WHERE id = 75; -- with external content table, you 
 INSERT INTO Search_v(Search_v) VALUES('rebuild');
 DELETE FROM Test WHERE id = 76;
 
-/* triggers to maintain fts index
-  This means that in order to keep an FTS in sync with an external content table,
-  any UPDATE or DELETE operations must be applied first to the FTS table, and then to the external content table.
- */
+/*
+ *triggers to maintain fts.sqlite index
+*/
 -- INSERT
 CREATE TRIGGER Test_ai AFTER INSERT ON Test BEGIN
   INSERT INTO Search_v(rowid, cont) SELECT rowid, cont FROM Test_v WHERE rowid = new.rowid;
 END;
+/*
+In order to keep an FTS in sync with an external content table,
+any UPDATE or DELETE operations must be applied first to the FTS table, and then to the external content table.
+*/
 -- UPDATE
 CREATE TRIGGER Test_bu BEFORE UPDATE ON Test BEGIN
   DELETE FROM Search_v WHERE rowid=old.rowid;
