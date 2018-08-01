@@ -2,6 +2,7 @@
 
 use WebsiteTemplate\html\SelectField;
 
+
 require_once '../scripts/php/inc_script.php';
 
 $q = $db->db->query("SELECT * FROM Countries ORDER BY NameEn ASC");
@@ -37,12 +38,11 @@ $speciesSex->setSelected('4');
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Foto Database</title>
-    <!-- <link type="text/css" rel="stylesheet" href="layout/format.css"> -->
     <link type="text/css" rel="stylesheet" href="layout/application.css">
     <link type="text/css" rel="stylesheet" href="layout/explorer.css">
     <link type="text/css" rel="stylesheet" href="layout/form.css">
-    <link rel="stylesheet" href="../library/dojo/1.12.1/dijit/themes/tundra/tundra.css">
-    <link rel="stylesheet" href="../library/dojo/1.12.1/dojo/resources/dojo.css">
+    <link rel="stylesheet" href="../library/dojo/1.13.0/dijit/themes/tundra/tundra.css">
+    <link rel="stylesheet" href="../library/dojo/1.13.0/dojo/resources/dojo.css">
     <style type="text/css">
         #LayoutSplit1 {
             position: absolute;
@@ -175,14 +175,14 @@ $speciesSex->setSelected('4');
         gmapsApiKey: 'AIzaSyAW3fEVRPQKGe4jxsp4T0pPFVQ9eJ-o86g',
         baseUrl: '/library',
         packages: [
-            {name: 'dojo', location: '../library/dojo/1.12.1/dojo'},
-            {name: 'dojox', location: '../library/dojo/1.12.1/dojox'},
-            {name: 'dijit', location: '../library/dojo/1.12.1/dijit'},
+            {name: 'dojo', location: '../library/dojo/1.13.0/dojo'},
+            {name: 'dojox', location: '../library/dojo/1.13.0/dojox'},
+            {name: 'dijit', location: '../library/dojo/1.13.0/dijit'},
             {name: 'fotodb', location: '../../../scripts/js'}
         ]
     };
 </script>
-<script src="../library/dojo/1.12.1/dojo/dojo.js" type="text/javascript"></script>
+<script src="../library/dojo/1.13.0/dojo/dojo.js" type="text/javascript"></script>
 <script type="text/javascript">
     require([
         'fotodb/FotoDb',
