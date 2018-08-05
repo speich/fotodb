@@ -86,3 +86,17 @@ DROP VIEW Test_v;
 DROP TABLE Search_v;
 SELECT * FROM sqlite_master WHERE type = 'trigger';
 --DROP TRIGGER Images_ai;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
