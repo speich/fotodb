@@ -1,0 +1,196 @@
+Full-text searching with SQLite
+
+Quoting from the SQLite Documentation: <<The FTS3 and FTS4 extension modules allows users to create special tables with a
+built-in full-text index (hereafter "FTS tables"). The full-text index allows the user to efficiently query the database
+for all rows that contain one or more words (hereafter "tokens"), even if the table contains many large documents.>>
+
+Before diving deeper into full-text search with SQLite, I really recommend reading the section "SQLite FTS3 and FTS4 Extensions"
+of the manual. It contains a lot of very helpful information, although it can be buried in the text at times. Since
+the manual is so good, I will shamelessly quote from it.
+
+Most tutorials about FTS3/FTS4 only deal with the simple case of searching text in one table. This tutorial, however, will
+not only handle the case of searching multiple columns from multiple tables, it will also show you how to
+reuse your existing database tables, instead of having to create separate tables to store the text being indexed. This
+functionality is only available to FTS4 though. Furthermore, It will also show, how to deal with accented characters (called diacritics), since my native
+language is German, where diacritics called Umlauts (characters ä, ö and ü) are common.
+
+
+INSTALLATION / PREREQUISITES
+Normally, SQLite comes pre-installed with your Linux distribution. You can check which version of SQLite is installed with:
+$ sqlite3 -version
+3.22.0 2018-01-22 18:45:57
+
+If it is not available, install it with your package manager. For Linux Mint/Ubunutu:
+$ sudo apt install sqlite3
+
+If you are using SQLite with PHP and want to deploy your application to an Apache web server, you can check for the
+installed version with <?php phpinfo(); ?> and search for the corresponding SQLite section showing the installed version.
+
+This tutorial requires FTS4 (FTS3 does not support options, e.g. external content tables, see ...). So you will need at least version SQLite Version 3.7.4 (2010-12-07),
+ which was the first version to come with FTS4. If you also want diacritics support, you need at least Version 3.7.13 (2012-06-11),
+ which comes with the "unicode61" tokenizer:
+  << The "unicode61" tokenizer ... does simple unicode case folding ... and it recognizes unicode space and punctuation characters
+   and uses those to separate tokens. ... By default, "unicode61" also removes all diacritics from Latin script characters. >>
+
+The unicode61 tokenizer removes German Umlauts (or any other accented character) from the words before indexing. This simplifies
+ searching a lot, because in German the plural of a word is sometimes spelled differently with an Umlaut. For example the
+ word "Wald" (meaning "forest" in German) has the plural "Wälder". Since the the tokenizer folded "Wälder" into "Walder",
+ the search for "wald*" will also match records with the accented word even though it is spelled slightly differently.
+
+
+
+DATABASE SETUP
+Our example is based on a SQLite database meant to describe mainly photos of birds. Each photo can have an id and a title,
+as well as a scientific name, common name in English and common name in German (to demonstrate the Umlauts :-)) of the bird.
+Since a photo depicts zero, one or many birds, we end up with the following database schema:
+
+
+Let's create the database called photos first:
+$ sqlite3 fts4
+
+Then switch to your favuorite database client (or use the CI of SQLite)
+// create virtual fts4 table with unicode
+
+The following can be done either form your favourite database client, in my case phpstorm or also from the command line
+Examples from command line:
+
+
+
+
+sqlite> CREATE VIRTUAL TABLE Search_v USING fts4(cont, content="Test_v", tokenize=unicode61);
+sqlite> CREATE VIRTUAL TABLE Search_v2 USING fts4(cont, content="Test_v", tokenize=icu de_CH);
+Error: unknown tokenizer: icu
+sqlite> A
+
+
+Initial situation (Ausgangslage)
+Since our data to be searched is distributed over several tables, but the built-in fullonly one tab the full text fts table indexvirtual
+
+Since our data to be searched is distributed over several tables, we will aggregate all columns into a view, which in turn
+ serves as the source for the FTS4 table. This is possible with the content option and called an "external content" FTS4 table.
+To keep the index up to date in respect to the data stored in the source view The view is kept in sync with the original tables using triggers for
+
+
+1. Dulicate all content to be searched and keep it in sync with the FTS table
+Everytime we INSERT, UPDATE or DELETE from the tables Images or BirdNames, we have to do the same to
+the FTS table Search (or use triggers for that)
+
+2. Use a view and triggers (external content table)
+
+3. contentless fts
+We are only interessted in the rowId (= image id) and not the columns
+
+
+This is possible buy using the content= option when creating the the.  that lets you define an "external content" tables instead of a redundant Options are not available to FTS3.
+
+
+/***
+   create initial example data
+***/
+
+-- list with image data
+CREATE TABLE Images (id INTEGER PRIMARY KEY, title);
+INSERT INTO Images (id, title) VALUES (1, 'Flying bird');
+INSERT INTO Images (id, title) VALUES (2, 'Owl at night');
+INSERT INTO Images (id, title) VALUES (3, 'Portrait of a blackbird');
+INSERT INTO Images (id, title) VALUES (4, 'Beating wings');
+INSERT INTO Images (id, title) VALUES (6, 'taking a bath');
+INSERT INTO Images (id, title) VALUES (7, 'Running on the ground');
+-- list of names of birds
+CREATE TABLE BirdNames (id INTEGER PRIMARY KEY, scientific, eng, deu);
+INSERT INTO BirdNames (id, scientific, eng, deu) VALUES (1, 'Accipiter fasciatus', 'Bänderhabicht',	'Brown Goshawk');
+INSERT INTO BirdNames (id, scientific, eng, deu) VALUES (2, 'Acrocephalus arundinaceus', 'Great Reed-Warbler', 'Drosselrohrsänger');
+INSERT INTO BirdNames (id, scientific, eng, deu) VALUES (3, 'Calandrella brachydactyla', 'Greater Short-toed Lark', 'Kurzzehenlerche');
+-- an image can show zero, one or more birds
+CREATE TABLE Images_BirdNames (imgId /* FOREIGN KEY REFERENCES */ Images, nameId /* FOREIGN KEY REFERENCES */ BirdNames);
+INSERT INTO Images_BirdNames (imgId, nameId) VALUES (1, 1);
+INSERT INTO Images_BirdNames (imgId, nameId) VALUES (4, 1);
+INSERT INTO Images_BirdNames (imgId, nameId) VALUES (6, 2);
+INSERT INTO Images_BirdNames (imgId, nameId) VALUES (6, 3);
+
+-- show screenshot of view SearchContent_v here
+
+-- create and populate fts4 tables
+CREATE VIRTUAL TABLE SearchImages_v USING fts4(content="Images", title, tokenize=unicode61);
+CREATE VIRTUAL TABLE SearchBirdNames_v USING fts4(content="BirdNames", scientific, eng, deu, tokenize=unicode61);
+INSERT INTO SearchImages_v(rowid, title) SELECT id, title FROM Images;
+INSERT INTO SearchBirdNames_v(rowid, scientific, eng, deu) SELECT id, scientific, eng, deu FROM BirdNames;
+-- query created fts
+SELECT * FROM SearchImages_v si
+LEFT JOIN Images_BirdNames ib ON si.rowid = ib.imgId
+LEFT JOIN SearchBirdNames_v sb ON ib.nameId = sb.rowid
+WHERE (SearchImages_v MATCH 'wing*') OR (SearchBirdNames_v MATCH 'wing*');
+-- --> above query creates error:
+-- unable to use function MATCH in requested context
+
+-- you have to use a UNION for the query
+SELECT si.rowId imgId, si.title, null nameId, null scientific, null eng, null deu  FROM SearchImages_v si
+WHERE  (SearchImages_v MATCH :word||'*')
+UNION
+SELECT ib.imgId, null, sb.rowid nameId, sb.scientific, sb.eng, sb.deu FROM SearchBirdNames_v sb
+INNER JOIN Images_BirdNames ib ON sb.rowid = ib.nameId
+WHERE  (SearchBirdNames_v MATCH :word||'*');
+
+
+-- Different solution: aggregate all data into a view and use that as the content table for the FTS
+-- => only one content table, but multiple records for image
+CREATE VIEW SearchContent_v AS
+  SELECT i.id rowid, i.title,
+         b.scientific, b.eng, b.deu
+  FROM Images i
+         LEFT JOIN Images_BirdNames ib ON i.id = ib.imgId
+         LEFT JOIN BirdNames b ON ib.nameId = b.id
+;
+
+-- create triggers to keep index in sync with content tables
+-- INSERT
+CREATE TRIGGER Images_ai AFTER INSERT ON Images BEGIN
+  INSERT INTO SearchImages_v(rowid, title) VALUES (new.id, new.title);
+END;
+CREATE TRIGGER BirdNames_ai AFTER INSERT ON BirdNames BEGIN
+  INSERT INTO SearchBirdNames_v(rowid, scientific, eng, deu) VALUES (new.id, new.scientific, new.eng, new.deu);
+END;
+/*
+In order to keep an FTS in sync with an external content table,
+any UPDATE or DELETE operations must be applied first to the FTS table, and then to the external content table.
+The DELETE trigger must be fired before the actual delete takes place on the content table. This is so that FTS4 can still r
+etrieve the original values in order to update the full-text index. And the INSERT trigger must be fired after the new
+row is inserted, so as to handle the case where the rowid is assigned automatically within the system.
+The UPDATE trigger must be split into two parts, one fired before and one after the update of the content table,
+for the same reasons.
+*/
+-- UPDATE
+CREATE TRIGGER Images_bu BEFORE UPDATE ON Images BEGIN
+  DELETE FROM SearchImages_v WHERE rowid = old.id;
+END;
+CREATE TRIGGER Images_au AFTER UPDATE ON Images BEGIN
+  INSERT INTO SearchImages_v(rowid, title) VALUES (new.id, new.title);
+END;
+CREATE TRIGGER BirdNames_bu BEFORE UPDATE ON BirdNames BEGIN
+  DELETE FROM SearchBirdNames_v WHERE rowid = old.id;
+END;
+CREATE TRIGGER BirdNames_au AFTER UPDATE ON BirdNames BEGIN
+  INSERT INTO SearchBirdNames_v(rowid, scientific, eng, deu) VALUES (new.id, new.scientific, new.eng, new.deu);
+END;
+-- DELETE
+CREATE TRIGGER Images_bd BEFORE DELETE ON Images BEGIN
+  DELETE FROM SearchImages_v WHERE rowid = old.id;
+END;
+CREATE TRIGGER BirdNames_bd BEFORE DELETE ON BirdNames BEGIN
+  DELETE FROM SearchBirdNames_v WHERE rowid = old.id;
+END;
+
+-- test triggers by inserting, updating and deleting
+INSERT INTO Images (title) VALUES ('new bird twitched');
+SELECT rowid, * FROM SearchImages_v WHERE SearchImages_v MATCH 'twitched';
+UPDATE Images SET title = 'another bird twitched' WHERE id = 8;
+SELECT rowid, * FROM SearchImages_v WHERE SearchImages_v MATCH 'twitched';
+DELETE FROM Images WHERE id = 8;
+SELECT rowid, * FROM SearchImages_v WHERE SearchImages_v MATCH 'twitched';
+
+INSERT INTO BirdNames (scientific, eng, deu) VALUES ('Turdus merula', 'blackbird', 'Amsel');
+SELECT rowid, * FROM SearchBirdNames_v WHERE SearchBirdNames_v MATCH 'twitched';
+UPDATE BirdNames SET title = 'another bird twitched' WHERE id = 8;
+SELECT rowid, * FROM SearchBirdNames_v WHERE SearchBirdNames_v MATCH 'twitched';
+DELETE FROM BirdNames WHERE id = 8;
+SELECT rowid, * FROM SearchBirdNames_v WHERE SearchBirdNames_v MATCH 'twitched';
