@@ -102,7 +102,7 @@ INSERT INTO BirdNames (id, scientific, eng, deu) VALUES (1, 'Accipiter fasciatus
 INSERT INTO BirdNames (id, scientific, eng, deu) VALUES (2, 'Acrocephalus arundinaceus', 'Great Reed-Warbler', 'Drosselrohrsänger');
 INSERT INTO BirdNames (id, scientific, eng, deu) VALUES (3, 'Calandrella brachydactyla', 'Greater Short-toed Lark', 'Kurzzehenlerche');
 -- an image can show zero, one or more birds
-CREATE TABLE Images_BirdNames (imgId /* FOREIGN KEY REFERENCES */ Images, nameId /* FOREIGN KEY REFERENCES */ BirdNames);
+CREATE TABLE Images_BirdNames (imgId, nameId, FOREIGN KEY(imgId) REFERENCES Images(id), FOREIGN KEY(nameId) REFERENCES BirdNames(id));
 INSERT INTO Images_BirdNames (imgId, nameId) VALUES (1, 1);
 INSERT INTO Images_BirdNames (imgId, nameId) VALUES (4, 1);
 INSERT INTO Images_BirdNames (imgId, nameId) VALUES (6, 2);
