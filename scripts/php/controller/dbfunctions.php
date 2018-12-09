@@ -3,7 +3,9 @@
 // specially the delete function!!!!
 // TODO: check all input before storing in db
 use PhotoDatabase\Database\Exporter;
-use PhotoDatabase\Database\Search;
+use PhotoDatabase\Database\SearchImages;
+use PhotoDatabase\Database\SearchKeywords;
+
 
 require_once '../inc_script.php';
 
@@ -49,28 +51,18 @@ if ($fnc) {
 if (isset($_GET['Fnc'])) {
     switch ($_GET['Fnc']) {
         case 'Publish':
-            /*
-            Using google search instead
-            $indexer = new Search();
-            $indexer->Connect();
-            $indexer->updateIndex();
-            $indexer = null;
-            */
             $destDb = '/media/sf_Websites/speich.net/photo/photodb/dbfiles/photodb.sqlite';
             $destDirImg = '/media/sf_Websites/speich.net/photo/photodb/images';
             $exporter = new Exporter($config);
             $exporter->connect();
             $exporter->publish($destDb, $destDirImg);
-            $exporter = null;
-            break;
-        case 'recreateThumbs':
-            break;
-        case 'createSearchIndex':
-            // only updates local fotodb, but not speich.net
-            $indexer = new Search($config);
-            $indexer->connect();
-            $indexer->updateIndex(true);
-            $indexer = null;
+            $db = new PDO('sqlite:'.$destDb);
+            $index = new SearchKeywords($db);
+            $index->createStructure();
+            $index->populate();
+            $index = new SearchImages($db);
+            $index->createStructure();
+            $index->populate();
             break;
     }
 }
