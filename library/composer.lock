@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a9ad8995d126695069f76ca82f8974b2",
+    "content-hash": "68de39a96ccb6784658cb2a9bc16d8fd",
     "packages": [
         {
             "name": "philharvey/exiftool",
@@ -19,16 +19,16 @@
         },
         {
             "name": "speich.net/WebsiteTemplate",
-            "version": "v1.5",
+            "version": "v1.6.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/speich/WebsiteTemplate.git",
-                "reference": "d5bd516fcbe8bf7cd928b21bb1535b207d28d46e"
+                "reference": "62cb22d78fc49ce43ae1943b893f99b2cb79ce30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/speich/WebsiteTemplate/zipball/d5bd516fcbe8bf7cd928b21bb1535b207d28d46e",
-                "reference": "d5bd516fcbe8bf7cd928b21bb1535b207d28d46e",
+                "url": "https://api.github.com/repos/speich/WebsiteTemplate/zipball/62cb22d78fc49ce43ae1943b893f99b2cb79ce30",
+                "reference": "62cb22d78fc49ce43ae1943b893f99b2cb79ce30",
                 "shasum": ""
             },
             "type": "library",
@@ -38,10 +38,10 @@
                 }
             },
             "support": {
-                "source": "https://github.com/speich/WebsiteTemplate/tree/v1.5",
+                "source": "https://github.com/speich/WebsiteTemplate/tree/v1.6.5",
                 "issues": "https://github.com/speich/WebsiteTemplate/issues"
             },
-            "time": "2017-11-24T09:43:26+00:00"
+            "time": "2018-07-23T16:07:58+00:00"
         },
         {
             "name": "tsmgeek/exif-tool_php_stayopen",
@@ -90,6 +90,11 @@
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": ">5.4",
+        "ext-pdo": "*",
+        "ext-exif": "*",
+        "ext-json": "*"
+    },
     "platform-dev": []
 }

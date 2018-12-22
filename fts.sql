@@ -108,3 +108,132 @@ UPDATE BirdNames SET title = 'another bird twitched' WHERE id = 8;
 SELECT rowid, * FROM SearchBirdNames_v WHERE SearchBirdNames_v MATCH 'twitched';
 DELETE FROM BirdNames WHERE id = 8;
 SELECT rowid, * FROM SearchBirdNames_v WHERE SearchBirdNames_v MATCH 'twitched';
+
+
+/* REAL VERSION */
+DROP TABLE SearchKeywords_fts;
+/* note: unlike ordinary fts4 tables, contentless tables required an explicit integer docid value to be provided. External content tables are assumed to have
+ a unique Id too. Therefore we cannot use a view as the external content, since that does not have a unique id. */
+CREATE VIRTUAL TABLE SearchKeywords_fts USING fts4(Keyword, tokenize=unicode61);
+INSERT INTO SearchKeywords_fts(Keyword)
+SELECT Keyword
+FROM (
+	SELECT ImgName Keyword
+	FROM Images
+	UNION
+	SELECT ImgTitle
+	FROM Images
+	UNION
+	SELECT ImgDesc
+	FROM Images
+	UNION
+	SELECT c.NameDe
+	FROM Images i
+	INNER JOIN Countries c ON i.CountryId = c.Id
+	UNION
+	SELECT k.Name
+	FROM Images i
+	INNER JOIN Images_Keywords ik ON i.Id = ik.ImgId
+	INNER JOIN Keywords k ON ik.KeywordId = k.Id
+	UNION
+	SELECT l.Name
+	FROM Images i
+	INNER JOIN Images_Locations il ON il.ImgId = i.Id
+	INNER JOIN Locations l ON il.LocationId = l.Id
+	UNION
+	SELECT s.NameDe
+	FROM Images i
+	INNER JOIN Images_ScientificNames isc ON i.Id = isc.ImgId
+	INNER JOIN ScientificNames s ON isc.ScientificNameId = s.Id
+	UNION
+	SELECT s.NameLa
+	FROM Images i
+	INNER JOIN Images_ScientificNames isc ON i.Id = isc.ImgId
+	INNER JOIN ScientificNames s ON isc.ScientificNameId = s.Id
+	UNION
+	SELECT t.NameDe
+	FROM Images i
+	INNER JOIN Images_Themes it ON i.Id = it.ImgId
+	INNER JOIN Themes t ON it.ThemeId = t.Id
+	UNION
+	SELECT a.NameDe
+	FROM Images i
+	INNER JOIN Images_Themes it ON i.Id = it.ImgId
+	INNER JOIN Themes t ON it.ThemeId = t.Id
+	INNER JOIN SubjectAreas a ON t.SubjectAreaId = a.Id
+)
+WHERE Keyword != '';
+;
+
+SELECT snippet(SearchKeywords_fts, '<b>', '</b>', '<b>...</b>', -1, 5) Keyword
+FROM SearchKeywords_fts si
+WHERE (Keyword MATCH 'tonia NEAR/3 seraina')
+;
+
+SELECT Keyword
+FROM SearchKeywords_fts si
+WHERE (SearchKeywords_fts MATCH 'ver*')
+;
+
+
+DROP VIEW SearchImages_v;
+CREATE VIEW SearchImages_v AS
+-- note: query should return so that rowId is unique for the fts4
+SELECT i.Id rowid, i.ImgName, i.ImgTitle, i.ImgDesc,
+	c.NameDe Country,
+	k.Keywords,
+	l.Locations,
+	s.CommonNames,
+    sc.ScientificNames,
+	t.Themes,
+    a.SubjectAreas
+FROM Images i
+LEFT JOIN Countries c ON i.CountryId = c.Id
+LEFT JOIN (
+		SELECT ik.imgId, GROUP_CONCAT(k.Name, ', ') Keywords
+		FROM Images_Keywords ik
+		INNER JOIN Keywords k ON ik.KeywordId = k.Id
+		WHERE k.Name NOT NULL
+		GROUP BY ik.ImgId
+	) k ON i.Id = k.ImgId
+LEFT JOIN (
+		SELECT il.ImgId, GROUP_CONCAT(l.Name, ', ') Locations
+		FROM Images_Locations il
+		INNER JOIN Locations l ON il.LocationId = l.Id
+		WHERE l.Name NOT NULL
+		GROUP BY il.ImgId
+	) l ON i.Id = l.ImgId
+LEFT JOIN (
+		SELECT sc.ImgId, GROUP_CONCAT(s.NameDe, ', ') CommonNames
+		FROM Images_ScientificNames sc
+		INNER JOIN ScientificNames s ON sc.ScientificNameId = s.Id
+		WHERE s.NameDe NOT NULL
+		GROUP BY sc.ImgId
+	) s ON i.Id = s.ImgId
+LEFT JOIN (
+		SELECT sc.ImgId, GROUP_CONCAT(s.NameLa, ', ') ScientificNames
+		FROM Images_ScientificNames sc
+		INNER JOIN ScientificNames s ON sc.ScientificNameId = s.Id
+		WHERE s.NameLa NOT NULL
+		GROUP BY sc.ImgId
+	) sc ON i.Id = sc.ImgId
+LEFT JOIN (
+    SELECT it.ImgId, GROUP_CONCAT(t.NameDe, ', ') Themes FROM Images_Themes it
+	INNER JOIN Themes t ON it.ThemeId = t.Id
+    GROUP BY it.ImgId
+    ) t ON i.Id = t.ImgId
+LEFT JOIN (
+    SELECT it.ImgId, GROUP_CONCAT(s.NameDe, ', ') SubjectAreas FROM Images_Themes it
+	INNER JOIN Themes t ON it.ThemeId = t.Id
+	INNER JOIN SubjectAreas s ON t.SubjectAreaId = s.Id
+    GROUP BY it.ImgId, t.Id
+    ) a ON i.Id = a.ImgId
+;
+-- 7970
+SELECT COUNT(rowid) FROM SearchImages_v
+GROUP BY rowid
+
+DROP TABLE SearchImages_fts;
+CREATE VIRTUAL TABLE SearchImages_fts USING fts4(content="SearchImages_v", rowid, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas, tokenize=unicode61);
+INSERT INTO SearchImages_fts(rowid, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas)
+SELECT rowid, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas FROM SearchImages_v where rowid = 1

@@ -29,6 +29,16 @@
     "require": {
         "speich.net/WebsiteTemplate": "1.*",
         "tsmgeek/exif-tool_php_stayopen": "dev-master",
-        "philharvey/exiftool": "10.*"
-    }
+        "philharvey/exiftool": "10.*",
+        "PHP": ">5.4",
+        "ext-dom": "*",
+        "ext-gd": "*",
+        "ext-PDO": "*",
+        "ext-exif": "*",
+        "ext-sqlite3": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*"
+    },
+    "name": "PhotoDb",
+    "description": "Database to manage photos"
 }
