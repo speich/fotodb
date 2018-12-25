@@ -75,7 +75,7 @@ class SearchImages
                 INNER JOIN SubjectAreas s ON t.SubjectAreaId = s.Id
                 GROUP BY it.ImgId
             ) a ON i.Id = a.ImgId;
-            CREATE VIRTUAL TABLE SearchImages_fts USING fts4(content=SearchImages_v, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas, tokenize=unicode61);   -- important: do not pass the row id column !
+            /* CREATE VIRTUAL TABLE SearchImages_fts USING fts4(content=SearchImages_v, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas, tokenize=unicode61);   -- important: do not pass the row id column !*/
 			COMMIT;";
 
         return $this->db->exec($sql);
@@ -85,10 +85,8 @@ class SearchImages
     public function populate()
     {
         // Check if structure for searching was already created otherwise create it
-        $sql = "BEGIN;
-            INSERT INTO SearchImages_fts(rowid, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas)
-            SELECT rowid, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas FROM SearchImages_v
-            COMMIT;";
+        $sql = "INSERT INTO SearchImages_fts(rowid, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas)
+            SELECT rowid, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas FROM SearchImages_v";
 
         return $this->db->exec($sql);
     }

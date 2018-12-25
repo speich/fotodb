@@ -9,8 +9,6 @@ use PhotoDatabase\Database\SearchKeywords;
 
 require_once '../inc_script.php';
 
-
-
 $fnc = isset($_POST['Fnc']) ? $_POST['Fnc'] : (isset($_GET['Fnc']) ? $_GET['Fnc'] : null);
 if ($fnc) {
     switch ($fnc) {
@@ -52,17 +50,53 @@ if (isset($_GET['Fnc'])) {
     switch ($_GET['Fnc']) {
         case 'Publish':
             $destDb = '/media/sf_Websites/speich.net/photo/photodb/dbfiles/photodb.sqlite';
-            $destDirImg = '/media/sf_Websites/speich.net/photo/photodb/images';
+            $destDirImg = '/media/sf_Websites/speich.net/photo/photodb/images';/*
             $exporter = new Exporter($config);
             $exporter->connect();
-            $exporter->publish($destDb, $destDirImg);
-            $db = new PDO('sqlite:'.$destDb);
+            $exporter->publish($destDb, $destDirImg)*/;
+            /*$db = new PDO('sqlite:'.$destDb);
+            $err = $db->errorInfo();
+            if ($err[0] !== '') {
+                var_dump($err);
+            }
             $index = new SearchKeywords($db);
-            $index->createStructure();
-            $index->populate();
+            $err = $db->errorInfo();
+            if ($err[0] !== '') {
+                var_dump($err);
+            }*/
+            /*$index->createStructure(); // bug in PHP that breaks when creating a virtual table with tokenizer=unicode61 -> create table manually in fotodb before exporting
+            $err = $db->errorInfo();
+            if ($err[0] !== '') {
+                var_dump($err);
+            }*/
+            //$index->populate();
+        /*
+            $err = $db->errorInfo();
+            if ($err[0] !== '') {
+                var_dump($err);
+            }
             $index = new SearchImages($db);
+            $err = $db->errorInfo();
+            if ($err[0] !== '') {
+                var_dump($err);
+            }
             $index->createStructure();
+            $err = $db->errorInfo();
+            if ($err[0] !== '') {
+                var_dump($err);
+            }
             $index->populate();
+            $err = $db->errorInfo();
+            if ($err[0] !== '') {
+                var_dump($err);
+            }
+        */
+          /*  var_dump($index->search());*/
+            $destDb = __DIR__.'/../../../dbprivate/dbfiles/photodb.sqlite';
+                        $db = new SQLite3($destDb, SQLITE3_OPEN_READWRITE);
+                        $result = $db->query("SELECT Keyword FROM SearchKeywords_fts si WHERE (Keyword MATCH 'tonia')");
+
+
             break;
     }
 }
