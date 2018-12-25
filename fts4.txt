@@ -6,13 +6,28 @@ for all rows that contain one or more words (hereafter "tokens"), even if the ta
 
 Before diving deeper into full-text search with SQLite, I really recommend reading the section "SQLite FTS3 and FTS4 Extensions"
 of the manual. It contains a lot of very helpful information, although it can be buried in the text at times. Since
-the manual is so good, I will shamelessly quote from it.
+the manual is so good, I will shamelessly quote from it in this article.
 
-Most tutorials about FTS3/FTS4 only deal with the simple case of searching text in one table. This tutorial, however, will
+
+DESIGN CONSIDERATIONS
+The texts you want to search are stored in a so called virtual table, which is only an interface to a data structure that you can then access like a normal table.
+without. This is fine if you information is not yet in the database, But if you want to index database text columns you dont want to duplicate -> content less fts
+Standard documentation/tutorials assume that you have text documents to index, which you store in the fts index table. But if you have already existing text columns in the database to index, then
+you don't want to duplicate
+Fulltext search with the FTS extension is managed by a
+3 design considerations
+When creating a fts you have to make some design considerations which follow from how fulltext search is implemented in the fts module. When creating it, . , mainly
+
+Most tutorials about FTS3/FTS4 that I found on the web, only deal with the simple case of searching text in one table. This tutorial, however, will
 not only handle the case of searching multiple columns from multiple tables, it will also show you how to
 reuse your existing database tables, instead of having to create separate tables to store the text being indexed. This
 functionality is only available to FTS4 though. Furthermore, It will also show, how to deal with accented characters (called diacritics), since my native
 language is German, where diacritics called Umlauts (characters ä, ö and ü) are common.
+
+
+EXTERNAL CONTENT AND CONTENTLESS TABLES
+
+
 
 
 INSTALLATION / PREREQUISITES
@@ -42,7 +57,7 @@ The unicode61 tokenizer removes German Umlauts (or any other accented character)
 DATABASE SETUP
 Our example is based on a SQLite database meant to describe mainly photos of birds. Each photo can have an id and a title,
 as well as a scientific name, common name in English and common name in German (to demonstrate the Umlauts :-)) of the bird.
-Since a photo depicts zero, one or many birds, we end up with the following database schema:
+Since a photo depicts zero, one or many birds, we end up with the following (simplified) database schema:
 
 
 Let's create the database called photos first:
@@ -63,7 +78,7 @@ Error: unknown tokenizer: icu
 sqlite> A
 
 
-Initial situation (Ausgangslage)
+Initial situation
 Since our data to be searched is distributed over several tables, but the built-in fullonly one tab the full text fts table indexvirtual
 
 Since our data to be searched is distributed over several tables, we will aggregate all columns into a view, which in turn
@@ -132,16 +147,6 @@ INNER JOIN Images_BirdNames ib ON sb.rowid = ib.nameId
 WHERE  (SearchBirdNames_v MATCH :word||'*');
 
 
--- Different solution: aggregate all data into a view and use that as the content table for the FTS
--- => only one content table, but multiple records for image
-CREATE VIEW SearchContent_v AS
-  SELECT i.id rowid, i.title,
-         b.scientific, b.eng, b.deu
-  FROM Images i
-         LEFT JOIN Images_BirdNames ib ON i.id = ib.imgId
-         LEFT JOIN BirdNames b ON ib.nameId = b.id
-;
-
 -- create triggers to keep index in sync with content tables
 -- INSERT
 CREATE TRIGGER Images_ai AFTER INSERT ON Images BEGIN
@@ -194,3 +199,16 @@ UPDATE BirdNames SET title = 'another bird twitched' WHERE id = 8;
 SELECT rowid, * FROM SearchBirdNames_v WHERE SearchBirdNames_v MATCH 'twitched';
 DELETE FROM BirdNames WHERE id = 8;
 SELECT rowid, * FROM SearchBirdNames_v WHERE SearchBirdNames_v MATCH 'twitched';
+
+
+
+
+-- Different solution: aggregate all data into a view and use that as the content table for the FTS
+-- => only one content table, but multiple records for image
+CREATE VIEW SearchContent_v AS
+  SELECT i.id rowid, i.title,
+         b.scientific, b.eng, b.deu
+  FROM Images i
+         LEFT JOIN Images_BirdNames ib ON i.id = ib.imgId
+         LEFT JOIN BirdNames b ON ib.nameId = b.id
+;
