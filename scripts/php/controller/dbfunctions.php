@@ -3,7 +3,6 @@
 // specially the delete function!!!!
 // TODO: check all input before storing in db
 use PhotoDatabase\Database\Exporter;
-use PhotoDatabase\Database\Search;
 
 require_once '../inc_script.php';
 
@@ -49,28 +48,27 @@ if ($fnc) {
 if (isset($_GET['Fnc'])) {
     switch ($_GET['Fnc']) {
         case 'Publish':
+            $destDbPath = '/media/sf_Websites/speich.net/photo/photodb/dbfiles/photodb.sqlite';
+            $destDb = new PDO('sqlite:'.$destDbPath);
+
             /*
-            Using google search instead
-            $indexer = new Search();
-            $indexer->Connect();
-            $indexer->updateIndex();
-            $indexer = null;
-            */
-            $destDb = '/media/sf_Websites/speich.net/photo/photodb/dbfiles/photodb.sqlite';
             $destDirImg = '/media/sf_Websites/speich.net/photo/photodb/images';
             $exporter = new Exporter($config);
             $exporter->connect();
-            $exporter->publish($destDb, $destDirImg);
-            $exporter = null;
-            break;
-        case 'recreateThumbs':
-            break;
-        case 'createSearchIndex':
-            // only updates local fotodb, but not speich.net
-            $indexer = new Search($config);
-            $indexer->connect();
-            $indexer->updateIndex(true);
-            $indexer = null;
+            $exporter->publish($destDbPath, $destDirImg);
+            */
+
+            // create/update search indexes in the target database
+            $indexer = new \PhotoDatabase\Database\SearchKeywords($destDb);
+            $destDb->sqliteCreateFunction('RANK', [$indexer, 'rank']);
+            $succ = $indexer->create();
+            //var_dump($succ);
+            //var_dump($indexer->db->errorInfo());
+            $succ = $indexer->populate();
+            //var_dump($succ);
+            $result = $indexer->search('sim');
+            var_dump($result);
+
             break;
     }
 }
