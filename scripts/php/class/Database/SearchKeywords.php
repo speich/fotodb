@@ -2,17 +2,17 @@
 
 namespace PhotoDatabase\Database;
 
+
+
 use PDO;
 
-
-class SearchKeywords
+class SearchKeywords extends Search
 {
-    /** @var Database */
-    private $db;
+    public $db;
 
     /**
-     * Search constructor.
-     * @param PDO $db database to create search index of keywords
+     * SearchKeywords constructor.
+     * @param PDO $db
      */
     public function __construct($db)
     {
@@ -20,17 +20,15 @@ class SearchKeywords
     }
 
     /**
-     * Create the database tables necessary for searching.
-     * Note: previous export will be dropped
-     * @return int number of affected rows
+     * @return int
      */
-    public function createStructure()
-    {
+    public function create() {
         /* note: unlike ordinary fts4 tables, contentless tables required an explicit integer docid value to be provided. External content tables are assumed to have
-             a unique Id too. Therefore we cannot use a view as the external content, since that does not have a unique id. */
-        $sql = "BEGIN;            
-            CREATE VIRTUAL TABLE SearchKeywords_fts USING fts4(Keyword, tokenize=unicode61);            
-			COMMIT;";
+            a unique Id too. Therefore we cannot use a view as the external content, since that does not have a unique id. */
+        $sql = 'BEGIN;
+            DROP TABLE SearchKeywords_fts; 
+            CREATE VIRTUAL TABLE SearchKeywords_fts USING fts4(Keyword, tokenize=unicode61);
+            COMMIT;';
 
         return $this->db->exec($sql);
     }
@@ -41,7 +39,8 @@ class SearchKeywords
      */
     public function populate()
     {
-        $sql = "INSERT INTO SearchKeywords_fts(Keyword) SELECT Keyword FROM (
+        $sql = "INSERT INTO SearchKeywords_fts(Keyword) 
+            SELECT Keyword FROM (
                 SELECT ImgName Keyword FROM Images WHERE Public = 1
                 UNION
                 SELECT ImgTitle FROM Images WHERE Public = 1
@@ -88,17 +87,19 @@ class SearchKeywords
         return $this->db->exec($sql);
     }
 
-    public  function search() {
-        $sql = "SELECT snippet(SearchKeywords_fts, '<b>', '</b>', '<b>...</b>', -1, 5) Keyword
-            FROM SearchKeywords_fts si
-            WHERE (Keyword MATCH 'tonia')";
-        $sql = "SELECT * FROM SearchKeywords_fts";
-        return $this->db->query($sql);
-        var_dump($stmt->errorInfo());
-        $stmt->execute($sql);
-        var_dump($stmt->errorInfo());
+    /**
+     * @param string $chars
+     * @return array
+     */
+    public function search($chars)
+    {
+        $chars .= '*';
+        $sql = 'SELECT Keyword FROM SearchKeywords_fts
+          WHERE (SearchKeywords_fts MATCH :chars) ORDER BY RANK(matchinfo(SearchKeywords_fts), 0, 1.0, 0.5) DESC';
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':chars', $chars, PDO::PARAM_STR);
+        $stmt->execute();
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
-
 }
