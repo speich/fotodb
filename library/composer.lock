@@ -4,14 +4,14 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5e881bf8e86d66a530dd1bf93b839f8d",
+    "content-hash": "72b830c8cc2c61317567b3fc9df11141",
     "packages": [
         {
             "name": "philharvey/exiftool",
-            "version": "10.75",
+            "version": "11.23",
             "dist": {
                 "type": "tar",
-                "url": "https://sno.phy.queensu.ca/~phil/exiftool/Image-ExifTool-10.75.tar.gz",
+                "url": "https://sno.phy.queensu.ca/~phil/exiftool/Image-ExifTool-11.23.tar.gz",
                 "reference": null,
                 "shasum": null
             },
