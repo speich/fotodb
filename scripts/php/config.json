@@ -2,6 +2,6 @@
     "paths": {
         "imagesWebRoot": "/dbprivate/images",
         "imagesOriginal": "/media/sf_Bilder",
-        "exifTool": "/media/sf_Websites/fotodb/cgi-bin/Image-ExifTool-10.68"
+        "exifTool": "/var/www/html/library/vendor/philharvey/exiftool"
     }
 }
