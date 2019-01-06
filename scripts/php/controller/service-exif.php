@@ -15,7 +15,7 @@ $exif = new ExifService($config->paths->exifTool, $lang);
 
 // query string should only contain path information below image root, e.g. below /dbprivate/images/
 // which will be mapped into /media/sf_Bilder/
-$img = '/media/sf_Bilder'.$_GET['img'];
+$img = $config->paths->imagesOriginal.$_GET['img'];
 $data = $exif->getData($img);
 
 header('Content-Type: text/html; charset=utf-8');
