@@ -1,0 +1,12 @@
+version: '2'
+services:
+  php:
+    image: 'php:7.2-apache-ssl'
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/html
+      - ~/Websites/libraries/dojo:/var/www/html/library/dojo
+      - /media/simon/IMAGES/Bilder:/media/sf_Bilder
+    environment:
+      XDEBUG_CONFIG: remote_host=ERITHACUS
