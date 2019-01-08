@@ -30,7 +30,7 @@
         "speich.net/WebsiteTemplate": "1.*",
         "tsmgeek/exif-tool_php_stayopen": "dev-master",
         "philharvey/exiftool": "11.*",
-        "PHP": ">5.4",
+        "PHP": ">7.",
         "ext-dom": "*",
         "ext-gd": "*",
         "ext-PDO": "*",
