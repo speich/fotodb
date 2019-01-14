@@ -2,8 +2,10 @@ FROM php:7.2-apache
 EXPOSE 80
 EXPOSE 443
 
-# install self-signed SSL
-# @see https://smithtalkstech.com/2018/04/25/creating-a-self-signed-ssl-certificate-for-local-docker-development/
+#apache config
+RUN mkdir -p /etc/ssl/private/
+COPY ./setup/fotodb.crt /etc/ssl/private/fotodb.crt
+COPY ./setup/fotodb.conf /etc/apache2/conf-enabled/fotodb.conf
 
 # install GD
 RUN apt-get update \

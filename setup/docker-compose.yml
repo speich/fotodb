@@ -1,0 +1,13 @@
+version: '3'
+services:
+  php:
+    image: 'php:7.2-apache-ssl'
+    ports:
+      - "80:80"
+    environment:
+      XDEBUG_CONFIG: remote_host=ERITHACUS
+    volumes:
+    # do not mount complete project folder into /var/www/html
+    - ./website:/var/www/html/fotodb
+    - ~/Websites/libraries/dojo:/var/www/html/fotodb/library/dojo
+    - /media/simon/IMAGES/Bilder:/media/sf_Bilder

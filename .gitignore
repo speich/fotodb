@@ -1,0 +1,20 @@
+# Default ignored files
+/.idea/shelf/
+/.idea/workspace.xml
+
+# Project exclude paths
+/cgi-bin/Image-ExifTool-*
+/dbprivate/dbfiles/FotoDb.sqlite
+/library/vendor/composer/
+/library/vendor/philharvey/exiftool/
+/library/vendor/speich.net/WebsiteTemplate/
+/library/vendor/tsmgeek/exif-tool_php_stayopen/
+
+# Datasource local storage ignored files
+/.idea/dataSources/
+dataSources.local.xml
+
+# Editor-based HTTP Client requests
+/.idea/httpRequests/
+rest-client.private.env.json
+http-client.private.env.json

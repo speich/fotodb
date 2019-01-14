@@ -1,0 +1,83 @@
+[
+    {
+        "name": "philharvey/exiftool",
+        "version": "11.23",
+        "version_normalized": "11.23.0.0",
+        "dist": {
+            "type": "tar",
+            "url": "https://sno.phy.queensu.ca/~phil/exiftool/Image-ExifTool-11.23.tar.gz",
+            "reference": null,
+            "shasum": null
+        },
+        "type": "library",
+        "installation-source": "dist"
+    },
+    {
+        "name": "speich.net/WebsiteTemplate",
+        "version": "v1.6.7",
+        "version_normalized": "1.6.7.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/speich/WebsiteTemplate.git",
+            "reference": "c462afa3f7e5d00f32aa13a8ed3c8bef4f415614"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/speich/WebsiteTemplate/zipball/c462afa3f7e5d00f32aa13a8ed3c8bef4f415614",
+            "reference": "c462afa3f7e5d00f32aa13a8ed3c8bef4f415614",
+            "shasum": ""
+        },
+        "time": "2018-11-28T07:21:24+00:00",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "WebsiteTemplate\\": "../scripts/php"
+            }
+        },
+        "support": {
+            "source": "https://github.com/speich/WebsiteTemplate/tree/v1.6.7",
+            "issues": "https://github.com/speich/WebsiteTemplate/issues"
+        }
+    },
+    {
+        "name": "tsmgeek/exif-tool_php_stayopen",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/mkardakov/ExifTool_PHP_Stayopen.git",
+            "reference": "c991ac71e1117c73ffc6037e43be2ca1f7511478"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/mkardakov/ExifTool_PHP_Stayopen/zipball/c991ac71e1117c73ffc6037e43be2ca1f7511478",
+            "reference": "c991ac71e1117c73ffc6037e43be2ca1f7511478",
+            "shasum": ""
+        },
+        "require": {
+            "ext-pcntl": "*",
+            "php": ">=5.3"
+        },
+        "time": "2018-09-11T07:52:39+00:00",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "Exiftool\\": "src/"
+            }
+        },
+        "license": [
+            "GPL-2.0"
+        ],
+        "description": "PHP ultra-fast library to allow accessing the ExifTool",
+        "keywords": [
+            "exiftool",
+            "meta-data"
+        ],
+        "support": {
+            "docs": "https://www.sno.phy.queensu.ca/~phil/exiftool/faq.html",
+            "source": "https://github.com/mkardakov/ExifTool_PHP_Stayopen/tree/master"
+        }
+    }
+]
