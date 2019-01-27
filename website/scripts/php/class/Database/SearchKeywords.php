@@ -39,7 +39,8 @@ class SearchKeywords extends Search
      */
     public function populate()
     {
-        $sql = "INSERT INTO SearchKeywords_fts(Keyword) 
+        $sql = "BEGIN;
+            INSERT INTO SearchKeywords_fts(Keyword) 
             SELECT Keyword FROM (
                 SELECT ImgName Keyword FROM Images WHERE Public = 1
                 UNION
@@ -82,7 +83,8 @@ class SearchKeywords extends Search
                 INNER JOIN SubjectAreas a ON t.SubjectAreaId = a.Id
                 WHERE i.Public = 1
             )
-            WHERE Keyword != ''";
+            WHERE Keyword != '';
+            COMMIT;";
 
         return $this->db->exec($sql);
     }
@@ -95,7 +97,9 @@ class SearchKeywords extends Search
     {
         $chars .= '*';
         $sql = 'SELECT Keyword FROM SearchKeywords_fts
-          WHERE (SearchKeywords_fts MATCH :chars) ORDER BY RANK(matchinfo(SearchKeywords_fts), 0, 1.0, 0.5) DESC';
+--          WHERE (SearchKeywords_fts MATCH :chars) ORDER BY RANK(matchinfo(SearchKeywords_fts), 0, 1.0, 0.5) DESC
+          WHERE (SearchKeywords_fts MATCH :chars) --ORDER BY matchinfo(SearchKeywords_fts) DESC
+          ORDER BY RANK';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':chars', $chars, PDO::PARAM_STR);
         $stmt->execute();

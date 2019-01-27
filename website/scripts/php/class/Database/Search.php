@@ -43,6 +43,20 @@ class Search
     }
 
     /**
+     * @param $binaryData
+     * @param $position
+     * @return mixed
+     */
+    private function extractInt($binaryData, $position)
+    {
+        return ord(substr($binaryData, $position, $this->intSize));
+    }
+
+    private function toInt($binaryData) {
+        return unpack('L', $binaryData)[1]; // 'L' is for: unsigned long (always 32 bit, machine byte order)
+    }
+
+    /**
      * @param $aMatchInfo
      * @return float|int
      * @throws Exception
@@ -59,6 +73,8 @@ class Search
         ** query, and nCol to the number of columns in the table.
         */
         $aMatchInfo = (string) func_get_arg(0);
+        $str = ord($aMatchInfo);
+        $int = $this->toInt($aMatchInfo);
         $nPhrase = ord(substr($aMatchInfo, 0, $iSize));
         $nCol = ord(substr($aMatchInfo, $iSize, $iSize));
         if (func_num_args() > (1 + $nCol))
@@ -91,15 +107,5 @@ class Search
             }
         }
         return $score;
-    }
-
-    /**
-     * @param $binaryData
-     * @param $position
-     * @return mixed
-     */
-    private function extractInt($binaryData, $position)
-    {
-        return ord(substr($binaryData, $position, $this->intSize));
     }
 }

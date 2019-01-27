@@ -5,7 +5,7 @@ namespace PhotoDatabase\Database;
 use PDO;
 
 
-class SearchImages
+class SearchImages extends Search
 {
 
     /** @var Database */
@@ -23,10 +23,11 @@ class SearchImages
     /**
      * Create the database tables necessary for searching.
      */
-    public function createStructure()
+    public function create()
     {
-
-        $sql = "BEGIN;
+        $sql = "
+            BEGIN;
+            --DROP TABLE SearchImages_fts;
             CREATE VIEW SearchImages_v AS
             -- note: query should return records in a way that rowId is unique for fts4
             SELECT i.Id rowid, /* when using a view for the content table, only rowid is accepted */
@@ -75,7 +76,7 @@ class SearchImages
                 INNER JOIN SubjectAreas s ON t.SubjectAreaId = s.Id
                 GROUP BY it.ImgId
             ) a ON i.Id = a.ImgId;
-            /* CREATE VIRTUAL TABLE SearchImages_fts USING fts4(content=SearchImages_v, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas, tokenize=unicode61);   -- important: do not pass the row id column !*/
+            CREATE VIRTUAL TABLE SearchImages_fts USING fts4(content=SearchImages_v, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas, tokenize=unicode61);   -- important: do not pass the row id column !
 			COMMIT;";
 
         return $this->db->exec($sql);
@@ -85,10 +86,25 @@ class SearchImages
     public function populate()
     {
         // Check if structure for searching was already created otherwise create it
-        $sql = "INSERT INTO SearchImages_fts(rowid, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas)
-            SELECT rowid, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas FROM SearchImages_v";
+        $sql = 'BEGIN;
+            INSERT INTO SearchImages_fts(rowid, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas)
+            SELECT rowid, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas 
+            FROM SearchImages_v;
+            COMMIT;';
 
         return $this->db->exec($sql);
+    }
+
+    public function search($chars)
+    {
+        $chars .= '*';
+        $sql = 'SELECT * FROM SearchImages_fts si
+            WHERE (SearchImages_fts MATCH :chars)';
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':chars', $chars, PDO::PARAM_STR);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
     }
 
 }
