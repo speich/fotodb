@@ -10,13 +10,13 @@ use PhotoDatabase\Iterator\FileInfoImage;
 class ExifService
 {
     /** return only xmp data */
-    const FETCH_XMP = 1;
+    public const FETCH_XMP = 1;
 
     /** return only exif data */
-    const FETCH_EXIF = 2;
+    public const FETCH_EXIF = 2;
 
     /** return both xmp and exif data */
-    const FETCH_BOTH = 3;
+    public const FETCH_BOTH = 3;
 
     private $exiftool;
 
@@ -24,6 +24,7 @@ class ExifService
 
     /**
      * ExifService constructor.
+     * @param $path
      * @param string $lang
      */
     public function __construct($path, $lang = 'en')
@@ -45,7 +46,7 @@ class ExifService
      * @param string $img full path of image
      * @return array mixed
      */
-    public function getData($img)
+    public function getData($img): array
     {
         $imgInfo = new FileInfoImage($img);
         $extRaw = $imgInfo->getRealPathRaw();
@@ -68,8 +69,7 @@ class ExifService
         // merge xmp and exif arrays into one without overwriting $data[0]['File'] of NEF and of $data[1]['File'] XMP
         $files[0] = $data[0]['File'];
         $files[1] = $data[1]['File'];
-        unset($data[0]['File']);
-        unset($data[1]['File']);
+        unset($data[0]['File'], $data[1]['File']);
         $data = array_merge($data[0], $data[1]);
         $data['Files'] = $files;
 
@@ -81,7 +81,7 @@ class ExifService
      * @param array $data array returned from exiftool
      * @return string HTML table
      */
-    public function render($data)
+    public function render($data): string
     {
         $str = '<table class="exifData">';
         foreach ($data as $heading => $group) {
@@ -111,7 +111,7 @@ class ExifService
      * @param array $files
      * @return string HTML
      */
-    public function renderFiles($files)
+    public function renderFiles($files): string
     {
         $str = '';
         foreach ($files as $file) {
