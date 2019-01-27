@@ -830,8 +830,8 @@ define([
 		/**
 		 * Create HTMLDivElements containing location names.
 		 *
-		 * @param number Id image id
-		 * @param string Name location name
+		 * @param {number} Id image id
+		 * @param {string} Name location name
 		 */
 		createLocationElements: function(Id, Name) {
 			// check if name is not already in list before adding new
@@ -926,20 +926,15 @@ define([
 
 		/**
 		 * Method to load and display exif data.
-		 *
-		 * @param object HTMLImageElement
-		 * @param object HTMLDivElement to append data to
-		 * @requires class_xmlhttp Ajax
+		 * @param {object} img HTMLImageElement
+		 * @param {object} elAppendTo HTMLDivElement to append data to
 		 */
 		DisplExifData: function(img, elAppendTo) {
 			var xhr = new XmlHttp(),
-				host = window.location.host,
 				imgId = img.id,
-				imgSrc = img.src.replace('http://', '');
+				imgSrc = new URL(img.src);
 
-			imgSrc = imgSrc.replace(host, '');
-			imgSrc = imgSrc.replace('/dbprivate/images', '');
-
+			imgSrc = imgSrc.pathname.replace('/dbprivate/images', '');
 			xhr.SetDoneFnc(this, function() {
 				elAppendTo.innerHTML = xhr.Result;
 				xhr = null;
@@ -955,6 +950,5 @@ define([
 				}
 			});
 		}
-
 	});
 });
