@@ -18,27 +18,27 @@ use PhotoDatabase\ExifService;
 class Database
 {
     /** @var PDO $db db instance of SQLite */
-    public $db = null;
+    public $db;
     // paths are always appended to webroot ('/' or a subfolder) and start therefore with a foldername
     // and not with a slash, but end with a slash
-    private $dbName = "FotoDb.sqlite";
-    // TODO: get these two paths from config.
-    private $PathImg = null;  // path relative to web root of private db images
-    private $folderImageOriginal = null;    // absolute path where image originals are stored*/
-    private $ExecTime = 300;
+
+    private $folderImageOriginal;    // absolute path where image originals are stored*/
     protected $HasActiveTransaction = false;    // keep track of open transactions
     private $webroot = '/';
-    private $dbPath = '/../../../../dbprivate/dbfiles/';    // relative to this class
+    private $exiftool;
+    private $dbPath;
+    private $PathImg;    // relative to this class
 
     /**
      * @constructor
+     * @param \stdClass $config
      */
     public function __construct($config)
     {
-        set_time_limit($this->ExecTime);
         $this->PathImg = $config->paths->imagesWebRoot;
         $this->folderImageOriginal = $config->paths->imagesOriginal;
         $this->exiftool = $config->paths->exifTool;
+        $this->dbPath = $config->paths->database;
     }
 
     /**
@@ -50,11 +50,10 @@ class Database
      */
     public function connect()
     {
-        if (is_null($this->db)) {   // check if not already connected
+        if ($this->db === null) {   // check if not already connected
             try {
-                $dbFile = __DIR__.$this->dbPath.$this->dbName;
-                $this->db = new PDO('sqlite:'.$dbFile);
-                $isCreated = file_exists($dbFile);
+                $this->db = new PDO('sqlite:'.$this->dbPath);
+                $isCreated = file_exists($this->dbPath);
                 if (!$isCreated) {
                     $this->createStructure();
                 }
@@ -125,9 +124,11 @@ class Database
      * Returns the file name of the database.
      * @return string
      */
-    public function GetDbName()
+    public function getDbName(): string
     {
-        return $this->dbName;
+        $parts = pathinfo($this->dbPath);
+
+        return $parts['filename'];
     }
 
     /**
@@ -143,7 +144,7 @@ class Database
                 $Path = $this->GetWebRoot();
                 break;   // redundant, but for convenience
             case 'Db':
-                $Path = __DIR__.$this->dbPath;
+                $Path = $this->dbPath;
                 break;
             case 'Img':
                 $Path = $this->PathImg;

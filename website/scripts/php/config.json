@@ -2,6 +2,9 @@
     "paths": {
         "imagesWebRoot": "/dbprivate/images",
         "imagesOriginal": "/media/sf_Bilder",
-        "exifTool": "/var/www/html/library/vendor/philharvey/exiftool"
+        "exifTool": "/var/www/html/fotodb/website/library/vendor/philharvey/exiftool",
+        "database": "/var/www/html/fotodb/website/dbprivate/dbfiles/FotoDb.sqlite",
+        "targetDatabase": "/var/www/html/speich.net/photo/photodb/dbfiles/photodb.sqlite",
+        "targetImages": "/var/www/html/speich.net/photo/photodb/images"
     }
 }

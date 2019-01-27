@@ -10,29 +10,35 @@ use PhotoDatabase\Thumbnail;
  */
 class Exporter extends Database {
 
-	/**
-	 *
-	 */
+    /** @var string */
+    private $pathTargetDb;
+
+    /** @var string */
+    private $pathTargetImages;
+
+    /**
+     * @param \stdClass $config
+     */
 	public function __construct($config) {
 		parent::__construct($config);
+		$this->pathTargetDb = $config->path->targetDatabase;
+		$this->pathTargetImages = $config->path->targetImages;
 	}
 
-	/**
-	 * Export database and images marked as public.
-	 * Creates a thumbnail from each exported image. The parameter mode allows either to recreate all records.
-	 * Warning: If the destination database file already exists, it will be overwritten.
-	 * @param string $target path to destination database
-	 * @param string $destDirImg path to destination image root folder
-	 */
-	public function publish($target, $destDirImg) {
+    /**
+     * Export database and images marked as public.
+     * Creates a thumbnail from each exported image. The parameter mode allows either to recreate all records.
+     * Warning: If the destination database file already exists, it will be overwritten.
+     */
+	public function publish(): void
+    {
 		// TODO: use x-mixed-replace with json messaging for progress feedback
 		// TODO: check permissions for exporting
 		set_time_limit(0);
         $thumbnail = new Thumbnail();
 
-        $source = $this->GetPath('Db').$this->GetDbName();
 		$sourceDb = $this->connect();
-        $targetDb = $this->copyAndClean($source, $target);
+        $targetDb = $this->copyAndClean();
 
 		// Select all records which will be used to copy/delete images depending on their public status.
 		// IMPORTANT: Do not limit sql to only public ones by using destDb, because then you would miss deleting
@@ -63,10 +69,10 @@ class Exporter extends Database {
 
 		foreach ($arrData as $row) {
 			$srcImg = __DIR__.'/../../../../'.$row['Img'];
-			$destImg = $destDirImg.'/'.$row['Img'];
+			$destImg = $this->pathTargetImages.'/'.$row['Img'];
 			// copy image
 			if ($row['Public'] === '1') {
-				$dir = $destDirImg.'/'.$row['ImgFolder'];
+				$dir = $this->pathTargetImages.'/'.$row['ImgFolder'];
 				if (!is_dir($dir)) {
 					$succ = mkdir($dir, 0777, true);
 					if (!$succ) {
@@ -94,7 +100,7 @@ class Exporter extends Database {
 					echo "exported $destImg {$row['Id']}<br>";
 				}
 			}
-			// delete images that are no longer public
+			// delete previously copied images that are no longer public
 			else {
 				if (is_file($destImg)) {
 					unlink($destImg);
@@ -111,24 +117,22 @@ class Exporter extends Database {
      * the last publishing. We just copy the whole db file and then remove the private records of the images table before.
      * We ignore deleting of keywords, etc. because they don't really matter and to keep it simple
      * Previous target database file will be overwritten.
-     * @param string $source path to source database file
-     * @param string $target path to target database file
      * @return PDO target database
      */
-    public function copyAndClean($source, $target)
+    public function copyAndClean(): PDO
     {
-
-        echo "source db: ".print_r(file_exists($source), true)."<br>";
-        echo "dest db: ".print_r(file_exists($target), true)."<br>";
-        if (copy($source, $target)) {
+        $source = $this->GetPath('Db').$this->getDbName();
+        echo 'source db: '.print_r(file_exists($source), true)."<br>";
+        echo 'dest db: '.print_r(file_exists($this->pathTargetDb), true)."<br>";
+        if (copy($source, $this->pathTargetDb)) {
             echo 'db copy successful<br>';
 
             // For speed reasons we turn journaling off and increase cache size. As long as we import all records at once,
             // we do not need a rollback. We just start over in case of a crash. This is only possible for the destination
             // db, since the file might get corrupted.
             // default = 2000 pages, 1 page = 1kb;
-            $targetDb = new PDO('sqlite:'.$target);
-            $sql = "PRAGMA journal_mode = OFF; PRAGMA cache_size = 10000;";
+            $targetDb = new PDO('sqlite:'.$this->pathTargetDb);
+            $sql = 'PRAGMA journal_mode = OFF; PRAGMA cache_size = 10000;';
             $targetDb->exec($sql);
 
             // Records with Public == 0 have always to be deleted independent of DatePublished, because they are copied with the database !
