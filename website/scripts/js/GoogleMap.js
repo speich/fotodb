@@ -1,9 +1,7 @@
 define([
 	'dojo/_base/declare',
-	'dojo/Deferred',
-	'dojo/request/xhr',
-	'fotodb/gmapLoader!http://maps.google.com/maps/api/js'
-], function(declare, Deferred, xhr) {
+	'fotodb/gmapLoader!//maps.google.com/maps/api/js'
+], function(declare) {
 
 	var
 		/**
