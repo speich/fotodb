@@ -26,7 +26,7 @@ class FileInfoImage extends \SplFileInfo
      * Sets the image id attribute
      * @param $id
      */
-    public function setImgId($id)
+    public function setImgId($id): void
     {
         $this->imgId = (int)$id;
     }
@@ -35,7 +35,7 @@ class FileInfoImage extends \SplFileInfo
      * Returns the xmp sync date as a DateTime object
      * @return null|DateTime
      */
-    public function getSyncDateXmp()
+    public function getSyncDateXmp(): ?DateTime
     {
         // note: DateTime(null) would return current date, also syncDateXmp is a string and has to be converted to
         return $this->syncDateXmp === null ? null : new DateTime($this->syncDateXmp);
@@ -45,7 +45,7 @@ class FileInfoImage extends \SplFileInfo
      * Returns the exif sync date as a DateTime object
      * @return null|DateTime
      */
-    public function getSyncDateExif()
+    public function getSyncDateExif(): ?DateTime
     {
         return $this->syncDateExif === null ? null : new DateTime($this->syncDateExif);
     }
@@ -54,7 +54,7 @@ class FileInfoImage extends \SplFileInfo
      * Sets the exif sync data attribute
      * @param string $syncDate SQLite ISO-8601 date string
      */
-    public function setSyncDateExif($syncDate)
+    public function setSyncDateExif($syncDate): void
     {
         $this->syncDateExif = $syncDate;
     }
@@ -63,7 +63,7 @@ class FileInfoImage extends \SplFileInfo
      * Sets the xmp sync data attribute
      * @param string $syncDate SQLite ISO-8601 date string
      */
-    public function setSyncDateXmp($syncDate)
+    public function setSyncDateXmp($syncDate): void
     {
         $this->syncDateXmp = $syncDate;
     }
@@ -82,7 +82,7 @@ class FileInfoImage extends \SplFileInfo
      * Note: comparison of extension is case insensitive
      * @return null|string full path to xmp file of image
      */
-    public function getRealPathXmp()
+    public function getRealPathXmp(): ?string
     {
         $pathNoExt = $this->getPath().'/'.$this->getBasename('.'.$this->getExtension());
         $path = $pathNoExt.'.xmp';
@@ -102,7 +102,7 @@ class FileInfoImage extends \SplFileInfo
      * Note: comparison of extension is case insensitive
      * @return null|string full path to raw image
      */
-    public function getRealPathRaw()
+    public function getRealPathRaw(): ?string
     {
         $pathNoExt = $this->getPath().'/'.$this->getBasename('.'.$this->getExtension());
         foreach ($this->validRawExtensions as $ext) {
