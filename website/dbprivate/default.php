@@ -5,7 +5,7 @@ use WebsiteTemplate\html\SelectField;
 
 require_once '../scripts/php/inc_script.php';
 
-$q = $db->db->query("SELECT * FROM Countries ORDER BY NameEn ASC");
+$q = $db->db->query('SELECT * FROM Countries ORDER BY NameEn ASC');
 $country = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'CountryId');
 $country->setDefaultVal('Land wählen');
 
@@ -13,23 +13,23 @@ $q = $db->db->query("SELECT Id, CASE WHEN Code NOT NULL THEN Name ||' ('||Code||
 $filmType = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'FilmTypeId');
 $filmType->setSelected('10');
 
-$q = $db->db->query("SELECT * FROM Rating ORDER BY Name ASC");
+$q = $db->db->query('SELECT * FROM Rating ORDER BY Name ASC');
 $rating = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'RatingId');
 $rating->setDefaultVal(false);
 $rating->setSelected('2');
 
-$q = $db->db->query("SELECT * FROM Themes ORDER BY NameDe ASC");
+$q = $db->db->query('SELECT * FROM Themes ORDER BY NameDe ASC');
 $theme = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'Theme');
 $theme->setMultiple();
 $theme->setDefaultVal(false);
 $theme->setCssStyle('height: 200px');
 
-$q = $db->db->query("SELECT * FROM Locations ORDER BY Name ASC");
+$q = $db->db->query('SELECT * FROM Locations ORDER BY Name ASC');
 $location = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'Location');
 $location->setMultiple();
 $location->setDefaultVal(false);
 
-$q = $db->db->query("SELECT Id, NameDe FROM Sexes ORDER BY NameDe ASC");
+$q = $db->db->query('SELECT Id, NameDe FROM Sexes ORDER BY NameDe ASC');
 $speciesSex = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'SpeciesSexId');
 $speciesSex->setSelected('4');
 ?>
@@ -184,16 +184,16 @@ $speciesSex->setSelected('4');
 </script>
 <script src="../library/dojo/1.13.0/dojo/dojo.js" type="text/javascript"></script>
 <script type="text/javascript">
-    require([
-        'fotodb/FotoDb',
-        'dojo/ready'
-    ], function (FotoDb, ready) {
+require([
+    'fotodb/FotoDb',
+    'dojo/ready'
+], function (FotoDb, ready) {
 
-        ready(function () {
-            var app = new FotoDb();
-            app.init();
-        });
+    ready(function () {
+        var app = new FotoDb();
+        app.init();
     });
+});
 </script>
 </body>
 </html>
