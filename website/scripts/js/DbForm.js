@@ -29,8 +29,7 @@ define([
 		constructor: function (arrFld, fotoDb) {
 			this.arrFld = arrFld;	// holds all form names, whose values should be saved to database
 			this.fotoDb = fotoDb;
-
-			gmaps = google.maps;
+			gmaps = this.fotoDb.mapTool.gmaps;
 		},
 
 		GetCurImgId: function() {

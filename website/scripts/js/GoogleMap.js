@@ -1,6 +1,6 @@
 define([
 	'dojo/_base/declare',
-	'fotodb/gmapLoader!//maps.google.com/maps/api/js'
+	'//maps.googleapis.com/maps/api/js?key=' + dojoConfig.gmapsApiKey
 ], function(declare) {
 
 	var
