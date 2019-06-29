@@ -51,24 +51,20 @@ class Database
     public function connect()
     {
         if ($this->db === null) {   // check if not already connected
-            try {
-                $this->db = new PDO('sqlite:'.$this->dbPath);
-                $isCreated = file_exists($this->dbPath);
-                if (!$isCreated) {
-                    $this->createStructure();
-                }
-                $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                // Do every time you connect since they are only valid during connection (not permanent)
-                $this->db->sqliteCreateAggregate('GROUP_CONCAT', [$this, 'groupConcatStep'],
-                    [$this, 'groupConcatFinalize']);
-                $this->db->sqliteCreateFunction('STRTOTIME', [$this, 'strToTime']);
-//				$this->Db->sqliteCreateFunction('LOCALE', array($this, 'GetSortOrder'), 1);
-                $this->db->exec("pragma short_column_names = 1");
-            } catch (PDOException $Error) {
-                echo $Error->getMessage();
 
-                return null;
+            $this->db = new PDO('sqlite:'.$this->dbPath);
+            $isCreated = file_exists($this->dbPath);
+            if (!$isCreated) {
+                $this->createStructure();
             }
+            $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // Do every time you connect since they are only valid during connection (not permanent)
+            $this->db->sqliteCreateAggregate('GROUP_CONCAT', [$this, 'groupConcatStep'],
+                [$this, 'groupConcatFinalize']);
+            $this->db->sqliteCreateFunction('STRTOTIME', [$this, 'strToTime']);
+//				$this->Db->sqliteCreateFunction('LOCALE', array($this, 'GetSortOrder'), 1);
+            $this->db->exec('pragma short_column_names = 1');
+
         }
 
         return $this->db;
@@ -168,8 +164,8 @@ class Database
         $ImgFolder = str_replace($this->GetWebRoot().ltrim($this->GetPath('Img'), '/'), '', $img);   // remove web images folder path part
         $ImgName = substr($ImgFolder, strrpos($ImgFolder, '/') + 1);
         $ImgFolder = trim(str_replace($ImgName, '', $ImgFolder), '/');
-        $Sql = "INSERT INTO Images (Id, ImgFolder, ImgName, DateAdded, LastChange)
-			VALUES (NULL, :ImgFolder, :ImgName,".time().",".time().")";
+        $Sql = 'INSERT INTO Images (Id, ImgFolder, ImgName, DateAdded, LastChange)
+			VALUES (NULL, :ImgFolder, :ImgName,'.time().','.time().')';
         $this->BeginTransaction();
         $stmt = $this->db->prepare($Sql);
         $stmt->bindParam(':ImgName', $ImgName);
@@ -189,9 +185,9 @@ class Database
 
             return false;
         }
-        $Sql = "SELECT Id, ImgFolder, ImgName, ImgDateManual, ImgTechInfo, FilmTypeId, RatingId,
+        $Sql = 'SELECT Id, ImgFolder, ImgName, ImgDateManual, ImgTechInfo, FilmTypeId, RatingId,
 			DateAdded, LastChange, ImgDesc,	ImgTitle, Public, DatePublished, ImgDateOriginal, ImgLat, ImgLng, ShowLoc, CountryId
-			FROM Images WHERE Id = :ImgId";
+			FROM Images WHERE Id = :ImgId';
         $stmt = $this->db->prepare($Sql);
         $stmt->bindParam(':ImgId', $imgId);
         $stmt->execute();
@@ -203,9 +199,9 @@ class Database
         foreach ($stmt->fetch(PDO::FETCH_ASSOC) as $Key => $Val) {
             // each col in db is attribute of xml element Image
             if (strpos($Key, 'Date') !== false && $Key != 'ImgDateManual' && !is_null($Val) && $Val != '') {
-                $strXml .= ' '.$Key.'="'.date("d.m.Y H:i:s", $Val).'"';
+                $strXml .= ' '.$Key.'="'.date('d.m.Y H:i:s', $Val).'"';
             } else if ($Key == 'LastChange' && !is_null($Val) && $Val != '') {
-                $strXml .= ' '.$Key.'="'.date("d.m.Y H:i:s", $Val).'"';
+                $strXml .= ' '.$Key.'="'.date('d.m.Y H:i:s', $Val).'"';
             } else {
                 $strXml .= ' '.$Key.'="'.$Val.'"';
             }
@@ -230,10 +226,10 @@ class Database
     public function Edit($ImgId)
     {
         // TODO: use DOM functions instead of string to create xml
-        $Sql = "SELECT Id, ImgFolder, ImgName, ImgDateManual, ImgTechInfo, FilmTypeId, RatingId,
+        $Sql = 'SELECT Id, ImgFolder, ImgName, ImgDateManual, ImgTechInfo, FilmTypeId, RatingId,
 			DateAdded, LastChange, ImgDesc, ImgTitle, Public, DatePublished,
 			ImgDateOriginal, ImgLat, ImgLng, ShowLoc, CountryId
-			FROM Images	WHERE Id = :ImgId";
+			FROM Images	WHERE Id = :ImgId';
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->execute();
@@ -244,16 +240,16 @@ class Database
         foreach ($Stmt->fetch(PDO::FETCH_ASSOC) as $Key => $Val) {
             // each col in db is attribute of xml element Image
             if (strpos($Key, 'Date') !== false && $Key != 'ImgDateManual' && !is_null($Val) && $Val != '') {
-                $strXml .= ' '.$Key.'="'.date("d.m.Y H:i:s", $Val).'"';
+                $strXml .= ' '.$Key.'="'.date('d.m.Y H:i:s', $Val).'"';
             } else if ($Key == 'LastChange' && !is_null($Val) && $Val != '') {
-                $strXml .= ' '.$Key.'="'.date("d.m.Y H:i:s", $Val).'"';
+                $strXml .= ' '.$Key.'="'.date('d.m.Y H:i:s', $Val).'"';
             } else {
                 $strXml .= ' '.$Key.'="'.htmlspecialchars($Val, ENT_QUOTES, 'UTF-8').'"';
             }
         }
         $strXml .= '/>';
         // themes
-        $Sql = "SELECT ThemeId FROM Images_Themes WHERE ImgId = :ImgId";
+        $Sql = 'SELECT ThemeId FROM Images_Themes WHERE ImgId = :ImgId';
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->execute();
@@ -263,9 +259,9 @@ class Database
         }
         $strXml .= '</Themes>';
         // keywords
-        $Sql = "SELECT Name, KeywordId FROM Images_Keywords IK
+        $Sql = 'SELECT Name, KeywordId FROM Images_Keywords IK
 			INNER JOIN Keywords ON IK.KeywordId = Keywords.Id
-			WHERE ImgId = :ImgId";
+			WHERE ImgId = :ImgId';
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->execute();
@@ -275,13 +271,13 @@ class Database
         }
         $strXml .= '</Keywords>';
         // species
-        $Sql = "SELECT isn.ScientificNameId, isn.SexId,
+        $Sql = 'SELECT isn.ScientificNameId, isn.SexId,
                 sn.NameDe, sn.NameEn, sn.NameLa, 
                 ss.NameEn SexEn, ss.NameDe SexDe 
 			FROM Images_ScientificNames isn 
 			INNER JOIN ScientificNames sn ON isn.ScientificNameId = sn.Id
 			INNER JOIN Sexes ss ON isn.SexId = ss.Id
-			WHERE ImgId = :ImgId";
+			WHERE ImgId = :ImgId';
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->execute();
@@ -297,10 +293,10 @@ class Database
         $strXml .= '</ScientificNames>';
         // locations
         // TODO: find solution to location name might occur twice but in a different country
-        $Sql = "SELECT il.LocationId LocId, l.Name LocName, CountryId FROM Images_Locations il
+        $Sql = 'SELECT il.LocationId LocId, l.Name LocName, CountryId FROM Images_Locations il
 			INNER JOIN Locations l ON il.LocationId = l.Id
 			INNER JOIN Locations_Countries lc ON l.Id = lc.LocationId
-			WHERE ImgId = :ImgId";
+			WHERE ImgId = :ImgId';
         // AND CountryId = ???§
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
@@ -339,13 +335,13 @@ class Database
         $Attributes = $Xml->getElementsByTagName('Image')->item(0)->attributes;
         $ImgId = $Attributes->getNamedItem('Id')->nodeValue;
         $Count = 0;
-        $Sql = "UPDATE Images SET";
+        $Sql = 'UPDATE Images SET';
         foreach ($Attributes as $Attr) {
-            $Sql .= " ".$this->sqlite_escape_string($Attr->nodeName)." = :Val$Count,";
+            $Sql .= ' '.$this->sqlite_escape_string($Attr->nodeName)." = :Val$Count,";
             $Count++;
         }
         $Sql = rtrim($Sql, ',');
-        $Sql .= " WHERE Id = :ImgId";
+        $Sql .= ' WHERE Id = :ImgId';
         $Stmt = $this->db->prepare($Sql);
         $Count = 0;
         foreach ($Attributes as $Attr) {
@@ -360,12 +356,12 @@ class Database
         }
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->execute();
-        $Sql = "UPDATE Images SET LastChange = ".time()." WHERE Id = :ImgId";
+        $Sql = 'UPDATE Images SET LastChange = '.time().' WHERE Id = :ImgId';
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->execute();
         // update images_keywords
-        $Sql = "DELETE FROM Images_Keywords WHERE ImgId = :ImgId";   // Delete all first -> add current keywords back. User might have deleted keyword, which would not be transmitted
+        $Sql = 'DELETE FROM Images_Keywords WHERE ImgId = :ImgId';   // Delete all first -> add current keywords back. User might have deleted keyword, which would not be transmitted
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->execute();
@@ -373,18 +369,18 @@ class Database
             $El = $Xml->getElementsByTagName('Keywords')->item(0);
             $ImgId = $El->getAttribute('Id');
             $Children = $El->childNodes;
-            $Sql1 = "INSERT INTO Images_Keywords (ImgId, KeywordId) VALUES (:ImgId, :KeywordId)";
+            $Sql1 = 'INSERT INTO Images_Keywords (ImgId, KeywordId) VALUES (:ImgId, :KeywordId)';
             $Stmt1 = $this->db->prepare($Sql1);
             $Stmt1->bindParam(':ImgId', $ImgId);
             $Stmt1->bindParam(':KeywordId', $KeywordId);
-            $Sql2 = "INSERT INTO Keywords (Id, Name) VALUES (NULL, :Name)";
+            $Sql2 = 'INSERT INTO Keywords (Id, Name) VALUES (NULL, :Name)';
             $Stmt2 = $this->db->prepare($Sql2);
             $Stmt2->bindParam(':Name', $Keyword);
-            $Sql3 = "SELECT KeywordId FROM Images_Keywords WHERE ImgId = :ImgId AND KeywordId = :KeywordId";
+            $Sql3 = 'SELECT KeywordId FROM Images_Keywords WHERE ImgId = :ImgId AND KeywordId = :KeywordId';
             $Stmt3 = $this->db->prepare($Sql3);
             $Stmt3->bindParam(':ImgId', $ImgId);
             $Stmt3->bindParam(':KeywordId', $KeywordId);
-            $Sql4 = "SELECT Id FROM Keywords WHERE Name = :Name";
+            $Sql4 = 'SELECT Id FROM Keywords WHERE Name = :Name';
             $Stmt4 = $this->db->prepare($Sql4);
             $Stmt4->bindParam(':Name', $Keyword);
             /** @var DOMElement[] $Children */
@@ -416,12 +412,12 @@ class Database
         }
         // update images_themes
         $El = $Xml->getElementsByTagName('Themes')->item(0);
-        $Sql = "DELETE FROM Images_Themes WHERE ImgId = :ImgId";
+        $Sql = 'DELETE FROM Images_Themes WHERE ImgId = :ImgId';
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->execute();
         $Children = $El->childNodes;
-        $Sql = "INSERT INTO Images_Themes (ImgId, ThemeId) VALUES (:ImgId, :ThemeId)";
+        $Sql = 'INSERT INTO Images_Themes (ImgId, ThemeId) VALUES (:ImgId, :ThemeId)';
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->bindParam(':ThemeId', $ThemeId);
@@ -431,14 +427,14 @@ class Database
             $Stmt->execute();
         }
         // update Images_ScientificNames. Note: not every image has a species.
-        $Sql = "DELETE FROM Images_ScientificNames WHERE ImgId = :ImgId";
+        $Sql = 'DELETE FROM Images_ScientificNames WHERE ImgId = :ImgId';
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->execute();
         if ($Xml->getElementsByTagName('ScientificNames')->length > 0) {
             $El = $Xml->getElementsByTagName('ScientificNames')->item(0);
             $Children = $El->childNodes;
-            $Sql = "INSERT INTO Images_ScientificNames (ImgId, ScientificNameId, SexId) VALUES (:ImgId, :SpeciesId, :SexId)";
+            $Sql = 'INSERT INTO Images_ScientificNames (ImgId, ScientificNameId, SexId) VALUES (:ImgId, :SpeciesId, :SexId)';
             $Stmt = $this->db->prepare($Sql);
             $Stmt->bindParam(':ImgId', $ImgId);
             $Stmt->bindParam(':SpeciesId', $SpeciesId);
@@ -454,7 +450,7 @@ class Database
         // -> enables filtering locations by country
         // All queries have to be executed singledly, because resulting records are used as input. -> do not put in one transaction
         // TODO: consequences for multiuser ?
-        $Sql = "DELETE FROM Images_Locations WHERE ImgId = :ImgId";   // always remove first before setting new locs, maybe user simply wants to remove locs
+        $Sql = 'DELETE FROM Images_Locations WHERE ImgId = :ImgId';   // always remove first before setting new locs, maybe user simply wants to remove locs
         $Stmt = $this->db->prepare($Sql);
         $Stmt->bindParam(':ImgId', $ImgId);
         $Stmt->execute();
@@ -468,9 +464,9 @@ class Database
                 // Use (returned) id for table Images_Locations and Locations_Countries.
                 if ($LocationId == '' || $LocationId == 'null') { // new? location from map or input field
                     $Name = $Child->getAttribute('Name');
-                    $Sql = "SELECT Id FROM Locations l
+                    $Sql = 'SELECT Id FROM Locations l
 						INNER JOIN Locations_Countries lc ON lc.LocationId = l.Id
-						WHERE Name = :Name AND CountryId = :CountryId";
+						WHERE Name = :Name AND CountryId = :CountryId';
                     $Stmt = $this->db->prepare($Sql);
                     $Stmt->bindParam(':Name', $Name);
                     $Stmt->bindParam(':CountryId', $CountryId);
@@ -478,12 +474,12 @@ class Database
                     if ($Row = $Stmt->fetch(PDO::FETCH_ASSOC)) {
                         $LocationId = $Row['Id'];
                     } else {
-                        $Sql = "INSERT INTO Locations (Id, Name) VALUES (NULL, :Name)";
+                        $Sql = 'INSERT INTO Locations (Id, Name) VALUES (NULL, :Name)';
                         $Stmt = $this->db->prepare($Sql);
                         $Stmt->bindParam(':Name', $Name);
                         $Stmt->execute();
                         $LocationId = $this->db->lastInsertId();
-                        $Sql = "INSERT INTO Locations_Countries (LocationId, CountryId) VALUES (:LocationId, :CountryId)";
+                        $Sql = 'INSERT INTO Locations_Countries (LocationId, CountryId) VALUES (:LocationId, :CountryId)';
                         $Stmt = $this->db->prepare($Sql);
                         $Stmt->bindParam(':LocationId', $LocationId);
                         $Stmt->bindParam(':CountryId', $CountryId);
@@ -492,14 +488,14 @@ class Database
                 }
                 // 2. Check if location was not inserted previously into Images_Locations,
                 // because user might have the same location twice in the list.
-                $Sql = "SELECT LocationId FROM Images_Locations WHERE ImgId = :ImgId AND LocationId = :LocationId";
+                $Sql = 'SELECT LocationId FROM Images_Locations WHERE ImgId = :ImgId AND LocationId = :LocationId';
                 $Stmt = $this->db->prepare($Sql);
                 $Stmt->bindParam(':ImgId', $ImgId);
                 $Stmt->bindParam(':LocationId', $LocationId);
                 $Stmt->execute();
                 // 3. Insert location into table Images_Locations
                 if (!$Row = $Stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $Sql = "INSERT INTO Images_Locations (ImgId, LocationId) VALUES (:ImgId, :LocationId)";
+                    $Sql = 'INSERT INTO Images_Locations (ImgId, LocationId) VALUES (:ImgId, :LocationId)';
                     $Stmt = $this->db->prepare($Sql);
                     $Stmt->bindParam(':ImgId', $ImgId);
                     $Stmt->bindParam(':LocationId', $LocationId);
@@ -525,31 +521,31 @@ class Database
     public function Delete($imgId)
     {
         $this->BeginTransaction();
-        $sql = "DELETE FROM Images WHERE Id = :imgId";
+        $sql = 'DELETE FROM Images WHERE Id = :imgId';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':imgId', $imgId);
         $stmt->execute();
-        $sql = "DELETE FROM Exif WHERE ImgId = :imgId";
+        $sql = 'DELETE FROM Exif WHERE ImgId = :imgId';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':imgId', $imgId);
         $stmt->execute();
-        $sql = "DELETE FROM Xmp WHERE ImgId = :imgId";
+        $sql = 'DELETE FROM Xmp WHERE ImgId = :imgId';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':imgId', $imgId);
         $stmt->execute();
-        $sql = "DELETE FROM Images_ScientificNames WHERE ImgId = :imgId";
+        $sql = 'DELETE FROM Images_ScientificNames WHERE ImgId = :imgId';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':imgId', $imgId);
         $stmt->execute();
-        $sql = "DELETE FROM Images_Keywords WHERE ImgId = :imgId";
+        $sql = 'DELETE FROM Images_Keywords WHERE ImgId = :imgId';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':imgId', $imgId);
         $stmt->execute();
-        $sql = "DELETE FROM Images_Themes WHERE ImgId = :imgId";
+        $sql = 'DELETE FROM Images_Themes WHERE ImgId = :imgId';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':imgId', $imgId);
         $stmt->execute();
-        $sql = "DELETE FROM Images_Locations WHERE ImgId = :imgId";
+        $sql = 'DELETE FROM Images_Locations WHERE ImgId = :imgId';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':imgId', $imgId);
         $stmt->execute();
@@ -570,8 +566,8 @@ class Database
      */
     public function insertXmp($imgId, $exifData)
     {
-        $sql = "INSERT OR REPLACE INTO Xmp (ImgId, CropTop, CropLeft, CropBottom, CropRight, CropAngle, SyncDate) 
-            VALUES (:imgId, :cropTop, :cropLeft, :cropBottom, :cropRight, :cropAngle, CURRENT_TIMESTAMP)";
+        $sql = 'INSERT OR REPLACE INTO Xmp (ImgId, CropTop, CropLeft, CropBottom, CropRight, CropAngle, SyncDate) 
+            VALUES (:imgId, :cropTop, :cropLeft, :cropBottom, :cropRight, :cropAngle, CURRENT_TIMESTAMP)';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':imgId', $imgId);
         $stmt->bindParam(':cropTop', $exifData['CropTop']);
@@ -590,7 +586,7 @@ class Database
      */
     public function getImageSrc($imgId)
     {
-        $sql = "SELECT ImgFolder, ImgName FROM Images WHERE Id = :ImgId";
+        $sql = 'SELECT ImgFolder, ImgName FROM Images WHERE Id = :ImgId';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':ImgId', $imgId);
         $stmt->execute();
@@ -627,40 +623,40 @@ class Database
         // note: Scanned slides have a lot of empty exif data
         $arrExif = $this->mapExif($exifData);
         if (count($arrExif) > 0) {
-            $SqlTemp = "";
-            $Sql = "INSERT OR REPLACE INTO Exif (ImgId,";   // deletes row first if conflict occurs
+            $sqlTemp = '';
+            $sql = 'INSERT OR REPLACE INTO Exif (ImgId,';   // deletes row first if conflict occurs
             foreach ($arrExif as $Key => $Val) {   // column names
-                $SqlTemp .= "$Key,";
+                $sqlTemp .= "$Key,";
             }
-            $Sql .= rtrim($SqlTemp, ',').", SyncDate) VALUES (:ImgId,";
-            $SqlTemp = "";
+            $sql .= rtrim($sqlTemp, ',').', SyncDate) VALUES (:ImgId,';
+            $sqlTemp = '';
             foreach ($arrExif as $Key => $Val) {   // column data
                 if (strpos($Key, 'Date') !== false) {
-                    if ($Val != '' && strtotime($Val)) {
-                        $SqlTemp .= "'".$this->sqlite_escape_string(strtotime($Val))."',";
+                    if ($Val !== '' && strtotime($Val)) {
+                        $sqlTemp .= "'".$this->sqlite_escape_string(strtotime($Val))."',";
                     } else {
-                        $SqlTemp .= "NULL,";
+                        $sqlTemp .= 'NULL,';
                     }
                 } else {
-                    $SqlTemp .= "'".$this->sqlite_escape_string($Val)."',";
+                    $sqlTemp .= "'".$this->sqlite_escape_string($Val)."',";
                 }
             }
-            $Sql .= rtrim($SqlTemp, ',').", CURRENT_TIMESTAMP);";
-            $Stmt = $this->db->prepare($Sql);
+            $sql .= rtrim($sqlTemp, ',').', CURRENT_TIMESTAMP);';
+            $Stmt = $this->db->prepare($sql);
             $Stmt->bindParam(':ImgId', $imgId);
             $Stmt->execute();
             // Use exif DateTimeOriginal also as column value in the Images table, but
             // not in case of scanned slides which have only date of scanning.
             if ($arrExif['Model'] != 'Nikon SUPER COOLSCAN 5000 ED' && $arrExif['DateTimeOriginal'] != '') {
-                $Sql = 'UPDATE Images SET ImgDateOriginal = :Date WHERE Id = :ImgId';
-                $Stmt = $this->db->prepare($Sql);
+                $sql = 'UPDATE Images SET ImgDateOriginal = :Date WHERE Id = :ImgId';
+                $Stmt = $this->db->prepare($sql);
                 $Stmt->bindParam(':ImgId', $imgId);
                 $Stmt->bindParam(':Date', strtotime($arrExif['DateTimeOriginal']));
                 $Stmt->execute();
             }
             if ($arrExif['GPSLatitude'] !== '') {
-                $Sql = 'UPDATE Images SET ImgLat = :Lat, ImgLng = :Lng WHERE Id = :ImgId';
-                $Stmt = $this->db->prepare($Sql);
+                $sql = 'UPDATE Images SET ImgLat = :Lat, ImgLng = :Lng WHERE Id = :ImgId';
+                $Stmt = $this->db->prepare($sql);
                 $Stmt->bindParam(':ImgId', $imgId);
                 $Stmt->bindParam(':Lat', $arrExif['GPSLatitude']);
                 $Stmt->bindParam(':Lng', $arrExif['GPSLongitude']);
@@ -682,12 +678,12 @@ class Database
         switch ($data) {
             case 'Location':
                 $CountryId = (isset($_POST['CountryId']) && $_POST['CountryId'] != '') ? $_POST['CountryId'] : null;
-                $Sql = "SELECT L.Id, L.Name LocName FROM Locations L";
+                $Sql = 'SELECT L.Id, L.Name LocName FROM Locations L';
                 if (!is_null($CountryId)) {
-                    $Sql .= " LEFT JOIN Locations_Countries LC ON L.Id = LC.LocationId
-					WHERE CountryId = :CountryId";
+                    $Sql .= ' LEFT JOIN Locations_Countries LC ON L.Id = LC.LocationId
+					WHERE CountryId = :CountryId';
                 }
-                $Sql .= " ORDER BY Name ASC";
+                $Sql .= ' ORDER BY Name ASC';
                 $Stmt = $this->db->prepare($Sql);
                 if (!is_null($CountryId)) {
                     $Stmt->bindParam(':CountryId', $CountryId);
@@ -745,7 +741,7 @@ class Database
      * @param bool [$Unique]
      * @param string [$Separator]
      */
-    function groupConcatStep($Context, $RowId, $String, $Unique = false, $Separator = ", ")
+    function groupConcatStep($Context, $RowId, $String, $Unique = false, $Separator = ', ')
     {
         if ($Context) {
             if ($Unique) {
@@ -777,7 +773,7 @@ class Database
         if (strlen($Context) > 4) {
             return strtotime($Context);
         } else if (preg_match('/[0-9]{4}/', $Context)) {
-            return strtotime($Context."-01-01");
+            return strtotime($Context.'-01-01');
         } else {
             return null;
         }
@@ -847,7 +843,7 @@ class Database
      */
     private function createStructure()
     {
-        $sql = "BEGIN;
+        $sql = 'BEGIN;
             create table Countries
             (
                 Id INTEGER not null
@@ -1068,7 +1064,7 @@ class Database
                 stat
             )
             ;
-            COMMIT;";
+            COMMIT;';
         $this->db->exec($sql);
         print_r($this->db->errorInfo());
 

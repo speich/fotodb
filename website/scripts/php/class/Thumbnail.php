@@ -2,6 +2,9 @@
 
 namespace PhotoDatabase;
 
+use RuntimeException;
+
+
 /**
  * Class Thumbnail
  * @package PhotoDatabase
@@ -15,7 +18,6 @@ class Thumbnail
      * @param string $srcPath path to source image
      * @param string $filename path of new image to create
      * @param integer $newWidth with of thumbnail to create
-     * @return bool
      */
     public function create($srcPath, $filename, $newWidth)
     {
@@ -38,7 +40,9 @@ class Thumbnail
         imagedestroy($img);
         imagedestroy($tmpImg);
 
-        return $succ;
+        if (!$succ) {
+            throw new RuntimeException('could not create thumbnail');
+        }
     }
 
     /**

@@ -7,6 +7,10 @@ use Exiftool\ExifToolBatch;
 use PhotoDatabase\Iterator\FileInfoImage;
 
 
+/**
+ * Class ExifService
+ * @package PhotoDatabase
+ */
 class ExifService
 {
     /** return only xmp data */
