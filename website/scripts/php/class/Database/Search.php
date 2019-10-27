@@ -3,10 +3,38 @@ namespace PhotoDatabase\Database;
 
 
 use Exception;
+use PDO;
+
 
 class Search
 {
     private $intSize = 4;
+
+    public $db;
+
+    /**
+     * SearchKeywords constructor.
+     * @param PDO $db
+     */
+    public function __construct($db)
+    {
+        $this->db = $db;
+        // The unicode61 tokenizer is not available on the cyon.ch webshosting
+        $this->db->sqliteCreateFunction('REMOVE_DIACRITICS', [$this, 'removeDiacritics']);
+    }
+
+    /**
+     * Remove diacritics from a string.
+     * @param string $string
+     * @return string
+     */
+    public function removeDiacritics($string): string
+    {
+        $transliterator = \Transliterator::createFromRules(':: Any-Latin; :: Latin-ASCII; :: NFD; :: [:Nonspacing Mark:] Remove; :: Lower(); :: NFC;', \Transliterator::FORWARD);
+
+        return $transliterator->transliterate($string);
+    }
+
 
     /**
      * @param string $matchInfo

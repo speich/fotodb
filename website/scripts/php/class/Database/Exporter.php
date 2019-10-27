@@ -74,7 +74,7 @@ class Exporter extends Database
             // delete previously copied images that are no longer public
             else {
                 $this->deleteImage($destImg);
-                echo "deleted $destImg {$row['Id']}<br>";
+                echo "(already) deleted $destImg {$row['Id']}<br>";
             }
             $stmtLocation->execute();
         }
@@ -149,11 +149,11 @@ class Exporter extends Database
     private function createImgDirectories($dir): void
     {
         if (!is_dir($dir)) {
-            if (mkdir($dir, 0777, true) === false) {
+            if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
                 throw new RuntimeException('creating directory '.$dir.' failed.');
             }
             $dirThumbnails = str_replace('/images/', '/images/thumbs/', $dir);
-            if (mkdir($dirThumbnails, 0777, true) === false) {
+            if (!mkdir($dirThumbnails, 0777, true) && !is_dir($dirThumbnails)) {
                 throw new RuntimeException('creating thumbnails directory '.$dir.' failed.');
             }
         }

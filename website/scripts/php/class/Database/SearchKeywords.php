@@ -10,22 +10,11 @@ use PDO;
 /**
  * Class SearchKeywords
  * Provides a list of (key)words found in all relevant columns of all relevant tables to display
- * The unicode61 tokenizer is not available on the cyon.ch webshosting
+
  * @package PhotoDatabase\Database
  */
 class SearchKeywords extends Search
 {
-    public $db;
-
-    /**
-     * SearchKeywords constructor.
-     * @param PDO $db
-     */
-    public function __construct($db)
-    {
-        $this->db = $db;
-    }
-
     /**
      * @return int
      */
@@ -34,7 +23,7 @@ class SearchKeywords extends Search
             a unique Id too. Therefore we cannot use a view as the external content, since that does not have a unique id. */
         $sql = 'BEGIN;
             DROP TABLE SearchKeywords_fts; 
-            CREATE VIRTUAL TABLE SearchKeywords_fts USING fts4(Keyword);
+            CREATE VIRTUAL TABLE SearchKeywords_fts USING fts4(KeywordMod, KeywordOrig);
             COMMIT;';
 
         return $this->db->exec($sql);
@@ -47,8 +36,8 @@ class SearchKeywords extends Search
     public function populate()
     {
         $sql = "BEGIN;
-            INSERT INTO SearchKeywords_fts(Keyword) 
-            SELECT Keyword FROM (
+            INSERT INTO SearchKeywords_fts(KeywordMod, KeywordOrig) 
+            SELECT REMOVE_DIACRITICS(Keyword), Keyword FROM (
                 SELECT ImgName Keyword FROM Images WHERE Public = 1
                 UNION
                 SELECT ImgTitle FROM Images WHERE Public = 1
@@ -97,18 +86,6 @@ class SearchKeywords extends Search
     }
 
     /**
-     * Remove diacritics from a string.
-     * @param string $string
-     * @return string
-     */
-    public function removeDiacritics($string): string
-    {
-        $transliterator = \Transliterator::createFromRules(':: Any-Latin; :: Latin-ASCII; :: NFD; :: [:Nonspacing Mark:] Remove; :: Lower(); :: NFC;', \Transliterator::FORWARD);
-
-        return $transliterator->transliterate($string);
-    }
-
-    /**
    	 * Extract words and phrases from query to search for.
    	 * Treat several words as a phrase if they are wrapped in double parentheses. Parentheses are included in the array items indicating
    	 * that the search needs to match exactly.
@@ -135,9 +112,8 @@ class SearchKeywords extends Search
     public function search($chars)
     {
         $chars = $this->removeDiacritics($chars);
-        echo $chars;
         $chars .= '*';
-        $sql = 'SELECT Keyword FROM SearchKeywords_fts
+        $sql = 'SELECT rowid, KeywordOrig FROM SearchKeywords_fts
 --          WHERE (SearchKeywords_fts MATCH :chars) ORDER BY RANK(matchinfo(SearchKeywords_fts), 0, 1.0, 0.5) DESC
           WHERE (SearchKeywords_fts MATCH :chars) --ORDER BY matchinfo(SearchKeywords_fts) DESC
           --ORDER BY RANK';

@@ -108,7 +108,7 @@ the FTS table Search (or use triggers for that)
 We are only interessted in the rowId (= image id) and not the columns
 
 
-This is possible buy using the content= option when creating the the.  that lets you define an "external content" tables
+This is possible by using the content= option when creating the the.  that lets you define an "external content" tables
 instead of a redundant Options are not available to FTS3.
 
 <<
@@ -239,6 +239,7 @@ SELECT rowid, * FROM SearchBirdNames_v WHERE SearchBirdNames_v MATCH 'twitched';
 
 -- Different solution: aggregate all data into a view and use that as the content table for the FTS
 -- => only one content table, but multiple records for image
+// for some reason this is slow to query in the real FotoDb SearchImages class
 CREATE VIEW SearchContent_v AS
   SELECT i.id rowid, i.title,
          b.scientific, b.eng, b.deu
@@ -246,3 +247,5 @@ CREATE VIEW SearchContent_v AS
          LEFT JOIN Images_BirdNames ib ON i.id = ib.imgId
          LEFT JOIN BirdNames b ON ib.nameId = b.id
 ;
+CREATE VIRTUAL TABLE SearchImages_fts USING fts4(content="SearchImages_v", ImgName, ImgTitle, ImgDesc, tokenize=unicode61); -- important: do not pass the row id column !
+INSERT INTO SearchImages_fts(rowid, ImgName, ImgTitle, ImgDesc) SELECT rowid, ImgName, ImgTitle, ImgDesc FROM SearchImages_v; -- important: when using a view, only rowid is accepted!

@@ -4,6 +4,7 @@
 // TODO: check all input before storing in db
 use PhotoDatabase\Database\Database;
 use PhotoDatabase\Database\Exporter;
+use PhotoDatabase\Database\SearchImages;
 use PhotoDatabase\Database\SearchKeywords;
 use WebsiteTemplate\Controller;
 use WebsiteTemplate\Error;
@@ -20,6 +21,8 @@ $data = $data ?? new stdClass();
 $resources = $ctrl->getResource();
 $method = $ctrl->getMethod();
 $response = null;
+
+set_time_limit(180);
 
 if (property_exists($data, 'Fnc')) {
     switch ($data->Fnc) {
@@ -62,31 +65,35 @@ if (property_exists($data, 'Fnc')) {
                 $db = $exporter->connect();
                 $exporter->publish();
                 echo 'db copy successful<br>';
-            }
-            catch (RuntimeException $exception) {
+            } catch (RuntimeException $exception) {
                 echo 'could not export database:<br>';
                 echo $exception->getMessage();
             }
+            flush();
 
             // create/update search indexes in the target database
-            //$config->paths->database = '/var/www/html/fotodb/website/dbprivate/dbfiles/FotoDb.sqlite';
-            //$db = new Database($config);
-            //$db = $db->connect();
-            $indexer = new SearchKeywords($db);
-            //$destDb->sqliteCreateFunction('RANK', 'rank');
-            $succ = $indexer->create();
-            var_dump($indexer->db->errorInfo());
-            $succ = $indexer->populate();
-            $result = $indexer->search('wäld');
-            var_dump($result);
-            /*
-                    $destDb = new PDO('sqlite:'.$config->paths->targetDatabase);
-                        $indexer = new \PhotoDatabase\Database\SearchImages($destDb);
-                        //$succ = $indexer->create();
-                        //$succ = $indexer->populate();
-                        $result = $indexer->search('jap');
-                        var_dump($result);
-                      */
+                    //$config->paths->database = '/var/www/html/fotodb/website/dbprivate/dbfiles/FotoDb.sqlite';
+                    //$db = new Database($config);
+            //$destDb = $db;  // only temp for testing
+            //$destDb = $db->connect();
+            //$indexer = new SearchKeywords($destDb);
+                    //$destDb->sqliteCreateFunction('RANK', 'rank');
+
+            //$succ = $indexer->create();
+            //var_dump($indexer->db->errorInfo());
+            //$succ = $indexer->populate();
+            //$result = $indexer->search('bär');
+            //var_dump($result);
+
+                    // $destDb = new PDO('sqlite:'.$config->paths->targetDatabase);
+            //$destDb = $db;  // only temp for testing
+                    //$destDb = $db->connect();
+            //$indexer = new SearchImages($destDb);
+            //$indexer->create();
+            //$indexer->populate();
+            //$result = $indexer->search('turdus');
+            //var_dump($result);
+            echo 'done';
             break;
     }
 }

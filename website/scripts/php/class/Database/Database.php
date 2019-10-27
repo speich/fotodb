@@ -23,11 +23,11 @@ class Database
     // and not with a slash, but end with a slash
 
     private $folderImageOriginal;    // absolute path where image originals are stored*/
-    protected $HasActiveTransaction = false;    // keep track of open transactions
+    protected $hasActiveTransaction = false;    // keep track of open transactions
     private $webroot = '/';
     private $exiftool;
     private $dbPath;
-    private $PathImg;    // relative to this class
+    private $pathImg;    // relative to this class
 
     /**
      * @constructor
@@ -35,7 +35,7 @@ class Database
      */
     public function __construct($config)
     {
-        $this->PathImg = $config->paths->imagesWebRoot;
+        $this->pathImg = $config->paths->imagesWebRoot;
         $this->folderImageOriginal = $config->paths->imagesOriginal;
         $this->exiftool = $config->paths->exifTool;
         $this->dbPath = $config->paths->database;
@@ -85,12 +85,12 @@ class Database
      */
     public function BeginTransaction()
     {
-        if ($this->HasActiveTransaction === true) {
+        if ($this->hasActiveTransaction === true) {
             return false;
         } else {
-            $this->HasActiveTransaction = $this->db->beginTransaction();
+            $this->hasActiveTransaction = $this->db->beginTransaction();
 
-            return $this->HasActiveTransaction;
+            return $this->hasActiveTransaction;
         }
     }
 
@@ -100,7 +100,7 @@ class Database
      */
     public function Commit()
     {
-        $this->HasActiveTransaction = false;
+        $this->hasActiveTransaction = false;
 
         return $this->db->commit();
     }
@@ -111,7 +111,7 @@ class Database
      */
     function Rollback()
     {
-        $this->HasActiveTransaction = false;
+        $this->hasActiveTransaction = false;
 
         return $this->db->rollback();
     }
@@ -143,7 +143,7 @@ class Database
                 $Path = $this->dbPath;
                 break;
             case 'Img':
-                $Path = $this->PathImg;
+                $Path = $this->pathImg;
                 break;
             case 'ImgOriginal':
                 $Path = $this->folderImageOriginal;
