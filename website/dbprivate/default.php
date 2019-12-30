@@ -3,7 +3,7 @@
 use WebsiteTemplate\html\SelectField;
 
 
-require_once '../scripts/php/inc_script.php';
+require_once __DIR__.'/../scripts/php/inc_script.php';
 
 $q = $db->db->query('SELECT * FROM Countries ORDER BY NameEn ASC');
 $country = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'CountryId');
