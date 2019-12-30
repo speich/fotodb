@@ -6,6 +6,10 @@ use Exception;
 use PDO;
 
 
+/**
+ * Class Search
+ * @package PhotoDatabase\Database
+ */
 class Search
 {
     private $intSize = 4;
