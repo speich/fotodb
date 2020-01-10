@@ -115,8 +115,8 @@ class FileExplorer {
 				$arrFile[$file]['Name'] = $file;
 				$arrFile[$file]['Size'] = number_format(filesize($filePath.$file) / 1000, 2, ".", "'")."kb";
 				if ($arrFile[$file]['Type'] === 'File' && pathinfo($file, PATHINFO_EXTENSION) === 'jpg') {
-					$arrFile[$file]['PathDbImg'] = ltrim(str_replace($this->db->GetPath('Img'), '', $path), '/');
-					$arrFile[$file]['DbImg'] = ltrim(str_replace($this->db->GetPath('Img'), '', $path).$file, '/');
+					$arrFile[$file]['PathDbImg'] = ltrim(str_replace($this->db->getPath('Img'), '', $path), '/');
+					$arrFile[$file]['DbImg'] = ltrim(str_replace($this->db->getPath('Img'), '', $path).$file, '/');
 				}
 			}
 		}
@@ -136,7 +136,7 @@ class FileExplorer {
     public function render($arrFile, $Type = NULL, $Filter = NULL) {
 		// get image data (Id, Img, ImgTitle) from database and compare it with file data to
 		// see if image is unprocessed or already done and to add additional data
-        $folderPrefix = $this->db->GetPath('Img');
+        $folderPrefix = $this->db->getPath('Img');
 		$Folder = trim(str_replace($folderPrefix, '', $arrFile[0]['Current']), '/');
 		$arrDbImg = $this->getDbData($Folder);
 
@@ -149,7 +149,7 @@ class FileExplorer {
 			foreach ($arrFile as $File) {
 				if ($File['Type'] === 'Dir') {
 					echo '<tr class="dir">';
-					echo '<td><a href="'.$File['Path'].($File['Name'] === '..' ? '' : $File['Name'].'/').'"><img style="width: inherit !important" src="'.$this->db->GetPath('WebRoot').'dbprivate/layout/images/folder.gif"/>'.$File['Name'].'</a></td>';
+					echo '<td><a href="'.$File['Path'].($File['Name'] === '..' ? '' : $File['Name'].'/').'"><img style="width: inherit !important" src="'.$this->db->getPath('WebRoot').'dbprivate/layout/images/folder.gif"/>'.$File['Name'].'</a></td>';
 					echo '<td></td>';
 					echo "</tr>\n";
 				}

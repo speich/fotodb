@@ -90,7 +90,7 @@ class Exporter extends Database
      */
     public function copyAndClean(): PDO
     {
-        $source = $this->GetPath('Db');
+        $source = $this->getPath('Db');
         if (copy($source, $this->pathTargetDb)) {
             // For speed reasons we turn journaling off and increase cache size. As long as we import all records at once,
             // we do not need a rollback. We just start over in case of a crash. This is only possible for the destination

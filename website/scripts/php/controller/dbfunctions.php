@@ -28,14 +28,14 @@ if (property_exists($data, 'Fnc')) {
     switch ($data->Fnc) {
         case 'Insert':
             // insert new image and return new id
-            $db->Insert($_POST['Img']);
+            $db->insert($_POST['Img']);
             break;
         case 'UpdateExif':
             // Insert or update exif data of image
             $imgId = $_POST['ImgId'];
             $imgSrc = $db->getImageSrc($imgId);
             $exifData = $db->getExif($imgSrc);
-            if ($db->InsertExif($imgId, $exifData)) {
+            if ($db->insertExif($imgId, $exifData)) {
                 echo 'success';
             } else {
                 echo 'failed';
@@ -43,19 +43,19 @@ if (property_exists($data, 'Fnc')) {
             break;
         case 'Edit':
             // return database data as xml to edit in form
-            $db->Edit($_POST['ImgId']);
+            $db->edit($_POST['ImgId']);
             break;
         case 'UpdateAll':
             // save all form data in database
-            $db->UpdateAll($_POST['XmlData']);
+            $db->updateAll($_POST['XmlData']);
             break;
         case 'Del':
             // delete db data
-            $db->Delete($_POST['ImgId']);
+            $db->delete($_POST['ImgId']);
             break;
         case 'FldLoadData':
             // load specific form data, e.g. locations in a certain country or a scientific name
-            $db->LoadData();
+            $db->loadData();
             break;
 
         case 'Publish':
