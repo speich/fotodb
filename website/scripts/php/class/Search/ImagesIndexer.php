@@ -1,26 +1,33 @@
 <?php
 
-namespace PhotoDatabase\Database;
+namespace PhotoDatabase\Search;
 
 use PDO;
 
 
-class SearchImages extends Search
+/**
+ * Class SearchImages
+ * @package PhotoDatabase\Database
+ */
+class ImagesIndexer implements Fts4Indexer
 {
+
+    /**
+     * @inheritDoc
+     */
+    public function __construct($db)
+    {
+    }
 
     /**
      * Create the database tables necessary for searching.
      */
-    public function create()
+    public function init()
     {
-        $sql = "
-            BEGIN;
-            DROP TABLE SearchImages_fts;
-            --DROP VIEW SearchImages_v;
-            --Create View SearchImage_v AS ... moved data to fts4 table which is a lot faster than the view?!
-            --CREATE VIRTUAL TABLE SearchImages_fts USING fts4(content=SearchImages_v, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas);   -- important: do not pass the row id column !
+        $sql = 'BEGIN;
+            DROP TABLE IF EXISTS SearchImages_fts;
             CREATE VIRTUAL TABLE SearchImages_fts USING fts4(ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas);   -- important: do not pass the row id column !
-			COMMIT;";
+			COMMIT;';
 
         return $this->db->exec($sql);
 
@@ -41,7 +48,7 @@ class SearchImages extends Search
                     sc.ScientificNames,
                     t.Themes,
                     a.SubjectAreas
-                FROM Images i
+                FROM ImagesIndexer i
                 LEFT JOIN Countries c ON i.CountryId = c.Id
                 LEFT JOIN (
                     SELECT ik.imgId, GROUP_CONCAT(k.Name, \', \') Keywords FROM Images_Keywords ik
@@ -94,5 +101,8 @@ class SearchImages extends Search
 
         return $stmt->fetchAll();
     }
+
+
+
 
 }

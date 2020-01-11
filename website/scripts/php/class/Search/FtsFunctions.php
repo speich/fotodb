@@ -1,77 +1,54 @@
 <?php
-namespace PhotoDatabase\Database;
+namespace PhotoDatabase\Search;
 
 
 use Exception;
-use PDO;
+use Transliterator;
 
 
 /**
  * Class Search
- * @package PhotoDatabase\Database
  */
-class Search
+class FtsFunctions
 {
     private $intSize = 4;
-
-    public $db;
-
-    /**
-     * SearchKeywords constructor.
-     * @param PDO $db
-     */
-    public function __construct($db)
-    {
-        $this->db = $db;
-        // The unicode61 tokenizer is not available on the cyon.ch webshosting
-        $this->db->sqliteCreateFunction('REMOVE_DIACRITICS', [$this, 'removeDiacritics']);
-    }
 
     /**
      * Remove diacritics from a string.
      * @param string $string
      * @return string
      */
-    public function removeDiacritics($string): string
+    public static function removeDiacritics($string): string
     {
-        $transliterator = \Transliterator::createFromRules(':: Any-Latin; :: Latin-ASCII; :: NFD; :: [:Nonspacing Mark:] Remove; :: Lower(); :: NFC;', \Transliterator::FORWARD);
+        $transliterator = Transliterator::createFromRules(':: Any-Latin; :: Latin-ASCII; :: NFD; :: [:Nonspacing Mark:] Remove; :: Lower(); :: NFC;', \Transliterator::FORWARD);
 
         return $transliterator->transliterate($string);
     }
 
+    /**
+     * Extracts the offset of the word from the sqlite fts4 offsets string.
+     * If there are multiple matches, only the offset of the first match is returned
+     * Note: offset is not in characters, but bytes, e.g. a character such as ä counts as two bytes
+     * @param string $offsets
+     * @return int
+     */
+    public static function offsetWord($offsets): int
+    {
+        $bytes = explode(' ', $offsets);
+
+        return $bytes[2];
+    }
 
     /**
-     * @param string $matchInfo
-     * @see https://gist.github.com/bohwaz/1355232
-     * @return float|int
-     * @throws Exception
+     * Returns the number of times a search word matched from offsets string.
+     * @param $offsets
+     * @return int
      */
-    public function rankxxx($matchInfo)
+    public static function numMatches($offsets): int
     {
-        $score = 0.0;
-        $matchInfo = (string) func_get_arg(0);
-        $numPhrases = $this->extractInt($matchInfo, 0);
-        $numCols = $this->extractInt($matchInfo, $this->intSize);
+        $ints = explode(' ', $offsets);
 
-        if (func_num_args() > (1 + $numCols)) {
-            throw new Exception('Invalid number of arguments: ' . $numCols);
-        }
-
-        for ($phrase = 0; $phrase < $numPhrases; $phrase++) {
-            $phraseInfo = substr($matchInfo, (2 + $phrase * $numCols * 3) * $this->intSize);
-            for ($col = 0; $col < $numCols; $col++) {
-                $pos = 3 * $col * $this->intSize;
-                $hitCount = $this->extractInt($phraseInfo, $pos);
-                $pos = (3 * $col + 1) * $this->intSize;
-                $globalHitCount = $this->extractInt($phraseInfo, $pos);
-                $weight = ($col < func_num_args() - 1) ? (double)func_get_arg($col + 1) : 0;
-                if ($hitCount > 0) {
-                    $score += ((double)$hitCount / (double)$globalHitCount) * $weight;
-                }
-            }
-        }
-
-        return $score;
+        return count($ints) / 4;
     }
 
     /**

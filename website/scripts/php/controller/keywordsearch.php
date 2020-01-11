@@ -1,12 +1,11 @@
 <?php
 
-use LFI\Results\ResultSearch;
 use PhotoDatabase\Database\Database;
-use PhotoDatabase\Database\SearchKeywords;
+use PhotoDatabase\Search\Keywords;
 use WebsiteTemplate\Header;
 
 
-require_once '../inc_script.php';
+require_once __DIR__.'/../inc_script.php';
 
 $db = new Database($config);
 $db = $db->connect();
@@ -16,14 +15,10 @@ $db = $db->connect();
 
 $header = new Header();
 $ranges = $header->getRange();
-$search = new SearchKeywords($db);
-$labels = SearchKeywords::extractWords($_GET['Q'], 1, 0);
-$word = str_replace(['*','"'], '', $labels[0]);
-//$numWords = $service->getNumLabels($word, $prodNrs['PRODNR']);
-//$service->limit = $ranges['end'] - $ranges['start'];
-//$service->offset = $ranges['start'];
-$result = $search->search('wäld');
-echo $result;
+$search = new Keywords($db);
+$query = $search->prepareQuery($_GET['q']);
+$result = $search->search($query);
+var_dump($result);
 
 
 
