@@ -244,7 +244,7 @@ class Database
             // each col in db is attribute of xml element Image
             if (strpos($key, 'Date') !== false && $key !== 'ImgDateManual' && $val !== null && $val !== '') {
                 $strXml .= ' '.$key.'="'.date('d.m.Y H:i:s', $val).'"';
-            } elseif ($key === 'LastChange' && $val !== null && $val != '') {
+            } elseif ($key === 'LastChange' && $val !== null && $val !== '') {
                 $strXml .= ' '.$key.'="'.date('d.m.Y H:i:s', $val).'"';
             } else {
                 $strXml .= ' '.$key.'="'.htmlspecialchars($val, ENT_QUOTES, 'UTF-8').'"';
@@ -305,12 +305,12 @@ class Database
         $strXml .= '<Locations Id="'.$ImgId;
         $arrData = $stmt->fetchAll();
         if (!\count($arrData)) {
-            $strXml .= '" countryId="">';
+            $strXml .= '" CountryId="">';
         }
         foreach ($arrData as $row) {
             if (!isset($countryId)) {
-                $countryId = $row['countryId'];
-                $strXml .= '" countryId="'.$countryId.'">';
+                $countryId = $row['CountryId'];
+                $strXml .= '" CountryId="'.$countryId.'">';
             }
             $strXml .= '<Location Id="'.$row['LocId'].'" Name="'.htmlspecialchars($row['LocName'], ENT_QUOTES, 'UTF-8').'"/>';
         }
