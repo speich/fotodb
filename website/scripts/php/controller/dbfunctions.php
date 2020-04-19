@@ -65,54 +65,38 @@ if (property_exists($data, 'Fnc')) {
             echo 'exporting database...<br>';
             $exporter = new Exporter($config);
             $db = $exporter->connect();
-            /*
-                try {
-                    $exporter->publish();
-                    echo 'db copy successful<br>';
-                } catch (RuntimeException $exception) {
-                    echo 'could not export database:<br>';
-                    echo $exception->getMessage();
-                }
-    */
+            try {
+                $exporter->publish();
+                echo 'db copy successful<br>';
+            } catch (RuntimeException $exception) {
+                echo 'Error exporting database:<br>';
+                echo $exception->getMessage();
+            }
             flush();
 
             // create/update search indexes in the target database
-            //$config->paths->database = '/var/www/html/fotodb/website/dbprivate/dbfiles/FotoDb.sqlite';
-            //$db = new Database($config);
-            //$destDb = $db;  // only temp for testing
-            //$destDb = $db->connect();
-            //$destDb->sqliteCreateFunction('RANK', 'rank');
-
-        /*
             $indexer = new KeywordsIndexer($db);
-            $succ = $indexer->init();
-            var_dump($indexer->db->errorInfo());
-            $succ = $indexer->populate();
+            $indexer->init();
+            $indexer->populate();
+            flush();
+/*
+            $indexer = new KeywordsIndexerNoUnicode($db);
+            $indexer->init();
+            $indexer->populate();
             flush();
 
-            $indexer = new KeywordsIndexerNoUnicode($db);
-            $succ = $indexer->init();
-            var_dump($indexer->db->errorInfo());
-            $succ = $indexer->populate();
-            flush();
-*/
-            $search = new Keywords($db);
-            //$query = $search->prepareQuery($_GET['q']);
-            var_dump($search->search($_GET['q']));
-/*
             $search = new KeywordsNoUnicode($db);
             $query = $search->prepareQuery('schnä');
             var_dump($search->search($query));
 */
-            // $destDb = new PDO('sqlite:'.$config->paths->targetDatabase);
-            //$destDb = $db;  // only temp for testing
-            //$destDb = $db->connect();
-            //$indexer = new SearchImages($destDb);
-            //$indexer->create();
-            //$indexer->populate();
-            //$result = $indexer->search('turdus');
-            //var_dump($result);
+
             echo 'done';
             break;
+
+        case 'search':
+            $db = new PDO('sqlite:'.$config->targetDatabase);
+            $search = new Keywords($db);
+            $query = $_GET['q'] ?? 'wald';
+            var_dump($search->search($query));
     }
 }
