@@ -10,10 +10,14 @@ RUN mkdir -p /etc/ssl/private/ \
     # && a2dismod mpm_event \
     # && a2enmod mpm_worker \
     && a2enmod http2
-COPY ./setup/fotodb.crt /etc/ssl/private/fotodb.crt
-COPY ./setup/fotodb.conf /etc/apache2/sites-available/fotodb.conf
+COPY fotodb.crt /etc/ssl/private/fotodb.crt
+COPY fotodb.conf /etc/apache2/sites-available/fotodb.conf
 RUN a2ensite fotodb
 #COPY ./setup/php.ini /
+
+# use your users $UID and $GID below
+RUN groupadd apache-www-volume -g 1000
+RUN useradd apache-www-volume -u 1000 -g 1000
 
 # install PHP extension
 RUN apt-get update \
