@@ -1,4 +1,3 @@
-# php:7.3-fpm
 FROM php:7.3-apache
 
 
@@ -6,9 +5,6 @@ FROM php:7.3-apache
 RUN mkdir -p /etc/ssl/private/ \
     && a2enmod rewrite \
     && a2enmod ssl \
-    # && a2dismod mpm_prefork \
-    # && a2dismod mpm_event \
-    # && a2enmod mpm_worker \
     && a2enmod http2
 COPY fotodb.crt /etc/ssl/private/fotodb.crt
 COPY fotodb.conf /etc/apache2/sites-available/fotodb.conf
