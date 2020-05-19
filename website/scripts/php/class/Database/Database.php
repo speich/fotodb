@@ -5,9 +5,9 @@ namespace PhotoDatabase\Database;
 use DOMDocument;
 use DOMElement;
 use PDO;
-use PDOException;
 use SQLite3;
 use PhotoDatabase\ExifService;
+use stdClass;
 
 
 /**
@@ -31,7 +31,7 @@ class Database
 
     /**
      * @constructor
-     * @param \stdClass $config
+     * @param stdClass $config
      */
     public function __construct($config)
     {
@@ -74,7 +74,12 @@ class Database
         return $this->db;
     }
 
-    function sqlite_escape_string($string)
+    /**
+     * Returns a properly escaped string that may be used safely in an SQL statement.
+     * @param string $string string to be escaped
+     * @return string escaped string
+     */
+    function escapeString($string)
     {
         // sqlite_escape_string is not supported in php 5.4 anymore
         return SQLite3::escapeString($string);
@@ -337,7 +342,7 @@ class Database
         $count = 0;
         $sql = 'UPDATE Images SET';
         foreach ($attributes as $attr) {
-            $sql .= ' '.$this->sqlite_escape_string($attr->nodeName)." = :Val$count,";
+            $sql .= ' '.$this->escapeString($attr->nodeName)." = :Val$count,";
             $count++;
         }
         $sql = rtrim($sql, ',');
@@ -417,7 +422,7 @@ class Database
         $stmt->bindParam(':imgId', $imgId);
         $stmt->execute();
         $children = $el->childNodes;
-        $sql = 'INSERT INTO Images_Themes (ImgId, ThemeId) VALUES (:imgId, :ThemeId)';
+        $sql = 'INSERT INTO Images_Themes (ImgId, ThemeId) VALUES (:imgId, :themeId)';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':imgId', $imgId);
         $stmt->bindParam(':themeId', $themeId);
@@ -632,12 +637,12 @@ class Database
             foreach ($arrExif as $key => $val) {   // column data
                 if (strpos($key, 'Date') !== false) {
                     if ($val !== '' && strtotime($val)) {
-                        $sqlTemp .= "'".$this->sqlite_escape_string(strtotime($val))."',";
+                        $sqlTemp .= "'".$this->escapeString(strtotime($val))."',";
                     } else {
                         $sqlTemp .= 'NULL,';
                     }
                 } else {
-                    $sqlTemp .= "'".$this->sqlite_escape_string($val)."',";
+                    $sqlTemp .= "'".$this->escapeString($val)."',";
                 }
             }
             $sql .= rtrim($sqlTemp, ',').', CURRENT_TIMESTAMP);';
