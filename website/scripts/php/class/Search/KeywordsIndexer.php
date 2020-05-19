@@ -6,10 +6,11 @@ use PDO;
 
 
 /**
- * Class SearchKeywords
- * Creates a fulltext search index for keywords using fts4
+ * Class KeywordsIndexer
+ * Creates a fulltext search index for keywords using fts4 based on most tables and columns in the database.
+ * The fts uses the unicode64 tokenizer compiled with sqlite3.
  */
-class KeywordsIndexer implements Fts4Indexer
+class KeywordsIndexer extends Indexer
 {
     /**
      * @var PDO
@@ -20,7 +21,7 @@ class KeywordsIndexer implements Fts4Indexer
      * Fts4Indexer constructor.
      * @param PDO $db
      */
-    public function __construct($db)
+    public function __construct(PDO $db)
     {
         $this->db = $db;
     }
@@ -50,52 +51,9 @@ class KeywordsIndexer implements Fts4Indexer
     {
         $sql = "BEGIN;
               INSERT INTO SearchKeywords_fts(Keyword) 
-              SELECT Keyword FROM (
-                  SELECT ImgName Keyword FROM ImagesIndexer WHERE Public = 1
-                  UNION
-                  SELECT ImgTitle FROM ImagesIndexer WHERE Public = 1
-                  UNION
-                  SELECT ImgDesc FROM ImagesIndexer WHERE Public = 1
-                  UNION
-                  SELECT c.NameDe FROM ImagesIndexer i
-                  INNER JOIN Countries c ON i.CountryId = c.Id
-                  WHERE i.Public = 1
-                  UNION
-                  SELECT k.Name FROM ImagesIndexer i
-                  INNER JOIN Images_Keywords ik ON i.Id = ik.ImgId
-                  INNER JOIN Keywords k ON ik.KeywordId = k.Id
-                  WHERE i.Public = 1
-                  UNION
-                  SELECT l.Name FROM ImagesIndexer i
-                  INNER JOIN Images_Locations il ON il.ImgId = i.Id
-                  INNER JOIN Locations l ON il.LocationId = l.Id
-                  WHERE i.Public = 1
-                  UNION
-                  SELECT s.NameDe FROM ImagesIndexer i
-                  INNER JOIN Images_ScientificNames isc ON i.Id = isc.ImgId
-                  INNER JOIN ScientificNames s ON isc.ScientificNameId = s.Id
-                  WHERE i.Public = 1
-                  UNION
-                  SELECT s.NameLa FROM ImagesIndexer i
-                  INNER JOIN Images_ScientificNames isc ON i.Id = isc.ImgId
-                  INNER JOIN ScientificNames s ON isc.ScientificNameId = s.Id
-                  WHERE i.Public = 1
-                  UNION
-                  SELECT t.NameDe FROM ImagesIndexer i
-                  INNER JOIN Images_Themes it ON i.Id = it.ImgId
-                  INNER JOIN Themes t ON it.ThemeId = t.Id
-                  WHERE i.Public = 1
-                  UNION
-                  SELECT a.NameDe FROM ImagesIndexer i
-                  INNER JOIN Images_Themes it ON i.Id = it.ImgId
-                  INNER JOIN Themes t ON it.ThemeId = t.Id
-                  INNER JOIN SubjectAreas a ON t.SubjectAreaId = a.Id
-                  WHERE i.Public = 1
-              )
-              WHERE Keyword != '';
+              SELECT Keyword FROM (".$this->sqlSource.") WHERE Keyword != '';
               COMMIT;";
 
         return $this->db->exec($sql);
     }
-
 }
