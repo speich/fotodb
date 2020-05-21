@@ -44,9 +44,9 @@ class KeywordsNoUnicode
      */
     public function search($text): array
     {
-        $sql = 'SELECT rowid, KeywordOrig FROM SearchKeywords2_fts
+        $sql = 'SELECT rowid, KeywordOrig FROM SearchKeywords_fts
 --          WHERE (SearchKeywords_fts MATCH :chars) ORDER BY RANK(matchinfo(SearchKeywords_fts), 0, 1.0, 0.5) DESC
-          WHERE (KeywordOrig MATCH :text) --ORDER BY matchinfo(SearchKeywords_fts) DESC
+          WHERE (KeywordMod MATCH :text) --ORDER BY matchinfo(SearchKeywords_fts) DESC
           --ORDER BY RANK';
 
         $stmt = $this->db->prepare($sql);

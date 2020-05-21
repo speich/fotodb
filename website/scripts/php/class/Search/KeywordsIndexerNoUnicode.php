@@ -26,7 +26,6 @@ class KeywordsIndexerNoUnicode extends Indexer
     {
         $this->db = $db;
         $this->db->sqliteCreateFunction('REMOVE_DIACRITICS', ['PhotoDatabase\Search\FtsFunctions', 'removeDiacritics']);
-
     }
 
     /**
@@ -37,8 +36,8 @@ class KeywordsIndexerNoUnicode extends Indexer
         /* note: unlike ordinary fts4 tables, contentless tables require an explicit integer docid value to be provided. External content tables are assumed to have
             a unique Id too. Therefore we cannot use a view as the external content, since that does not have a unique id. */
         $sql = 'BEGIN;
-            DROP TABLE IF EXISTS SearchKeywords2_fts; 
-            CREATE VIRTUAL TABLE SearchKeywords2_fts USING fts4(KeywordMod, KeywordOrig);
+            DROP TABLE IF EXISTS SearchKeywords_fts; 
+            CREATE VIRTUAL TABLE SearchKeywords_fts USING fts4(KeywordMod, KeywordOrig);
             COMMIT;';
 
         return $this->db->exec($sql);
@@ -53,7 +52,7 @@ class KeywordsIndexerNoUnicode extends Indexer
       public function populate(): int
       {
           $sql = "BEGIN;
-            INSERT INTO SearchKeywords2_fts(KeywordMod, KeywordOrig) 
+            INSERT INTO SearchKeywords_fts(KeywordMod, KeywordOrig) 
                 SELECT REMOVE_DIACRITICS(Keyword), Keyword FROM (".$this->sqlSource.") WHERE Keyword != '';
             COMMIT;";
 

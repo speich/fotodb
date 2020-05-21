@@ -75,28 +75,18 @@ if (property_exists($data, 'Fnc')) {
             flush();
 
             // create/update search indexes in the target database
-            $indexer = new KeywordsIndexer($db);
-            $indexer->init();
-            $indexer->populate();
-            flush();
-/*
+            //$indexer = new KeywordsIndexer($db);
             $indexer = new KeywordsIndexerNoUnicode($db);
             $indexer->init();
             $indexer->populate();
             flush();
-
-            $search = new KeywordsNoUnicode($db);
-            $query = $search->prepareQuery('schnä');
-            var_dump($search->search($query));
-*/
-
             echo 'done';
             break;
 
         case 'search':
-            $db = new PDO('sqlite:'.$config->targetDatabase);
-            $search = new Keywords($db);
-            $query = $_GET['q'] ?? 'wald';
+            $db = new PDO('sqlite:'.$config->paths->database);
+            $search = new KeywordsNoUnicode($db);
+            $query = $search->prepareQuery('Wälder');
             var_dump($search->search($query));
     }
 }

@@ -9,6 +9,7 @@ use RuntimeException;
 
 /**
  * Class Exporter
+ * Exports the source database to the target database
  */
 class Exporter extends Database
 {
@@ -137,7 +138,7 @@ class Exporter extends Database
      */
     public function deleteImage($img): void
     {
-        if ((is_file($img) === true) && unlink($img) === false) {
+        if ((is_file($img) === true) && unlink(realpath($img)) === false) {
             throw new RuntimeException('could not delete image: '.$img);
         }
     }
@@ -154,7 +155,7 @@ class Exporter extends Database
             }
             $dirThumbnails = str_replace('/images/', '/images/thumbs/', $dir);
             if (!mkdir($dirThumbnails, 0777, true) && !is_dir($dirThumbnails)) {
-                throw new RuntimeException('creating thumbnails directory '.$dir.' failed.');
+                throw new RuntimeException('Creating thumbnails directory '.$dir.' failed.');
             }
         }
     }
@@ -171,7 +172,7 @@ class Exporter extends Database
             $destPath = str_replace('/images/', '/images/thumbs/', $destImg);
             $thumbnail->create($destImg, $destPath, 180);
         } else {
-            throw new RuntimeException('copying of image '.$srcImg.' failed.');
+            throw new RuntimeException('Copying of image from'.$srcImg.' to '.$destImg.' failed.');
         }
     }
 
