@@ -61,10 +61,16 @@ if (property_exists($data, 'Fnc')) {
             $db->loadData();
             break;
 
-        case 'Publish':
+        case 'publish':
             echo 'exporting database...<br>';
             $exporter = new Exporter($config);
             $db = $exporter->connect();
+
+            // update search indexes in the source before publishing it so it will be also copied to target database
+            $indexer = new KeywordsIndexerNoUnicode($db);
+            $indexer->init();
+            $indexer->populate();
+            // copy database to target
             try {
                 $exporter->publish();
                 echo 'db copy successful<br>';
@@ -72,19 +78,11 @@ if (property_exists($data, 'Fnc')) {
                 echo 'Error exporting database:<br>';
                 echo $exception->getMessage();
             }
-            flush();
-
-            // create/update search indexes in the target database
-            //$indexer = new KeywordsIndexer($db);
-            $indexer = new KeywordsIndexerNoUnicode($db);
-            $indexer->init();
-            $indexer->populate();
-            flush();
             echo 'done';
             break;
 
         case 'search':
-            $db = new PDO('sqlite:'.$config->paths->database);
+            $db = new PDO('sqlite:'.$config->paths->targetDatabase);
             $search = new KeywordsNoUnicode($db);
             $query = $search->prepareQuery('Wälder');
             var_dump($search->search($query));
