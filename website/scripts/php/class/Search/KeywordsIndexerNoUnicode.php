@@ -44,18 +44,26 @@ class KeywordsIndexerNoUnicode extends Indexer
     }
 
     /**
-       * Fills the virtual table with keywords.
-       * Note: automatically removes diacritics. The unmodified words are stored in the column KeywordOrig, while the ones with
-       * diacritics removed, are stored in KeywordMod.
-       * @return int number of affected records
-       */
-      public function populate(): int
-      {
-          $sql = "BEGIN;
+     * Fills the virtual table with keywords.
+     * Note: automatically removes diacritics. The unmodified words are stored in the column KeywordOrig, while the ones with
+     * diacritics removed, are stored in KeywordMod.
+     * TODO: improve search by creating variants of each word by removing syllables from the beginning of the word to simulate prefix search, e.g.
+     *      "Waldverjüngung" -> Waldverjungung -> Wald-ver-jüng-ung
+     *      e.g. stores      KeywordOrig | KeywordMod
+     *                    Waldverjüngung | Waldverjungung
+     *                    Waldverjüngung | verjungung
+     *                    Waldverjüngung | jungung
+     *                    Waldverjüngung | ung
+     *  use https://github.com/vanderlee/phpSyllable to hyphenate
+     * @return int number of affected records
+     */
+    public function populate(): int
+    {
+        $sql = "BEGIN;
             INSERT INTO SearchKeywords_fts(KeywordMod, KeywordOrig) 
                 SELECT REMOVE_DIACRITICS(Keyword), Keyword FROM (".$this->sqlSource.") WHERE Keyword != '';
             COMMIT;";
 
-          return $this->db->exec($sql);
-      }
+        return $this->db->exec($sql);
+    }
 }

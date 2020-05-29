@@ -85,7 +85,7 @@ class Exporter extends Database
      * Copy database file to target database file.
      * Instead of looping through all tables and records to find records that have changed or were added since
      * the last publishing. We just copy the whole db file and then remove the private records of the images table before.
-     * We ignore deleting of keywords, etc. because they don't really matter and to keep it simple.
+     * TODO: deleting of keywords
      * Previous target database file will be overwritten.
      * @return PDO target database
      */

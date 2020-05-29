@@ -2,10 +2,8 @@
 // TODO: this code should only be available to authenticated users (->PHP)
 // specially the delete function!!!!
 // TODO: check all input before storing in db
-use PhotoDatabase\Database\Database;
 use PhotoDatabase\Database\Exporter;
-use PhotoDatabase\Search\Keywords;
-use PhotoDatabase\Search\KeywordsIndexer;
+use PhotoDatabase\Search\FtsFunctions;
 use PhotoDatabase\Search\KeywordsIndexerNoUnicode;
 use PhotoDatabase\Search\KeywordsNoUnicode;
 use WebsiteTemplate\Controller;
@@ -27,6 +25,7 @@ $response = null;
 
 set_time_limit(180);
 
+// TODO: use rest verbs GET, POST, PUT, DELETE instead of query string
 if (property_exists($data, 'Fnc')) {
     switch ($data->Fnc) {
         case 'Insert':
@@ -67,6 +66,7 @@ if (property_exists($data, 'Fnc')) {
             $db = $exporter->connect();
 
             // update search indexes in the source before publishing it so it will be also copied to target database
+            // TODO: so far only public keywords are indexed
             $indexer = new KeywordsIndexerNoUnicode($db);
             $indexer->init();
             $indexer->populate();
@@ -82,9 +82,13 @@ if (property_exists($data, 'Fnc')) {
             break;
 
         case 'search':
+            $text = $_GET['q'];
+            $words = FtsFunctions::splitIntoWords($text, 'de_CH');
+            var_dump($words);
+
             $db = new PDO('sqlite:'.$config->paths->targetDatabase);
             $search = new KeywordsNoUnicode($db);
-            $query = $search->prepareQuery('Wälder');
+            $query = $search->prepareQuery($text);
             var_dump($search->search($query));
     }
 }
