@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" host="fotodb" id="39583d74-227a-4d96-a9e3-03ce60c4d601" port="22" customName="fotodb" nameFormat="CUSTOM" username="developer" />
+      <sshConfig authType="PASSWORD" host="fotodb" id="3df48088-b86d-4d09-8c10-4a12cc9cf8c1" port="22" customName="fotodb" nameFormat="CUSTOM" username="developer" />
+    </configs>
+  </component>
+</project>
