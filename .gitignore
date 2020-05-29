@@ -4,7 +4,6 @@
 
 # Project exclude paths
 /cgi-bin/Image-ExifTool-*
-/dbprivate/dbfiles/FotoDb.sqlite
 /library/vendor/composer/
 /library/vendor/philharvey/exiftool/
 /library/vendor/speich.net/WebsiteTemplate/
@@ -18,3 +17,8 @@ dataSources.local.xml
 /.idea/httpRequests/
 rest-client.private.env.json
 http-client.private.env.json
+/website/dbprivate/dbfiles/FotoDb.sqlite
+/website/dbprivate/dbfiles/user.sqlite
+# you can't commit empty folders in git. You need to put at least an empty file in it.
+/website/dbprivate/images/*
+/website/dbprivate/images/.gitkeep
