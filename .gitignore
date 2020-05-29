@@ -17,8 +17,8 @@ dataSources.local.xml
 /.idea/httpRequests/
 rest-client.private.env.json
 http-client.private.env.json
-/website/dbprivate/dbfiles/FotoDb.sqlite
-/website/dbprivate/dbfiles/user.sqlite
-# you can't commit empty folders in git. You need to put at least an empty file in it.
+/website/dbprivate/dbfiles/*
 /website/dbprivate/images/*
-/website/dbprivate/images/.gitkeep
+# you can't commit empty folders in git. You need to put at least an empty file in it.
+!/website/dbprivate/dbfiles/.gitkeep
+!/website/dbprivate/images/.gitkeep
