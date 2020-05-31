@@ -3,9 +3,11 @@
 // specially the delete function!!!!
 // TODO: check all input before storing in db
 use PhotoDatabase\Database\Exporter;
-use PhotoDatabase\Search\FtsFunctions;
-use PhotoDatabase\Search\KeywordsIndexerNoUnicode;
-use PhotoDatabase\Search\KeywordsNoUnicode;
+use PhotoDatabase\Search\ImagesIndexer;
+use PhotoDatabase\Search\KeywordsIndexer;
+use PhotoDatabase\Search\KeywordsSearch;
+use PhotoDatabase\Search\SqlImagesSource;
+use PhotoDatabase\Search\SqlKeywordsSource;
 use WebsiteTemplate\Controller;
 use WebsiteTemplate\Error;
 use WebsiteTemplate\Header;
@@ -67,9 +69,16 @@ if (property_exists($data, 'Fnc')) {
 
             // update search indexes in the source before publishing it so it will be also copied to target database
             // TODO: so far only public keywords are indexed
-            $indexer = new KeywordsIndexerNoUnicode($db);
+            $sql = new SqlKeywordsSource();
+            $indexer = new KeywordsIndexer($db, $sql);
             $indexer->init();
             $indexer->populate();
+            echo 'created keywords index';
+            $sql = new SqlImagesSource();
+            $indexer = new ImagesIndexer($db, $sql);
+            $indexer->init();
+            $indexer->populate();
+            echo 'created image search index';
             // copy database to target
             try {
                 $exporter->publish();
@@ -78,16 +87,15 @@ if (property_exists($data, 'Fnc')) {
                 echo 'Error exporting database:<br>';
                 echo $exception->getMessage();
             }
+
             echo 'done';
             break;
 
         case 'search':
             $text = $_GET['q'];
-            $words = FtsFunctions::splitIntoWords($text, 'de_CH');
-            var_dump($words);
 
             $db = new PDO('sqlite:'.$config->paths->targetDatabase);
-            $search = new KeywordsNoUnicode($db);
+            $search = new KeywordsSearch($db);
             $query = $search->prepareQuery($text);
             var_dump($search->search($query));
     }

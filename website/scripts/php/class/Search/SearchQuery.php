@@ -11,7 +11,7 @@ use Transliterator;
  * Class Search
  * @package PhotoDatabase\Database
  */
-class Search
+class SearchQuery
 {
 
     public $db;

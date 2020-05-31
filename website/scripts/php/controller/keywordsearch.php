@@ -1,7 +1,7 @@
 <?php
 
 use PhotoDatabase\Database\Database;
-use PhotoDatabase\Search\Keywords;
+use PhotoDatabase\Search\KeywordsSearch;
 use WebsiteTemplate\Header;
 
 
@@ -15,7 +15,7 @@ $db = $db->connect();
 
 $header = new Header();
 $ranges = $header->getRange();
-$search = new Keywords($db);
+$search = new KeywordsSearch($db);
 $query = $search->prepareQuery($_GET['q']);
 $result = $search->search($query);
 var_dump($result);

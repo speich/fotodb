@@ -10,7 +10,7 @@ use PDO;
  * Provides a list of (key)words found in all relevant columns of all relevant tables to display
  * @package PhotoDatabase\Database
  */
-class KeywordsNoUnicode
+class KeywordsSearchNoUnicode
 {
     /**
      * Keywords constructor.
@@ -31,7 +31,7 @@ class KeywordsNoUnicode
     {
         $search = '';
         $text = FtsFunctions::removeDiacritics($text);
-        $words = Search::extractWords($text);
+        $words = SearchQuery::extractWords($text);
         foreach ($words as $word) {
             $search .= $word.'*';
         }

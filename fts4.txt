@@ -25,6 +25,9 @@ functionality is only available to FTS4 though. Furthermore, It will also show, 
 language is German, where diacritics called Umlauts (characters ä, ö and ü) are common.
 
 
+Also note that SQLite fts3/4 allows only prefix (e.g. query*) matches by default.
+
+
 *** INSTALLATION / PREREQUISITES ***
 EXTERNAL CONTENT AND CONTENTLESS TABLES
 
@@ -38,6 +41,13 @@ $ sqlite3 -version
 
 If it is not available, install it with your package manager. For Linux Mint/Ubunutu:
 $ sudo apt install sqlite3
+
+if you want to compile your own (or the icu) extension, you also ned libsqlite3-dev
+
+$ ssh user@server
+$ sqlite3
+
+
 
 If you are using SQLite with PHP and want to deploy your application to an Apache web server, you can check for the
 installed version with <?php phpinfo(); ?> and search for the corresponding SQLite section showing the installed version.
@@ -54,6 +64,7 @@ The unicode61 tokenizer removes German Umlauts (or any other accented character)
  word "Wald" (meaning "forest" in German) has the plural "Wälder". Since the the tokenizer folded "Wälder" into "Walder",
  the search for "wald*" will also match records with the accented word even though it is spelled slightly differently.
 
+Things get a lot simpler with sqlite 3.9+ where fts5 is included
 
 *** DATABASE SETUP / SCHEME ***
 Our example is based on a SQLite database meant to describe mainly photos of birds. Each photo can have an id and a title,

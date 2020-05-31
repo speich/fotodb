@@ -2,51 +2,64 @@
 
 namespace PhotoDatabase\Search;
 
+use PDO;
+use PDOException;
+use PhotoDatabase\Sql\Sql;
+
+
 /**
  * Class Indexer
  * @package PhotoDatabase\Search
  */
 abstract class Indexer implements Fts4Indexer
 {
-    // TODO use SQL class/interface from lfi/NAFIDAS
-    protected $sqlSource = "SELECT ImgName Keyword FROM Images WHERE Public = 1
-          UNION
-          SELECT ImgTitle FROM Images WHERE Public = 1
-          UNION
-          SELECT ImgDesc FROM Images WHERE Public = 1
-          UNION
-          SELECT c.NameDe FROM Images i
-            INNER JOIN Countries c ON i.CountryId = c.Id
-            WHERE i.Public = 1
-          UNION
-          SELECT k.Name FROM Images i
-            INNER JOIN Images_Keywords ik ON i.Id = ik.ImgId
-            INNER JOIN Keywords k ON ik.KeywordId = k.Id
-            WHERE i.Public = 1
-          UNION
-          SELECT l.Name FROM Images i
-              INNER JOIN Images_Locations il ON il.ImgId = i.Id
-              INNER JOIN Locations l ON il.LocationId = l.Id
-              WHERE i.Public = 1
-          UNION
-          SELECT s.NameDe FROM Images i
-              INNER JOIN Images_ScientificNames isc ON i.Id = isc.ImgId
-              INNER JOIN ScientificNames s ON isc.ScientificNameId = s.Id
-              WHERE i.Public = 1
-          UNION
-          SELECT s.NameLa FROM Images i
-              INNER JOIN Images_ScientificNames isc ON i.Id = isc.ImgId
-              INNER JOIN ScientificNames s ON isc.ScientificNameId = s.Id
-              WHERE i.Public = 1
-          UNION
-          SELECT t.NameDe FROM Images i
-              INNER JOIN Images_Themes it ON i.Id = it.ImgId
-              INNER JOIN Themes t ON it.ThemeId = t.Id
-              WHERE i.Public = 1
-          UNION
-          SELECT a.NameDe FROM Images i
-              INNER JOIN Images_Themes it ON i.Id = it.ImgId
-              INNER JOIN Themes t ON it.ThemeId = t.Id
-              INNER JOIN SubjectAreas a ON t.SubjectAreaId = a.Id
-              WHERE i.Public = 1";
+    /** @var PDO */
+    public $db;
+
+    /** @var bool */
+    private $tokenizerUnicode61;
+
+    /** @var Sql sql query returning data to create index from */
+    protected $sqlSource;
+
+    /**
+     * Fts4Indexer constructor.
+     * @param PDO $db
+     */
+    public function __construct(PDO $db, Sql $sqlSource)
+    {
+        $this->db = $db;
+        $this->sqlSource = $sqlSource;
+        $this->tokenizerUnicode61 = $this->hasTokenizerUnicode61();
+        if ($this->tokenizerUnicode61 === false) {
+            $this->db->sqliteCreateFunction('REMOVE_DIACRITICS', ['PhotoDatabase\Search\FtsFunctions', 'removeDiacritics']);
+        }
+    }
+
+    /**
+     * Check if sqlite supports using the tokenizer unicode61 in FTS4 tables.
+     * @return bool
+     */
+    private function hasTokenizerUnicode61()
+    {
+        $db = $this->db;
+        $sql = 'CREATE VIRTUAL TABLE Test_fts USING fts4(Keyword, tokenize=unicode61)';
+        try {
+            $db->exec($sql);
+            $db->exec('DROP TABLE Test_fts');
+            $hasTokenizer = true;
+        } catch (PDOException $error) {
+            $hasTokenizer = false;
+        }
+
+        return $hasTokenizer;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTokenizerUnicode61(): bool
+    {
+        return $this->tokenizerUnicode61;
+    }
 }
