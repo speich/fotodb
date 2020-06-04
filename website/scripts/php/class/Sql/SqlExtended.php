@@ -6,15 +6,31 @@ use ReflectionObject;
 use ReflectionProperty;
 
 
+/**
+ * Class SqlExtended
+ * Provides additional methods
+ * @package PhotoDatabase\Sql
+ */
 abstract class SqlExtended extends SqlFull
 {
+    /** @var int limit upper bound of number of records returned */
+    public $limit;
+
+    /** @var int offset number of records to omit from the result set */
+    public $offset;
+
+    /** @var string character used to prefix placeholders */
+    private $prefix = ':';
+
     /**
-     * Bind the values to the placeholders in the SQL.
-     * @param callable $fnc
+     * Binds all public properties of this instance to the placeholders in the SQL.
+     * Uses the name of the property as the name of the placeholder and its value as the value to bind.
+     * @param callable $fnc function that binds the property values to the placeholders
      */
     public function bind($fnc): void
     {
-        foreach ($this->getPublicVars() as $name => $val) {
+        $vars = $this->getPublicVars();
+        foreach ($vars as $name => $val) {
             if ($val !== null && $val !== 'sort') {
                 // remember variable is passed by reference
                 $fnc($name, $this->{$name});
@@ -34,7 +50,8 @@ abstract class SqlExtended extends SqlFull
         $props = $refl->getProperties(ReflectionProperty::IS_PUBLIC);
         foreach ($props as $prop) {
             $name = $prop->getName();
-            $arr[$name] = $this->{$name};
+            // $prop->getName() throws error if property is not initialized (e.g. undefined)
+            $arr[$name] = $this->{$name} ?? null;
         }
 
         return $arr;
@@ -47,6 +64,6 @@ abstract class SqlExtended extends SqlFull
      */
     public function getPaged(): string
     {
-        return $this->get().' LIMIT :limit OFFSET :offset';
+        return $this->get()." LIMIT {$this->prefix}limit OFFSET {$this->prefix}offset";
     }
 }
