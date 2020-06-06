@@ -2,9 +2,6 @@
 
 namespace PhotoDatabase\Search;
 
-use PDO;
-
-
 /**
  * Class SearchImages
  * @package PhotoDatabase\Database
@@ -17,8 +14,8 @@ class ImagesIndexer extends Indexer
     public function init()
     {
         $sql = 'BEGIN;
-            DROP TABLE IF EXISTS SearchImages_fts;
-            CREATE VIRTUAL TABLE SearchImages_fts USING fts4(ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas);   -- important: do not pass the row id column !
+            DROP TABLE IF EXISTS Images_fts;
+            CREATE VIRTUAL TABLE Images_fts USING fts4(ImgId, Keyword, Weight, tokenize=unicode61);   -- important: do not pass the row id column !
 			COMMIT;';
 
         return $this->db->exec($sql);
@@ -31,11 +28,25 @@ class ImagesIndexer extends Indexer
     public function populate()
     {
         $sql = 'BEGIN;
-            INSERT INTO SearchImages_fts(rowid, ImgName, ImgTitle, ImgDesc, Country, Keywords, Locations, CommonNames, ScientificNames, Themes, SubjectAreas)
-                /* note: query should return records in a way that rowId is unique for fts4 */'.
+            /* note: query should return records in a way that rowId is unique for fts4 */'.'
+            INSERT INTO Images_fts(ImgId, Keyword, Weight)'.
             $this->sqlSource->get().
             'COMMIT;';
 
         return $this->db->exec($sql);
     }
+
+    /**
+     * Splits the SQL list of columns into an array of column names.
+     * @return false|string[]
+     */
+    private function getColumns()
+    {
+        $cols = $this->sqlSource->getList();
+        $cols = preg_replace('/\s+/', '', $cols);
+        $cols = explode(',', $cols);
+
+        return $cols;
+    }
+
 }
