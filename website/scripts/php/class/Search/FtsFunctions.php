@@ -29,29 +29,33 @@ class FtsFunctions
     }
 
     /**
-     * Extracts the offset of the word from the sqlite fts4 offsets string.
-     * If there are multiple matches, only the offset of the first match is returned
-     * Note: offset is not in characters, but bytes, e.g. a character such as ä counts as two bytes
-     * @param string $offsets
-     * @return int
+     * Remove punctuation from a string.
+     * @param $string
+     * @return false|string
      */
-    public static function offsetWord($offsets): int
+    public static function removePunctuation($string)
     {
-        $bytes = explode(' ', $offsets);
+        $transliterator = Transliterator::create("Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC; [:Punctuation:] Remove;", \Transliterator::FORWARD);
 
-        return $bytes[2];
+        return $transliterator->transliterate($string);
     }
 
     /**
-     * Returns the number of times a search word matched from offsets string.
-     * @param $offsets
+     * Returns the summ of number of times all search words matched.
+     * @param string $offsets string from the FTS4 OFFSETS function
      * @return int
      */
-    public static function numMatches($offsets): int
+    public static function score($offsets): int
     {
-        $ints = explode(' ', $offsets);
+        $score = 0;
+        $vals = explode(' ', $offsets);
+        foreach ($vals as $i => $val) {
+            if ($i % 4 === 1) {
+                ++$score;
+            }
+        }
 
-        return count($ints) / 4;
+        return $score;
     }
 
     /**
