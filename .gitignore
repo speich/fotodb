@@ -22,3 +22,4 @@ http-client.private.env.json
 # you can't commit empty folders in git. You need to put at least an empty file in it.
 !/website/dbprivate/dbfiles/.gitkeep
 !/website/dbprivate/images/.gitkeep
+/website/library/vendor/website/library/vendor/
