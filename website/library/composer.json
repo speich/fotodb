@@ -12,7 +12,8 @@
         "ext-sqlite3": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "ext-enchant": ""
+        "ext-enchant": "*",
+        "ext-intl": "*"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master"
