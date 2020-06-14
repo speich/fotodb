@@ -1,8 +1,26 @@
 {
+    "require": {
+        "speich/websitetemplate": "1.*",
+        "tsmgeek/exif-tool_php_stayopen": "dev-master",
+        "philharvey/exiftool": "11.*",
+        "vanderlee/syllable": "^1.5",
+        "PHP": ">7.",
+        "ext-dom": "*",
+        "ext-gd": "*",
+        "ext-PDO": "*",
+        "ext-exif": "*",
+        "ext-sqlite3": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-enchant": ""
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-master"
+    },
     "autoload": {
         "psr-4": {
             "PhotoDatabase\\": "../scripts/php/class",
-            "WebsiteTemplate\\": "vendor/speich.net/WebsiteTemplate/scripts/php"
+            "WebsiteTemplate\\": "vendor/speich/websitetemplate/scripts/php"
         }
     },
     "repositories": [
@@ -26,19 +44,7 @@
             }
         }
     ],
-    "require": {
-        "speich.net/WebsiteTemplate": "1.*",
-        "tsmgeek/exif-tool_php_stayopen": "dev-master",
-        "philharvey/exiftool": "11.*",
-        "PHP": ">7.",
-        "ext-dom": "*",
-        "ext-gd": "*",
-        "ext-PDO": "*",
-        "ext-exif": "*",
-        "ext-sqlite3": "*",
-        "ext-json": "*",
-        "ext-mbstring": "*"
-    },
-    "name": "PhotoDb",
-    "description": "Database to manage photos"
+    "name": "speich/photodb",
+    "description": "Database to manage photos",
+    "license": ["CC-BY-NC-SA-4.0"]
 }
