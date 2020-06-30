@@ -48,7 +48,8 @@
       <Module>fts4</Module>
       <Arguments>ImgId
 Keyword
-Weight</Arguments>
+Weight
+tokenize=unicode61</Arguments>
     </virtual-table>
     <virtual-table id="37" parent="2" name="Keywords_fts">
       <Module>fts4</Module>

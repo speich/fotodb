@@ -73,12 +73,12 @@ if (property_exists($data, 'Fnc')) {
             $indexer = new KeywordsIndexer($db, $sql);
             $indexer->init();
             $indexer->populate();
-            echo 'created keywords index';
+            echo 'created keywords index<br>';
             $sql = new SqlImagesSource();
             $indexer = new ImagesIndexer($db, $sql);
             $indexer->init();
             $indexer->populate();
-            echo 'created image search index';
+            echo 'created image search index<br>';
             // copy database to target
             try {
                 $exporter->publish();

@@ -15,7 +15,7 @@ class ImagesIndexer extends Indexer
     {
         $sql = 'BEGIN;
             DROP TABLE IF EXISTS Images_fts;
-            CREATE VIRTUAL TABLE Images_fts USING fts4(ImgId, Keyword, Weight, tokenize=unicode61);   -- important: do not pass the row id column !
+            CREATE VIRTUAL TABLE Images_fts USING fts4(ImgId, Keyword, Weight, Language, tokenize=unicode61);   -- important: do not pass the row id column !
 			COMMIT;';
 
         return $this->db->exec($sql);
@@ -29,7 +29,7 @@ class ImagesIndexer extends Indexer
     {
         $sql = 'BEGIN;
             /* note: query should return records in a way that rowId is unique for fts4 */'.'
-            INSERT INTO Images_fts(ImgId, Keyword, Weight)'.
+            INSERT INTO Images_fts(ImgId, Keyword, Weight, Language)'.
             $this->sqlSource->get().
             'COMMIT;';
 

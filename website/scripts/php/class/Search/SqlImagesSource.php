@@ -25,6 +25,10 @@ class SqlImagesSource extends Sql
             INNER JOIN Images_Themes it ON i.Id = it.ImgId
             INNER JOIN Themes t ON it.ThemeId = t.Id 
           UNION
+          SELECT i.Id, NameEn, 2, 'en' FROM Images i
+              INNER JOIN Images_Themes it ON i.Id = it.ImgId
+              INNER JOIN Themes t ON it.ThemeId = t.Id 
+          UNION
           SELECT Id, ImgTitle, 2, 'de' FROM Images WHERE Public = 1 AND ImgTitle != ''
           UNION
           SELECT Id, ImgDesc, 1, 'de' FROM Images WHERE Public = 1 AND ImgDesc != ''
@@ -76,12 +80,12 @@ class SqlImagesSource extends Sql
               INNER JOIN Images_Themes it ON i.Id = it.ImgId
               INNER JOIN Themes t ON it.ThemeId = t.Id
               INNER JOIN SubjectAreas a ON t.SubjectAreaId = a.Id
-              WHERE i.Public = 1 AND a.NameDe != '';
+              WHERE i.Public = 1 AND a.NameDe != ''
           UNION
           SELECT i.Id, a.NameEn, 0.25, 'en' FROM Images i
               INNER JOIN Images_Themes it ON i.Id = it.ImgId
               INNER JOIN Themes t ON it.ThemeId = t.Id
               INNER JOIN SubjectAreas a ON t.SubjectAreaId = a.Id
-              WHERE i.Public = 1 AND a.NameEn != '';\";
+              WHERE i.Public = 1 AND a.NameEn != '';";
     }
 }
