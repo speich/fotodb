@@ -80,7 +80,7 @@ The table 'Images' to store the photos, the table 'BirdNames' to store bird name
 *** SEARCH (Ausgangslage) ***
 FTS works
 We would like to be able to search for
-Since our data to be searched is distributed over two tables (Images and BirdNames), but the built-in full text search works  only on one tab the full text fts table indexvirtual
+Since our data to be searched is distributed over two tables (Images and BirdNames), but the built-in full text search works  only on one table the full text fts table indexvirtual
 
 Since our data to be searched is distributed over several tables, we will aggregate all columns into a view, which in turn
  serves as the source for the FTS4 table. This is possible with the content option and called an "external content" FTS4 table.
@@ -260,3 +260,7 @@ CREATE VIEW SearchContent_v AS
 ;
 CREATE VIRTUAL TABLE SearchImages_fts USING fts4(content="SearchImages_v", ImgName, ImgTitle, ImgDesc, tokenize=unicode61); -- important: do not pass the row id column !
 INSERT INTO SearchImages_fts(rowid, ImgName, ImgTitle, ImgDesc) SELECT rowid, ImgName, ImgTitle, ImgDesc FROM SearchImages_v; -- important: when using a view, only rowid is accepted!
+
+
+Notes:
+/* when using a view for the content table, only rowid is accepted as a column name */

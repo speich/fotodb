@@ -4,8 +4,8 @@
 // TODO: check all input before storing in db
 use PhotoDatabase\Database\Exporter;
 use PhotoDatabase\Search\ImagesIndexer;
+use PhotoDatabase\Search\ImagesSearch;
 use PhotoDatabase\Search\KeywordsIndexer;
-use PhotoDatabase\Search\KeywordsSearch;
 use PhotoDatabase\Search\SqlImagesSource;
 use PhotoDatabase\Search\SqlKeywordsSource;
 use WebsiteTemplate\Controller;
@@ -95,7 +95,7 @@ if (property_exists($data, 'Fnc')) {
             $text = $_GET['q'];
 
             $db = new PDO('sqlite:'.$config->paths->targetDatabase);
-            $search = new KeywordsSearch($db);
+            $search = new ImagesSearch($db);
             $query = $search->prepareQuery($text);
             var_dump($search->search($query));
     }

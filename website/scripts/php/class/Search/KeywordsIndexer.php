@@ -18,8 +18,8 @@ class KeywordsIndexer extends Indexer
             a unique Id too. Therefore we cannot use a view as the external content, since that does not have a unique id. */
         $options = $this->isTokenizerUnicode61() ? 'Keyword, tokenize=unicode61' : 'KeywordOrig, KeywordMod';
         $sql = 'BEGIN;
-            DROP TABLE IF EXISTS SearchKeywords_fts; 
-            CREATE VIRTUAL TABLE SearchKeywords_fts USING fts4('.$options.');
+            DROP TABLE IF EXISTS Keywords_fts; 
+            CREATE VIRTUAL TABLE Keywords_fts USING fts4('.$options.');
             COMMIT;';
 
         return $this->db->exec($sql);
@@ -41,9 +41,9 @@ class KeywordsIndexer extends Indexer
      */
     public function populate(): int
     {
-        $sqlTok = "INSERT INTO SearchKeywords_fts(Keyword) ".$this->sqlSource->get();
+        $sqlTok = "INSERT INTO Keywords_fts(Keyword) ".$this->sqlSource->get();
             //SELECT Keyword FROM (".$this->sqlSource->getFrom().") WHERE Keyword != '';";
-        $sqlNoTok = "INSERT INTO SearchKeywords_fts(KeywordOrig, KeywordMod) 
+        $sqlNoTok = "INSERT INTO Keywords_fts(KeywordOrig, KeywordMod) 
             SELECT REMOVE_DIACRITICS(Keyword), Keyword FROM (".$this->sqlSource->get().");";
         $sql = "BEGIN;".
             ($this->isTokenizerUnicode61() === true ? $sqlTok : $sqlNoTok).

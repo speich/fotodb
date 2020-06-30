@@ -10,7 +10,7 @@ class SqlKeywordsSource extends Sql
 
     public function getList(): string
     {
-        return "ImgName Keyword";
+        return "ImgName";
     }
 
     public function getFrom(): string

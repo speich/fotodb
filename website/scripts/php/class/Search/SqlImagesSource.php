@@ -5,59 +5,63 @@ namespace PhotoDatabase\Search;
 use PhotoDatabase\Sql\Sql;
 
 
+/**
+ * Class SqlImagesSource
+ * Creates the query for the search index.
+ * @package PhotoDatabase\Search
+ */
 class SqlImagesSource extends Sql
 {
     public function getList(): string
     {
-        return "i.Id rowid, /* when using a view for the content table, only rowid is accepted as a column name */
-            i.ImgName, i.ImgTitle, i.ImgDesc,
-            c.NameDe Country,
-            k.Keywords,
-            l.Locations,
-            s.CommonNames,
-            sc.ScientificNames,
-            t.Themes,
-            a.SubjectAreas";
+        return "Id, ImgName, 0.25";
     }
 
     public function getFrom(): string
     {
-        return "Images i
-            LEFT JOIN Countries c ON i.CountryId = c.Id
-            LEFT JOIN (
-                SELECT ik.imgId, GROUP_CONCAT(k.Name, ', ') Keywords FROM Images_Keywords ik
-                INNER JOIN Keywords k ON ik.KeywordId = k.Id
-                WHERE k.Name NOT NULL
-                GROUP BY ik.ImgId
-            ) k ON i.Id = k.ImgId
-            LEFT JOIN (
-                SELECT il.ImgId, GROUP_CONCAT(l.Name, ', ') Locations FROM Images_Locations il
-                INNER JOIN Locations l ON il.LocationId = l.Id
-                WHERE l.Name NOT NULL
-                GROUP BY il.ImgId
-            ) l ON i.Id = l.ImgId
-            LEFT JOIN (
-                SELECT sc.ImgId, GROUP_CONCAT(s.NameDe, ', ') CommonNames FROM Images_ScientificNames sc
-                INNER JOIN ScientificNames s ON sc.ScientificNameId = s.Id
-                WHERE s.NameDe NOT NULL
-                GROUP BY sc.ImgId
-            ) s ON i.Id = s.ImgId
-            LEFT JOIN (
-                SELECT sc.ImgId, GROUP_CONCAT(s.NameLa, ', ') ScientificNames FROM Images_ScientificNames sc
-                INNER JOIN ScientificNames s ON sc.ScientificNameId = s.Id
-                WHERE s.NameLa NOT NULL
-                GROUP BY sc.ImgId
-            ) sc ON i.Id = sc.ImgId
-            LEFT JOIN (
-                SELECT it.ImgId, GROUP_CONCAT(t.NameDe, ', ') Themes FROM Images_Themes it
-                INNER JOIN Themes t ON it.ThemeId = t.Id
-                GROUP BY it.ImgId
-            ) t ON i.Id = t.ImgId
-            LEFT JOIN (
-                SELECT it.ImgId, GROUP_CONCAT(s.NameDe, ', ') SubjectAreas FROM Images_Themes it
-                INNER JOIN Themes t ON it.ThemeId = t.Id
-                INNER JOIN SubjectAreas s ON t.SubjectAreaId = s.Id
-                GROUP BY it.ImgId
-            ) a ON i.Id = a.ImgId;";
+        return "Images WHERE Public = 1
+          UNION
+          SELECT i.Id, NameDe, 2 FROM Images i
+            INNER JOIN Images_Themes it ON i.Id = it.ImgId
+            INNER JOIN Themes t ON it.ThemeId = t.Id 
+          UNION
+          SELECT Id, ImgTitle, 2 FROM Images WHERE Public = 1 AND ImgTitle != ''
+          UNION
+          SELECT Id, ImgDesc, 1 FROM Images WHERE Public = 1 AND ImgDesc != ''
+          UNION
+          SELECT i.Id, c.NameDe, 0.25 FROM Images i
+            INNER JOIN Countries c ON i.CountryId = c.Id
+            WHERE i.Public = 1 AND c.NameDe != ''
+          UNION
+          SELECT i.Id, k.Name, 1 FROM Images i
+            INNER JOIN Images_Keywords ik ON i.Id = ik.ImgId
+            INNER JOIN Keywords k ON ik.KeywordId = k.Id
+            WHERE i.Public = 1 AND k.Name != ''
+          UNION
+          SELECT i.Id, l.Name, 0.5 FROM Images i
+              INNER JOIN Images_Locations il ON il.ImgId = i.Id
+              INNER JOIN Locations l ON il.LocationId = l.Id
+              WHERE i.Public = 1 AND l.name != ''
+          UNION
+          SELECT i.Id, s.NameDe, 1 FROM Images i
+              INNER JOIN Images_ScientificNames isc ON i.Id = isc.ImgId
+              INNER JOIN ScientificNames s ON isc.ScientificNameId = s.Id
+              WHERE i.Public = 1 AND s.NameDe != ''
+          UNION
+          SELECT i.Id, s.NameLa, 1 FROM Images i
+              INNER JOIN Images_ScientificNames isc ON i.Id = isc.ImgId
+              INNER JOIN ScientificNames s ON isc.ScientificNameId = s.Id
+              WHERE i.Public = 1 AND s.NameLa != ''
+          UNION
+          SELECT i.Id, t.NameDe, 0.5 FROM Images i
+              INNER JOIN Images_Themes it ON i.Id = it.ImgId
+              INNER JOIN Themes t ON it.ThemeId = t.Id
+              WHERE i.Public = 1 AND t.NameDe != ''
+          UNION
+          SELECT i.Id, a.NameDe, 0.25 FROM Images i
+              INNER JOIN Images_Themes it ON i.Id = it.ImgId
+              INNER JOIN Themes t ON it.ThemeId = t.Id
+              INNER JOIN SubjectAreas a ON t.SubjectAreaId = a.Id
+              WHERE i.Public = 1 AND a.NameDe != '';";
     }
 }

@@ -35,12 +35,17 @@ class KeywordsSearch
     public function prepareQuery($text): string
     {
         $search = '';
+        /* TODO
+        if (nounicode) {
+            $text = FtsFunctions::removeDiacritics($text);
+        }
+        */
         $words = SearchQuery::extractWords($text);
         foreach ($words as $word) {
-            $search .= $word.'*';
+            $search .= $word.'* ';
         }
 
-        return $search;
+        return rtrim($search);
     }
 
     /**
@@ -54,34 +59,6 @@ class KeywordsSearch
         $sql = 'SELECT rowid, Keyword FROM SearchKeywords_fts WHERE (Keyword MATCH :text)';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':text', $text, PDO::PARAM_STR);
-        $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Full text search returning a list of found keywords in the database.
-     * @param string $text
-     * @return array keywords
-     */
-    public function searchxxx($text): array
-    {
-        $sql = 'SELECT Keyword, offsets, NUMMATCHES(offsets) nummatches FROM (
-                SELECT Keyword, offsets(SearchKeywords_fts) offsets FROM SearchKeywords_fts
-                WHERE (Keyword MATCH :text1)
-            )
-            ORDER BY CASE WHEN lower(Keyword) LIKE lower(:text2) THEN 1 ELSE 2 END,
-              NUMMATCHES(offsets) DESC,
-              OFFSETWORD(offsets)
-            LIMIT 12 OFFSET 0';
-        /*$stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':text', $text, PDO::PARAM_STR);
-        $stmt->execute();*/
-        $query1 = $text.'*';
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':text1', $query1, PDO::PARAM_STR);
-        $query2 = $text.'%';
-        $stmt->bindParam(':text2', $query2, PDO::PARAM_STR);
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
