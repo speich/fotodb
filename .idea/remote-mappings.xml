@@ -4,6 +4,13 @@
     <list>
       <list>
         <remote-mappings server-id="php@030b911b-2a13-413e-bd9d-2118a13f5705" />
+        <remote-mappings server-id="php@e1ae7c62-612e-4d3f-8367-027ff71b6812">
+          <settings>
+            <list>
+              <mapping local-root="$PROJECT_DIR$/website" remote-root="/var/www/html/fotodb" />
+            </list>
+          </settings>
+        </remote-mappings>
       </list>
     </list>
   </component>

@@ -2,19 +2,33 @@
 <project version="4">
   <component name="MessDetector">
     <phpmd_settings>
+      <phpmd_by_interpreter interpreter_id="a08b2a07-7232-41ea-b1a2-cbad45fd829c" tool_path="phpmd" />
+      <phpmd_by_interpreter interpreter_id="a08b2a07-7232-41ea-b1a2-cbad45fd829c" tool_path="phpmd" />
       <MessDetectorConfiguration tool_path="C:/Program Files (x86)/PHP/phpmd" />
     </phpmd_settings>
   </component>
   <component name="PhpCodeSniffer">
     <phpcs_settings>
+      <phpcs_by_interpreter interpreter_id="a08b2a07-7232-41ea-b1a2-cbad45fd829c" standards="MySource;PEAR;PSR1;PSR2;Squiz;Zend" tool_path="/usr/bin/phpcs" />
+      <phpcs_by_interpreter interpreter_id="a08b2a07-7232-41ea-b1a2-cbad45fd829c" standards="MySource;PEAR;PSR1;PSR2;Squiz;Zend" tool_path="/usr/bin/phpcs" />
       <PhpCSConfiguration tool_path="/usr/bin/phpcs" />
     </phpcs_settings>
   </component>
   <component name="PhpDebugIgnoredPathsSettings" notify="false" />
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/website/library/vendor/composer" />
+      <path value="$PROJECT_DIR$/website/library/vendor/philharvey/exiftool" />
+      <path value="$PROJECT_DIR$/website/library/vendor/tsmgeek/exif-tool_php_stayopen" />
+      <path value="$PROJECT_DIR$/website/library/vendor/speich/websitetemplate" />
+      <path value="$PROJECT_DIR$/website/library/vendor/vanderlee/syllable" />
+    </include_path>
+  </component>
   <component name="PhpInterpreters">
     <interpreters>
-      <interpreter home="docker-compose://[/home/simon/Websites/fotodb/setup/docker-compose.yml]:php/php" id="e1ae7c62-612e-4d3f-8367-027ff71b6812" name="php" debugger_id="php.debugger.XDebug">
-        <remote_data DOCKER_ACCOUNT_NAME="Docker" DOCKER_COMPOSE_SERVICE_NAME="php" DOCKER_REMOTE_PROJECT_PATH="/opt/project" INTERPRETER_PATH="php" HELPERS_PATH="/opt/.phpstorm_helpers" INITIALIZED="false" VALID="true">
+      <interpreter id="e1ae7c62-612e-4d3f-8367-027ff71b6812" name="php 7.3 Docker" home="docker-compose://DATA" debugger_id="php.debugger.XDebug">
+        <remote_data INTERPRETER_PATH="php" HELPERS_PATH="/opt/.phpstorm_helpers" INITIALIZED="false" VALID="true" RUN_AS_ROOT_VIA_SUDO="false" DOCKER_ACCOUNT_NAME="Docker" DOCKER_COMPOSE_SERVICE_NAME="fotodb" DOCKER_REMOTE_PROJECT_PATH="/opt/project">
+          <type_data command="RUN" />
           <dockerComposeConfigurationPaths>
             <item value="$PROJECT_DIR$/setup/docker-compose.yml" />
           </dockerComposeConfigurationPaths>
@@ -25,15 +39,15 @@
   </component>
   <component name="PhpInterpretersPhpInfoCache">
     <phpInfoCache>
-      <interpreter name="php">
-        <phpinfo binary_type="PHP" php_cli="/usr/local/bin/php" path_separator=":" version="7.2.13">
-          <additional_php_ini>/usr/local/etc/php/conf.d/docker-php-ext-gd.ini, /usr/local/etc/php/conf.d/docker-php-ext-intl.ini, /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini, /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini</additional_php_ini>
+      <interpreter name="php 7.3 Docker">
+        <phpinfo binary_type="PHP" php_cli="/usr/local/bin/php" path_separator=":" version="7.3.19">
+          <additional_php_ini>/usr/local/etc/php/conf.d/docker-php-ext-enchant.ini, /usr/local/etc/php/conf.d/docker-php-ext-exif.ini, /usr/local/etc/php/conf.d/docker-php-ext-gd.ini, /usr/local/etc/php/conf.d/docker-php-ext-intl.ini, /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini, /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini</additional_php_ini>
           <configuration_file>/usr/local/etc/php/php.ini</configuration_file>
           <configuration_options>
             <configuration_option name="include_path" value=".:/usr/local/lib/php" />
           </configuration_options>
           <debuggers>
-            <debugger_info debugger="xdebug" debugger_version="2.6.0">
+            <debugger_info debugger="xdebug" debugger_version="2.9.3">
               <debug_extensions />
             </debugger_info>
           </debuggers>
@@ -48,6 +62,8 @@
             <extension name="curl" />
             <extension name="date" />
             <extension name="dom" />
+            <extension name="enchant" />
+            <extension name="exif" />
             <extension name="fileinfo" />
             <extension name="filter" />
             <extension name="ftp" />
@@ -79,11 +95,10 @@
       </interpreter>
     </phpInfoCache>
   </component>
-  <component name="PhpProjectSharedConfiguration" php_language_level="7.1" />
+  <component name="PhpProjectSharedConfiguration" php_language_level="7.3" />
   <component name="PhpRuntimeConfiguration">
     <extensions>
       <extension name="Ev" enabled="false" />
-      <extension name="LevelDB" enabled="false" />
       <extension name="SQLite" enabled="false" />
       <extension name="SplType" enabled="false" />
       <extension name="Zend OPcache" enabled="false" />
@@ -91,21 +106,20 @@
       <extension name="ZendUtils" enabled="false" />
       <extension name="amqp" enabled="false" />
       <extension name="apache" enabled="false" />
-      <extension name="apc" enabled="false" />
       <extension name="apcu" enabled="false" />
       <extension name="bcmath" enabled="false" />
       <extension name="bz2" enabled="false" />
       <extension name="calendar" enabled="false" />
-      <extension name="com_dotnet" enabled="false" />
+      <extension name="cassandra" enabled="false" />
       <extension name="couchbase" enabled="false" />
       <extension name="cubrid" enabled="false" />
       <extension name="dba" enabled="false" />
-      <extension name="enchant" enabled="false" />
-      <extension name="exif" enabled="false" />
+      <extension name="decimal" enabled="false" />
       <extension name="fann" enabled="false" />
       <extension name="ffmpeg" enabled="false" />
       <extension name="gearman" enabled="false" />
       <extension name="geoip" enabled="false" />
+      <extension name="geos" enabled="false" />
       <extension name="gettext" enabled="false" />
       <extension name="gmagick" enabled="false" />
       <extension name="gmp" enabled="false" />
@@ -129,6 +143,7 @@
       <extension name="ming" enabled="false" />
       <extension name="mongo" enabled="false" />
       <extension name="mongodb" enabled="false" />
+      <extension name="mosquitto-php" enabled="false" />
       <extension name="mqseries" enabled="false" />
       <extension name="mssql" enabled="false" />
       <extension name="mysql" enabled="false" />
@@ -180,7 +195,7 @@
   </component>
   <component name="PhpUnit">
     <phpunit_settings>
-      <PhpUnitSettings load_method="CUSTOM_LOADER" />
+      <PhpUnitSettings custom_loader_path="$PROJECT_DIR$/website/library/vendor/autoload.php" />
     </phpunit_settings>
   </component>
 </project>

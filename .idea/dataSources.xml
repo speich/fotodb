@@ -5,7 +5,7 @@
       <driver-ref>f6fc1b78-d020-44cf-ab4e-64b69909aac3</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/dbprivate/dbfiles/FotoDb.sqlite</jdbc-url>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/website/dbprivate/dbfiles/FotoDb.sqlite</jdbc-url>
       <libraries>
         <library>
           <url>file://$USER_HOME$/dbdrivers/sqlite-jdbc-3.7.2.jar</url>
@@ -23,18 +23,12 @@
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:test.sqlite</jdbc-url>
-      <driver-properties>
-        <property name="enable_load_extension" value="true" />
-      </driver-properties>
     </data-source>
     <data-source source="LOCAL" name="fts" uuid="7940922b-9b7d-44d9-b8ac-71b18950a971">
-      <driver-ref>sqlite.xerial</driver-ref>
+      <driver-ref>f6fc1b78-d020-44cf-ab4e-64b69909aac3</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/fts</jdbc-url>
-      <driver-properties>
-        <property name="enable_load_extension" value="true" />
-      </driver-properties>
       <libraries>
         <library>
           <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.16.1/xerial-sqlite-license.txt</url>
