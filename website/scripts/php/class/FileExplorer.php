@@ -49,7 +49,7 @@ class FileExplorer {
         $topSegments = explode(DIRECTORY_SEPARATOR, $this->topDir);
         $pathSegments = explode(DIRECTORY_SEPARATOR, $path);
         // TODO: use SPL FilesystemIterator FilsystemInfo
-        if (trim($path, DIRECTORY_SEPARATOR) === trim($this->TopDir, DIRECTORY_SEPARATOR)) {
+        if (trim($path, DIRECTORY_SEPARATOR) === trim($this->topDir, DIRECTORY_SEPARATOR)) {
             $outside = true;
         }
         else {
