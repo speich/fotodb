@@ -38,26 +38,32 @@ class Exporter extends Database
     public function publish(): void
     {
         set_time_limit(0);
-        $sourceDb = $this->connect();
-        $targetDb = $this->copyAndClean();
-        $arrData = $this->getRecords();
+        $time = time(); // variable is bound to sql query above
 
-        // source db
-        $sql = 'UPDATE Images SET DatePublished = :Time WHERE Id = :ImgId';
+        $sourceDb = $this->connect();
+        // get records to update/delete (before setting publishing date!)
+        $arrData = $this->getRecords();
+        // set date of published in source database before copying it
+        $sql = 'UPDATE Images SET DatePublished = :Time WHERE (LastChange > DatePublished OR DatePublished IS NULL)';
         $stmtDateSrc = $sourceDb->prepare($sql);
         $stmtDateSrc->bindParam(':Time', $time);
-        $stmtDateSrc->bindParam(':ImgId', $imgId);
-        // dest db
-        $sql = 'UPDATE Images SET DatePublished = :Time WHERE Id = :ImgId';
-        $stmtDateDest = $targetDb->prepare($sql);
-        $stmtDateDest->bindParam(':Time', $time);
-        $stmtDateDest->bindParam(':ImgId', $imgId);
+        $stmtDateSrc->execute();
+        $targetDb = $this->copy();
+
+        // copy/delete records and images in target database
         // remove location information where necessary
-        // TODO: also remove location from exif
-        $sql = "UPDATE Images SET ImgLat = NULL, ImgLng = NULL WHERE Id = :ImgId AND ShowLoc IS NULL OR ShowLoc = '0'";
+        $sql = "UPDATE Images SET ImgLat = NULL, ImgLng = NULL WHERE Id = :ImgId";
         $stmtLocation = $targetDb->prepare($sql);
         $stmtLocation->bindParam(':ImgId', $imgId);
+        // delete records no longer public
+        $sql = 'DELETE FROM Images WHERE Id = :ImgId';
+        $stmtImagesDel = $targetDb->prepare($sql);
+        $stmtImagesDel->bindParam(':ImgId', $imgId);
+        $sql = 'DELETE FROM Exif WHERE ImgId = :ImgId';
+        $stmtExifDel = $targetDb->prepare($sql);
+        $stmtExifDel->bindParam(':ImgId', $imgId);
         foreach ($arrData as $row) {
+            $imgId = $row['Id']; // variable is bound to sql query above
             $destImg = $this->pathTargetImages.'/'.$row['Img'];
             // copy image
             if ($row['Public'] === '1') {
@@ -65,48 +71,32 @@ class Exporter extends Database
                 $this->createImgDirectories($dir);
                 $srcImg = __DIR__.'/../../../../dbprivate/images/'.$row['Img'];
                 $this->copyImages($srcImg, $destImg);
-                // update DatePublished of exported image so it will not be re-exported until LastChange is updated
-                $time = time(); // variable is bound to sql query above
-                $imgId = $row['Id']; // variable is bound to sql query above
-                $stmtDateSrc->execute();
-                $stmtDateDest->execute();
                 echo "exported $destImg {$row['Id']}<br>";
             }
-            // delete previously copied images that are no longer public
+            // delete records and previously copied images that are no longer public
             else {
+                $stmtImagesDel->execute();
                 $this->deleteImage($destImg);
-                echo "(already) deleted $destImg {$row['Id']}<br>";
+                echo "deleted $destImg {$row['Id']}<br>";
             }
-            $stmtLocation->execute();
+            if ($row['ShowLoc'] === null || $row['ShowLoc'] === '0') {
+                $stmtLocation->execute();
+                $stmtExifDel->execute();
+            }
         }
     }
 
     /**
      * Copy database file to target database file.
-     * Instead of looping through all tables and records to find records that have changed or were added since
-     * the last publishing. We just copy the whole db file and then remove the private records of the images table before.
-     * TODO: deleting of keywords
      * Previous target database file will be overwritten.
      * @return PDO target database
      */
-    public function copyAndClean(): PDO
+    public function copy(): PDO
     {
         $source = $this->getPath('Db');
         if (copy($source, $this->pathTargetDb)) {
-            // For speed reasons we turn journaling off and increase cache size. As long as we import all records at once,
-            // we do not need a rollback. We just start over in case of a crash. This is only possible for the destination
-            // db, since the file might get corrupted.
-            // default = 2000 pages, 1 page = 1kb;
-            $targetDb = new PDO('sqlite:'.$this->pathTargetDb);
-            $targetDb->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $sql = 'PRAGMA journal_mode = OFF; PRAGMA cache_size = 10000;';
-            $targetDb->exec($sql);
 
-            // Records with Public == 0 have always to be deleted independent of DatePublished, because they are copied with the database !
-            $sql = "DELETE FROM Images WHERE Public = '0'";
-            $targetDb->exec($sql);
-
-            return $targetDb;
+            return new PDO('sqlite:'.$this->pathTargetDb);
         }
 
         $err = error_get_last();
@@ -115,6 +105,7 @@ class Exporter extends Database
 
     /**
      * Query records to process in export.
+     * Returns all records which were either have been changed between the last publishing or that never have been published previously.
      * @return mixed
      */
     private function getRecords() {
@@ -124,7 +115,7 @@ class Exporter extends Database
         // We purposely do not use WHERE IN, instead we update records in a loop one at a time after creation of
         // the thumbnail (since we don't use a transaction because journaling mode is off for speed)
         // TODO: queries to many records, over and over again, e.g. where Public = 0 or DatePublished = NULL
-        $sql = "SELECT Id, ImgFolder, ImgFolder||'/'||ImgName Img, Public FROM Images
+        $sql = "SELECT Id, ImgFolder, ImgFolder||'/'||ImgName Img, Public, ShowLoc FROM Images
 			WHERE (LastChange > DatePublished OR DatePublished IS NULL)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
