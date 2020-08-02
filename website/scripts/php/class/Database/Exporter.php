@@ -161,7 +161,7 @@ class Exporter extends Database
         if (copy($srcImg, $destImg)) {
             $thumbnail = new Thumbnail();
             $destPath = str_replace('/images/', '/images/thumbs/', $destImg);
-            $thumbnail->create($destImg, $destPath, 180);
+            $thumbnail->create($destImg, $destPath, $thumbnail->width);
         } else {
             throw new RuntimeException('Copying of image from'.$srcImg.' to '.$destImg.' failed.');
         }

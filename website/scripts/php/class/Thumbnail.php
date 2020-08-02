@@ -11,6 +11,7 @@ use RuntimeException;
  */
 class Thumbnail
 {
+    public $width = 270;   // 1.5 * 180
 
     /**
      * Creates a thumbnail from provided image.
