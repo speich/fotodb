@@ -1,0 +1,30 @@
+{
+  "name": "fotodb",
+  "version": "1.0.0",
+  "devDependencies": {
+    "copyfiles": "^2.3.0",
+    "csso-cli": "^3.0.0",
+    "dojo": "^1.16.3",
+    "dijit": "^1.16.3",
+    "dojox": "^1.16.3",
+    "rimraf": "^3.0.2",
+    "uglifyjs-folder": "^2.0.0"
+  },
+  "scripts": {
+    "dojo:del": "VERSION=$(node -p \"require('dojo/package.json').version\") && rimraf dojo/$VERSION/dojo",
+    "dojo:copy": "VERSION=$(node -p \"require('dojo/package.json').version\") && copyfiles -u 2 -e \"**/tests/**\" -e \"**/testsDOH/**\" \"node_modules/dojo/**/*\" dojo/$VERSION/dojo",
+    "dojo:js": "VERSION=$(node -p \"require('dojo/package.json').version\") && uglifyjs-folder dojo/$VERSION/dojo -eo dojo/$VERSION/dojo -x .js",
+    "dojo:build": "npm run dojo:del && npm run dojo:copy && npm run dojo:js",
+    "dijit:del": "VERSION=$(node -p \"require('dijit/package.json').version\") && rimraf dojo/$VERSION/dijit",
+    "dijit:copy": "VERSION=$(node -p \"require('dijit/package.json').version\") && copyfiles -u 2 -e \"**/tests/**\" -e \"**/tests/**\" \"node_modules/dijit/**/*\" dojo/$VERSION/dijit",
+    "dijit:js": "VERSION=$(node -p \"require('dijit/package.json').version\") && uglifyjs-folder dojo/$VERSION/dijit -eo dojo/$VERSION/dijit -x .js",
+    "dijit:build": "npm run dijit:del && npm run dijit:copy && npm run dijit:js",
+    "dojox:del": "VERSION=$(node -p \"require('dojox/package.json').version\") && rimraf dojo/$VERSION/dojox",
+    "dojox:copy": "VERSION=$(node -p \"require('dojox/package.json').version\") && copyfiles -u 2 -e \"**/tests/**\" -e \"**/tests/**\" \"node_modules/dojox/**/*\" dojo/$VERSION/dojox",
+    "dojox:js": "VERSION=$(node -p \"require('dojox/package.json').version\") && uglifyjs-folder dojo/$VERSION/dojox -eo dojo/$VERSION/dojox -x .js",
+    "dojox:build": "npm run dojox:del && npm run dojox:copy && npm run dojox:js",
+    "cleanup": "rimraf node_modules",
+    "build:keep": "npm run dojo:build&& npm run dijit:build && npm run dojox:build",
+    "build": "npm run dojo:build && npm run dijit:build && npm run dojox:build && npm run cleanup"
+  }
+}
