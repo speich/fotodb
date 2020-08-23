@@ -41,8 +41,8 @@ $speciesSex->setSelected('4');
     <link type="text/css" rel="stylesheet" href="layout/application.css">
     <link type="text/css" rel="stylesheet" href="layout/explorer.css">
     <link type="text/css" rel="stylesheet" href="layout/form.css">
-    <link rel="stylesheet" href="../library/dojo/1.13.0/dijit/themes/tundra/tundra.css">
-    <link rel="stylesheet" href="../library/dojo/1.13.0/dojo/resources/dojo.css">
+    <link rel="stylesheet" href="../library/dojo/1.16.3/dijit/themes/tundra/tundra.css">
+    <link rel="stylesheet" href="../library/dojo/1.16.3/dojo/resources/dojo.css">
     <style type="text/css">
         #LayoutSplit1 {
             position: absolute;
@@ -175,14 +175,14 @@ $speciesSex->setSelected('4');
         gmapsApiKey: 'AIzaSyAW3fEVRPQKGe4jxsp4T0pPFVQ9eJ-o86g',
         baseUrl: '/library',
         packages: [
-            {name: 'dojo', location: '../library/dojo/1.13.0/dojo'},
-            {name: 'dojox', location: '../library/dojo/1.13.0/dojox'},
-            {name: 'dijit', location: '../library/dojo/1.13.0/dijit'},
+            {name: 'dojo', location: '../library/dojo/1.16.3/dojo'},
+            {name: 'dojox', location: '../library/dojo/1.16.3/dojox'},
+            {name: 'dijit', location: '../library/dojo/1.16.3/dijit'},
             {name: 'fotodb', location: '../../../scripts/js'}
         ]
     };
 </script>
-<script src="../library/dojo/1.13.0/dojo/dojo.js" type="text/javascript"></script>
+<script src="../library/dojo/1.16.3/dojo/dojo.js" type="text/javascript"></script>
 <script type="text/javascript">
 require([
     'fotodb/FotoDb',
