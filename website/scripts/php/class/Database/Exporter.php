@@ -3,8 +3,10 @@
 namespace PhotoDatabase\Database;
 
 use PDO;
+use PDOStatement;
 use PhotoDatabase\Thumbnail;
 use RuntimeException;
+use stdClass;
 
 
 /**
@@ -13,7 +15,6 @@ use RuntimeException;
  */
 class Exporter extends Database
 {
-
     /** @var string */
     private $pathTargetDb;
 
@@ -21,7 +22,7 @@ class Exporter extends Database
     private $pathTargetImages;
 
     /**
-     * @param \stdClass $config
+     * @param stdClass $config
      */
     public function __construct($config)
     {
@@ -31,59 +32,63 @@ class Exporter extends Database
     }
 
     /**
+     * Query all new or modified records to process after export.
+     * Returns all records which either have never been published previously or have been changed between the last publishing.
+     * @return false|PDOStatement
+     */
+    private function getRecords()
+    {
+        // Select all records from source database which will be used to copy/delete images depending on their public status.
+        // IMPORTANT: Do not limit sql to only public ones by using target database, because then you would miss deleting
+        // thumbnails that changed state from public in previous export to private in this export
+        // We purposely do not use WHERE IN, instead we update records in a loop one at a time after creation of
+        // the thumbnail (since we don't use a transaction because journaling mode is off for speed)
+        // Note: we need to query all private records te be able to remove them from the target database after copying
+        $sql = "SELECT Id, ImgFolder, ImgFolder||'/'||ImgName Img, Public, ShowLoc, LastChange, DatePublished
+            FROM Images
+			WHERE LastChange > DatePublished OR DatePublished IS NULL";
+
+        return $this->db->query($sql, PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Set today's date to all new or modified records
+     * @param {PDO} $db photo database
+     */
+    private function setRecordsPublished($db): void
+    {
+        $time = time();
+        $sql = 'UPDATE Images SET DatePublished = :time WHERE (LastChange > DatePublished OR DatePublished IS NULL)';
+        $stmtDateSrc = $db->prepare($sql);
+        $stmtDateSrc->bindParam(':time', $time);
+        $stmtDateSrc->execute();
+    }
+
+    /**
      * Export database and images marked as public.
-     * Creates a thumbnail from each exported image. The parameter mode allows either to recreate all records.
+     * Creates a thumbnail from each exported image.
      * Warning: If the destination database file already exists, it will be overwritten.
      */
     public function publish(): void
     {
-        set_time_limit(0);
-        $time = time(); // variable is bound to sql query above
+        set_time_limit(120);
+        $this->copyImages();
+        $targetDb = $this->copyDatabase();
+
+        // Note: Since DB is just copied over, we have to delete all private records every time. Doing this only for changed/new records is not enough,
+        // because previously      // deleted one get copied again.
+        $sql = "UPDATE Images SET ImgLat = NULL, ImgLng = NULL WHERE Public = 1 AND ShowLoc = 0";
+        $targetDb->exec($sql);
+
+        $sql = 'DELETE FROM Exif WHERE ImgId = (SELECT Id FROM Images WHERE Public = 0)';
+        $targetDb->exec($sql);
+
+        $sql = 'DELETE FROM Images WHERE Public = 0';
+        $targetDb->prepare($sql);
 
         $sourceDb = $this->connect();
-        // get records to update/delete (before setting publishing date!)
-        $arrData = $this->getRecords();
-        // set date of published in source database before copying it
-        $sql = 'UPDATE Images SET DatePublished = :Time WHERE (LastChange > DatePublished OR DatePublished IS NULL)';
-        $stmtDateSrc = $sourceDb->prepare($sql);
-        $stmtDateSrc->bindParam(':Time', $time);
-        $stmtDateSrc->execute();
-        $targetDb = $this->copy();
-
-        // copy/delete records and images in target database
-        // remove location information where necessary
-        $sql = "UPDATE Images SET ImgLat = NULL, ImgLng = NULL WHERE Id = :ImgId";
-        $stmtLocation = $targetDb->prepare($sql);
-        $stmtLocation->bindParam(':ImgId', $imgId);
-        // delete records no longer public
-        $sql = 'DELETE FROM Images WHERE Id = :ImgId';
-        $stmtImagesDel = $targetDb->prepare($sql);
-        $stmtImagesDel->bindParam(':ImgId', $imgId);
-        $sql = 'DELETE FROM Exif WHERE ImgId = :ImgId';
-        $stmtExifDel = $targetDb->prepare($sql);
-        $stmtExifDel->bindParam(':ImgId', $imgId);
-        foreach ($arrData as $row) {
-            $imgId = $row['Id']; // variable is bound to sql query above
-            $destImg = $this->pathTargetImages.'/'.$row['Img'];
-            // copy image
-            if ($row['Public'] === '1') {
-                $dir = $this->pathTargetImages.'/'.$row['ImgFolder'];
-                $this->createImgDirectories($dir);
-                $srcImg = __DIR__.'/../../../../dbprivate/images/'.$row['Img'];
-                $this->copyImages($srcImg, $destImg);
-                echo "exported $destImg {$row['Id']}<br>";
-            }
-            // delete records and previously copied images that are no longer public
-            else {
-                $stmtImagesDel->execute();
-                $this->deleteImage($destImg);
-                echo "deleted $destImg {$row['Id']}<br>";
-            }
-            if ($row['ShowLoc'] === null || $row['ShowLoc'] === '0') {
-                $stmtLocation->execute();
-                $stmtExifDel->execute();
-            }
-        }
+        $this->setRecordsPublished($sourceDb);
+        $this->setRecordsPublished($targetDb);
     }
 
     /**
@@ -91,11 +96,10 @@ class Exporter extends Database
      * Previous target database file will be overwritten.
      * @return PDO target database
      */
-    public function copy(): PDO
+    private function copyDatabase(): PDO
     {
         $source = $this->getPath('Db');
         if (copy($source, $this->pathTargetDb)) {
-
             return new PDO('sqlite:'.$this->pathTargetDb);
         }
 
@@ -104,23 +108,26 @@ class Exporter extends Database
     }
 
     /**
-     * Query records to process in export.
-     * Returns all records which were either have been changed between the last publishing or that never have been published previously.
-     * @return mixed
+     * Copy images of new or modified records.
      */
-    private function getRecords() {
-        // Select all records from source database which will be used to copy/delete images depending on their public status.
-        // IMPORTANT: Do not limit sql to only public ones by using destDb, because then you would miss deleting
-        // thumbnails that changed state from public in previous export to private in this export
-        // We purposely do not use WHERE IN, instead we update records in a loop one at a time after creation of
-        // the thumbnail (since we don't use a transaction because journaling mode is off for speed)
-        // TODO: queries to many records, over and over again, e.g. where Public = 0 or DatePublished = NULL
-        $sql = "SELECT Id, ImgFolder, ImgFolder||'/'||ImgName Img, Public, ShowLoc FROM Images
-			WHERE (LastChange > DatePublished OR DatePublished IS NULL)";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    private function copyImages(): void
+    {
+        $arrData = $this->getRecords();
+        foreach ($arrData as $row) {
+            $destImg = $this->pathTargetImages.'/'.$row['Img'];
+            // copy image
+            if ($row['Public'] === '1') {
+                $dir = $this->pathTargetImages.'/'.$row['ImgFolder'];
+                $this->createImgDirectories($dir);
+                $srcImg = __DIR__.'/../../../../dbprivate/images/'.$row['Img'];
+                $this->copyImage($srcImg, $destImg);
+                echo "exported $destImg {$row['Id']}<br>";
+            } // delete records and previously copied images that are no longer public
+            else {
+                $this->deleteImage($destImg);
+                echo "deleted $destImg {$row['Id']}<br>";
+            }
+        }
     }
 
     /**
@@ -156,7 +163,7 @@ class Exporter extends Database
      * @param string $srcImg image path
      * @param string $destImg image path
      */
-    private function copyImages($srcImg, $destImg): void
+    private function copyImage($srcImg, $destImg): void
     {
         if (copy($srcImg, $destImg)) {
             $thumbnail = new Thumbnail();
@@ -166,10 +173,4 @@ class Exporter extends Database
             throw new RuntimeException('Copying of image from'.$srcImg.' to '.$destImg.' failed.');
         }
     }
-
-    public function createSearch()
-    {
-
-    }
-
 }
