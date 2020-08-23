@@ -48,7 +48,7 @@ class Database
      * is used instead of PDO.
      * @return PDO
      */
-    public function connect()
+    public function connect(): PDO
     {
         if ($this->db === null) {   // check if not already connected
             $options = [
@@ -79,7 +79,7 @@ class Database
      * @param string $string string to be escaped
      * @return string escaped string
      */
-    function escapeString($string)
+    function escapeString($string): string
     {
         // sqlite_escape_string is not supported in php 5.4 anymore
         return SQLite3::escapeString($string);
@@ -92,7 +92,7 @@ class Database
      * together with Commit and RollBack.
      * @return bool
      */
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         if ($this->hasActiveTransaction === true) {
             return false;
@@ -106,7 +106,7 @@ class Database
      * Comit transaction and set flag to false.
      * @return bool
      */
-    public function commit()
+    public function commit(): bool
     {
         $this->hasActiveTransaction = false;
 
@@ -117,7 +117,7 @@ class Database
      * Rollback transaction and set flag to false.
      * @return bool
      */
-    function rollback()
+    public function rollback(): bool
     {
         $this->hasActiveTransaction = false;
 
@@ -140,7 +140,7 @@ class Database
      * @param string $Name
      * @return string
      */
-    public function getPath($Name)
+    public function getPath($Name): string
     {
         $path = '';
         switch ($Name) {
@@ -164,7 +164,7 @@ class Database
      * Insert new image data from form and from exif data.
      *
      * This method is only called once, when the image is selected by the user for the first time.
-     * @param string $imgSrc image file including web root path
+     * @param string $img image file including web root path
      * @return string XML file
      */
     public function insert($img)
@@ -188,7 +188,7 @@ class Database
 
             return false;
         }
-        if (array_key_exists('XMP', $exifData) && !$this->insertXmp($imgId, $exifData['XMP'])) {
+        if (\array_key_exists('XMP', $exifData) && !$this->insertXmp($imgId, $exifData['XMP'])) {
             echo 'failed';
 
             return false;
@@ -231,7 +231,7 @@ class Database
      *
      * @param integer $ImgId image id
      */
-    public function edit($ImgId)
+    public function edit($ImgId): void
     {
         // TODO: use DOM functions instead of string to create xml
         $sql = 'SELECT Id, ImgFolder, ImgName, ImgDateManual, ImgTechInfo, FilmTypeId, RatingId,
@@ -329,7 +329,7 @@ class Database
      * Update image data.
      * @param string $XmlData
      */
-    public function updateAll($XmlData)
+    public function updateAll($XmlData): void
     {
         // TODO: more generic update
         // TODO: after UpdateAll send updated data back to browser (like Edit), for ex. LocationId would be updated
@@ -522,7 +522,7 @@ class Database
      *
      * @param integer $imgId image id
      */
-    public function delete($imgId)
+    public function delete($imgId): void
     {
         $this->beginTransaction();
         $sql = 'DELETE FROM Images WHERE Id = :imgId';
@@ -622,7 +622,7 @@ class Database
      * @return bool
      * @internal param int $img image database id
      */
-    public function insertExif($imgId, $exifData)
+    public function insertExif($imgId, $exifData): bool
     {
         // note: Scanned slides have a lot of empty exif data
         $arrExif = $this->mapExif($exifData);
@@ -766,7 +766,7 @@ class Database
      * @param string $Context
      * @return string
      */
-    function strToTime($Context)
+    function strToTime($Context): ?string
     {
         if (\strlen($Context) > 4) {
             return strtotime($Context);
@@ -786,7 +786,7 @@ class Database
      * @param array $arrExif
      * @return array
      */
-    public function mapExif($arrExif)
+    public function mapExif($arrExif): array
     {
         $data = [];
         $data['ImageWidth'] = $arrExif['XMP']['ImageWidth'];    // exif does not report correct image size
@@ -835,7 +835,7 @@ class Database
      * Creates the database structure.
      * @return void
      */
-    private function createStructure()
+    private function createStructure(): void
     {
         $sql = 'BEGIN;
             create table Countries
@@ -1066,7 +1066,7 @@ class Database
     /**
      * @return string
      */
-    private function getWebRoot()
+    private function getWebRoot(): string
     {
         return $this->webroot;
     }
