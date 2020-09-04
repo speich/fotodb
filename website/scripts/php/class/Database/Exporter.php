@@ -77,14 +77,14 @@ class Exporter extends Database
 
         // Note: Since DB is just copied over, we have to delete all private records every time. Doing this only for changed/new records is not enough,
         // because previously      // deleted one get copied again.
-        $sql = "UPDATE Images SET ImgLat = NULL, ImgLng = NULL WHERE Public = 1 AND ShowLoc = 0";
+        $sql = "UPDATE Images SET ImgLat = NULL, ImgLng = NULL WHERE ShowLoc = 0";
         $targetDb->exec($sql);
 
-        $sql = 'DELETE FROM Exif WHERE ImgId = (SELECT Id FROM Images WHERE Public = 0)';
+        $sql = 'DELETE FROM Exif WHERE ImgId = (SELECT Id FROM Images WHERE Public = 0 OR ShowLoc = 0)';
         $targetDb->exec($sql);
 
         $sql = 'DELETE FROM Images WHERE Public = 0';
-        $targetDb->prepare($sql);
+        $targetDb->exec($sql);
 
         $sourceDb = $this->connect();
         $this->setRecordsPublished($sourceDb);
