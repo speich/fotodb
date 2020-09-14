@@ -1,12 +1,14 @@
 {
   "name": "fotodb",
   "version": "1.0.0",
+  "dependencies": {
+    "dojo": "^1.16.3",
+    "dijit": "^1.16.3",
+    "dojox": "^1.16.3"
+  },
   "devDependencies": {
     "copyfiles": "^2.3.0",
     "csso-cli": "^3.0.0",
-    "dojo": "^1.16.3",
-    "dijit": "^1.16.3",
-    "dojox": "^1.16.3",
     "rimraf": "^3.0.2",
     "uglifyjs-folder": "^2.0.0"
   },
