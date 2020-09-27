@@ -26,7 +26,7 @@
     "dojox:js": "VERSION=$(node -p \"require('dojox/package.json').version\") && uglifyjs-folder dojo/$VERSION/dojox -eo dojo/$VERSION/dojox -x .js",
     "dojox:build": "npm run dojox:del && npm run dojox:copy && npm run dojox:js",
     "cleanup": "rimraf node_modules",
-    "build:keep": "npm run dojo:build&& npm run dijit:build && npm run dojox:build",
+    "build:keep": "npm run dojo:build && npm run dijit:build && npm run dojox:build",
     "build": "npm run dojo:build && npm run dijit:build && npm run dojox:build && npm run cleanup"
   }
 }
