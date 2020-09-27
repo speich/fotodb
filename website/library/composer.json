@@ -1,8 +1,8 @@
 {
     "require": {
-        "speich/websitetemplate": "1.*",
+        "speich/websitetemplate": "0.*",
         "tsmgeek/exif-tool_php_stayopen": "dev-master",
-        "philharvey/exiftool": "11.*",
+        "philharvey/exiftool": "^12.",
         "vanderlee/syllable": "^1.5",
         "PHP": ">7.",
         "ext-dom": "*",
@@ -37,9 +37,9 @@
             "type": "package",
             "package": {
                 "name": "philharvey/exiftool",
-                "version": "11.23",
+                "version": "12.06",
                 "dist": {
-                    "url": "https://sno.phy.queensu.ca/~phil/exiftool/Image-ExifTool-11.23.tar.gz",
+                    "url": "https://exiftool.org/Image-ExifTool-12.06.tar.gz",
                     "type": "tar"
                 }
             }
