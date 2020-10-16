@@ -36,6 +36,5 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="library" name="dojo" level="application" />
   </component>
 </module>

@@ -2,12 +2,11 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="56f1cd23-eaa7-4da6-994f-ef53868bec8f" name="fotodb" url="http://fotodb">
-        <fileTransfer host="fotodb" port="22" rootFolder="/var/www/html/fotodb/website" accessType="SFTP">
+      <webServer id="73c7ce6d-daee-4451-9727-394ee10f7d9b" name="fotodb.localhost" url="https://fotodb.localhost">
+        <fileTransfer rootFolder="/var/www/html/fotodb/website" accessType="SFTP" host="speich.localhost" port="22" sshConfigId="e3441382-b435-42cb-85d4-502836b9b1e2" sshConfig="developer@speich.localhost:22 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
-          <option name="port" value="22" />
         </fileTransfer>
       </webServer>
     </option>
