@@ -18,7 +18,7 @@ class FtsFunctions
      * @param string $string
      * @return string
      */
-    public static function removeDiacritics($string): string
+    public static function removeDiacritics(string $string): string
     {
         $transliterator = Transliterator::createFromRules(
             ':: Any-Latin; :: Latin-ASCII; :: NFD; :: [:Nonspacing Mark:] Remove; :: Lower(); :: NFC;',
@@ -30,10 +30,10 @@ class FtsFunctions
 
     /**
      * Remove punctuation from a string.
-     * @param $string
+     * @param string $string
      * @return false|string
      */
-    public static function removePunctuation($string)
+    public static function removePunctuation(string $string)
     {
 
         return preg_replace("/[^\w\s]+/u", " ", $string);
@@ -44,7 +44,7 @@ class FtsFunctions
      * @param string $offsets string from the FTS4 OFFSETS function
      * @return int
      */
-    public static function score($offsets): int
+    public static function score(string $offsets): int
     {
         $score = 0;
         $vals = explode(' ', $offsets);
@@ -55,5 +55,9 @@ class FtsFunctions
         }
 
         return $score;
+    }
+
+    public static function matchInfo($col) {
+        return unpack('L*', MATCHINFO($col, ));
     }
 }
