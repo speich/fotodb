@@ -8,7 +8,7 @@ require_once __DIR__.'/library/vendor/autoload.php';
 
 
 $text = "Autobahnraststätte Île-de-France! #Füchse# beim Spielen Waldreservat Rotfuchs. Aus Gründen des Naturschutzes/Geheimhaltung werden keine Koordinaten angezeigt.
-    Menschen stehen vor dem Aquarium und betrachten, filmen oder fotografieren die Walhaie im Tank?";
+    Menschen stehen vor dem Aquarium und betrachten, filmen oder fotografieren die Walhaie im Tank? Graureiher Tafelente";
 $text = FtsFunctions::removePunctuation($text);
 $words = SearchQuery::extractWords($text, 100);
 
