@@ -15,32 +15,33 @@ use Vanderlee\Syllable\Syllable;
 abstract class Indexer implements Fts4Indexer
 {
     /** @var PDO */
-    public $db;
+    public PDO $db;
 
     /** @var bool */
-    private $tokenizerUnicode61;
+    private bool $tokenizerUnicode61;
 
     /** @var Sql sql query returning data to create index from */
-    protected $sqlSource;
+    protected Sql $sqlSource;
 
     /** @var string language tag for Enchant library with underscore */
-    private $langTagEnchant = 'de_CH';
+    private string $langTagEnchant = 'de_CH';
 
     /** @var string language tag for Syllable calss with hyphen */
-    private $langTagSyllable = 'de-ch-1901';
+    private string $langTagSyllable = 'de-ch-1901';
 
     /** @var resource dictionary */
     private $dict;
 
     /** @var int minimum length of a word to be hyphenated */
-    private $minWordLength;
+    private int $minWordLength;
 
     /** @var Syllable */
-    private $syll;
+    private Syllable $syll;
 
     /**
      * Fts4Indexer constructor.
      * @param PDO $db
+     * @param Sql $sqlSource
      */
     public function __construct(PDO $db, Sql $sqlSource)
     {
@@ -48,7 +49,7 @@ abstract class Indexer implements Fts4Indexer
         $this->sqlSource = $sqlSource;
         $this->tokenizerUnicode61 = $this->hasTokenizerUnicode61();
         if ($this->tokenizerUnicode61 === false) {
-            $this->db->sqliteCreateFunction('REMOVE_DIACRITICS', ['PhotoDatabase\Search\FtsFunctions', 'removeDiacritics']);
+            $this->db->sqliteCreateFunction('REMOVE_DIACRITICS', [FtsFunctions::class, 'removeDiacritics']);
         }
     }
 
@@ -76,7 +77,7 @@ abstract class Indexer implements Fts4Indexer
      * @param string $word
      * @return bool|string
      */
-    public function inDictionary($word) {
+    public function inDictionary(string $word) {
         $trueWord = false;
         if (enchant_dict_check($this->dict, $word)) {
             $trueWord = $word;

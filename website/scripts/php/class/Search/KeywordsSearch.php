@@ -4,7 +4,6 @@ namespace PhotoDatabase\Search;
 
 use PDO;
 
-
 /**
  * Class SearchKeywords
  * Provides a list of (key)words found in all relevant columns of all relevant tables to display
@@ -24,8 +23,8 @@ class KeywordsSearch
     public function __construct($db)
     {
         $this->db = $db;
-        $this->db->sqliteCreateFunction('OFFSETWORD', ['PhotoDatabase\Search\FtsFunctions', 'offsetWord']);
-        $this->db->sqliteCreateFunction('NUMMATCHES', ['PhotoDatabase\Search\FtsFunctions', 'numMatches']);
+        $this->db->sqliteCreateFunction('OFFSETWORD', [FtsFunctions::class, 'offsetWord']);
+        $this->db->sqliteCreateFunction('NUMMATCHES', [FtsFunctions::class, 'numMatches']);
     }
 
     /**
