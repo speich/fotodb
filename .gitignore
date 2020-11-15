@@ -23,3 +23,5 @@ http-client.private.env.json
 !/website/dbprivate/dbfiles/.gitkeep
 !/website/dbprivate/images/.gitkeep
 /website/library/vendor/
+/website/library/dojo/
+/website/library/node_modules/
