@@ -69,11 +69,11 @@ if (property_exists($data, 'Fnc')) {
 
             // update search indexes in the source before publishing it so it will be also copied to target database
             // TODO: so far only public keywords are indexed
-            $sql = new SqlKeywordsSource();
+            /*$sql = new SqlKeywordsSource();
             $indexer = new KeywordsIndexer($db, $sql);
             $indexer->init();
             $indexer->populate();
-            echo 'created keywords index<br>';
+            echo 'created keywords index<br>';*/
             $sql = new SqlImagesSource();
             $indexer = new ImagesIndexer($db, $sql);
             $indexer->init();
