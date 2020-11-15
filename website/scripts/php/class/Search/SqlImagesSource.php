@@ -2,19 +2,20 @@
 
 namespace PhotoDatabase\Search;
 
-use PhotoDatabase\Sql\Sql;
+use PhotoDatabase\Sql\SqlFull;
 
 
 /**
  * Class SqlImagesSource
- * Creates the query for the search index.
+ * Creates the query to populate the the fts4 image search index.
+ * Note: To be able to search with AND, we need the texts to be in columns and not rows, e.g. use JOIN instead of UNION.
  * @package PhotoDatabase\Search
  */
-class SqlImagesSource extends Sql
+class SqlImagesSource extends SqlFull
 {
     public function getList(): string
     {
-        return "Id, ImgName, 0.25, NULL";
+        return "Id, ImgName, 0.25, NULL lang";
     }
 
     public function getFrom(): string
@@ -87,5 +88,23 @@ class SqlImagesSource extends Sql
               INNER JOIN Themes t ON it.ThemeId = t.Id
               INNER JOIN SubjectAreas a ON t.SubjectAreaId = a.Id
               WHERE i.Public = 1 AND a.NameEn != '';";
+    }
+
+    /**
+     * @return string
+     */
+    public function getWhere(): string
+    {
+        return '';
+    }
+
+    public function getGroupBy(): string
+    {
+        return '';
+    }
+
+    public function getOrderBy(): string
+    {
+        return  '';
     }
 }
