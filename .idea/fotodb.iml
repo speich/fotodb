@@ -13,6 +13,7 @@
       <excludeFolder url="file://$MODULE_DIR$/website/library/vendor/speich/websitetemplate" />
       <excludeFolder url="file://$MODULE_DIR$/website/library/vendor/tsmgeek/exif-tool_php_stayopen" />
       <excludeFolder url="file://$MODULE_DIR$/website/library/vendor/vanderlee/syllable" />
+      <excludeFolder url="file://$MODULE_DIR$/website/library/dojo" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -21,6 +22,7 @@
         <CLASSES>
           <root url="file://C:/Program Files/Perl/site/lib" />
         </CLASSES>
+        <JAVADOC />
         <SOURCES>
           <root url="file://C:/Program Files/Perl/site/lib" />
         </SOURCES>
@@ -31,6 +33,7 @@
         <CLASSES>
           <root url="file://C:/Program Files/Perl/lib" />
         </CLASSES>
+        <JAVADOC />
         <SOURCES>
           <root url="file://C:/Program Files/Perl/lib" />
         </SOURCES>
