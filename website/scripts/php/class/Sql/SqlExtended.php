@@ -14,20 +14,20 @@ use ReflectionProperty;
 abstract class SqlExtended extends SqlFull
 {
     /** @var int limit upper bound of number of records returned */
-    public $limit;
+    public int $limit;
 
     /** @var int offset number of records to omit from the result set */
-    public $offset;
+    public int $offset;
 
     /** @var string character used to prefix placeholders */
-    private $prefix = ':';
+    private string $prefix = ':';
 
     /**
      * Binds all public properties of this instance to the placeholders in the SQL.
      * Uses the name of the property as the name of the placeholder and its value as the value to bind.
      * @param callable $fnc function that binds the property values to the placeholders
      */
-    public function bind($fnc): void
+    public function bind(callable $fnc): void
     {
         $vars = $this->getPublicVars();
         foreach ($vars as $name => $val) {

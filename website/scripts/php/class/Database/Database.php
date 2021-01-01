@@ -18,13 +18,13 @@ use stdClass;
 class Database
 {
     /** @var PDO $db db instance of SQLite */
-    public $db;
+    public PDO $db;
     // paths are always appended to webroot ('/' or a subfolder) and start therefore with a foldername
     // and not with a slash, but end with a slash
 
     private $folderImageOriginal;    // absolute path where image originals are stored*/
-    protected $hasActiveTransaction = false;    // keep track of open transactions
-    private $webroot = '/';
+    protected bool $hasActiveTransaction = false;    // keep track of open transactions
+    private string $webroot = '/';
     private $exiftool;
     private $dbPath;
     private $pathImg;    // relative to this class
@@ -50,7 +50,7 @@ class Database
      */
     public function connect(): PDO
     {
-        if ($this->db === null) {   // check if not already connected
+        if (!isset($this->db)) {   // check if not already connected
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
@@ -79,7 +79,7 @@ class Database
      * @param string $string string to be escaped
      * @return string escaped string
      */
-    function escapeString($string): string
+    function escapeString(string $string): string
     {
         // sqlite_escape_string is not supported in php 5.4 anymore
         return SQLite3::escapeString($string);

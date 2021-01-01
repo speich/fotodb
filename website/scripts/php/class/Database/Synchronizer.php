@@ -18,18 +18,18 @@ use stdClass;
 class Synchronizer
 {
     /** @var Database */
-    private $db;
+    private Database $db;
 
     /** @var string absolute path to folder with original images */
-    private $pathImagesOriginal;
-    private $pathExifTool;
+    private string $pathImagesOriginal;
+    private string $pathExifTool;
 
     /**
      * Synchronizer constructor.
      * @param Database $db
      * @param stdClass $config
      */
-    public function __construct(Database $db, $config)
+    public function __construct(Database $db, stdClass $config)
     {
         $this->pathExifTool = $config->paths->exifTool;
         $this->pathImagesOriginal = $config->paths->imagesOriginal;
@@ -41,7 +41,7 @@ class Synchronizer
      * @param string $dir folder with XMP data to update
      * @return string json
      */
-    public function updateXmp($dir)
+    public function updateXmp(string $dir)
     {
         // get images to sync from database and create array where keys are the image path without file extension
         $imagesDb = $this->getImagesDb($dir);

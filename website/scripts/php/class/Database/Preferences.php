@@ -13,9 +13,9 @@ use PDOException;
  */
 class Preferences
 {
-    private $db;
-    private $dbName = 'user.sqlite';
-    private $dbPath = '/../../../../dbprivate/dbfiles/';
+    private PDO $db;
+    private string $dbName = 'user.sqlite';
+    private string $dbPath = '/../../../../dbprivate/dbfiles/';
 
     public function __construct()
     {
