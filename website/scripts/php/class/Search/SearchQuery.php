@@ -3,46 +3,42 @@
 namespace PhotoDatabase\Search;
 
 use PDO;
-
+use function count;
+use function array_slice;
+use function preg_match_all;
+use function strpos;
 
 /**
  * Class Search
- * @package PhotoDatabase\Database
  */
 class SearchQuery
 {
+    public static $maxExtractedWords = null;
 
-    public $db;
-
-    /**
-     * SearchKeywords constructor.
-     * @param PDO $db
-     */
-    public function __construct($db)
-    {
-        $this->db = $db;
-    }
+    public static $minWordLength = 4;
 
     /**
      * Extract words and phrases from a string.
      * Treats several words as a phrase if they are wrapped in double parentheses. Parentheses are included in the array items indicating
      * that the search needs to match exactly.
+     * The number of character a string has to contain to be counted as a word can be set with the parameter $minWordLength. Default is 4.
      * The length of the returned array (number of words) can be limited with the argument $maxWords. Default is 6.
-     * The number of character a string has to contain to be counted as a word can be set with the parameter $minWordLength. Default is 3.
      * @param string $text
-     * @param int $maxWords maximum number of words to return
-     * @param int $minWordLength length of a word to be counted as a word
+     * @param null $minWordLength number of characters of a word to be counted as a word
+     * @param null $maxWords maximum number of words to return
      * @return array
      */
-    public static function extractWords($text, $maxWords = null, $minWordLength = null): array
+    public static function extractWords($text, $minWordLength = null, $maxWords = null): array
     {
-        $maxWords = $maxWords ?? 6;
-        $minWordLength = $minWordLength ?? 3;
+        $maxWords = $maxWords ?? self::$maxExtractedWords;
+        $minWordLength = $minWordLength ?? self::$minWordLength;
         $pattern = '/".{'.$minWordLength.',}?"|\S{'.$minWordLength.',}/iu'; // matches whole words or several words encompassed with double quotations
         preg_match_all($pattern, $text, $words);
-        $words = \array_slice($words[0], 0, $maxWords); // throw away words exceeding limit
+        if ($maxWords === null) {
+            return $words[0];
+        }
 
-        return $words;
+        return array_slice($words[0], 0, $maxWords);   // throw away words exceeding limit
     }
 
     /**
@@ -54,7 +50,7 @@ class SearchQuery
     public static function createQuery($words): string
     {
         $search = '';
-        $len = \count($words);
+        $len = count($words);
         foreach ($words as $i => $val) {
             if (strpos($val, '"') !== false) {
                 $search .= $val;

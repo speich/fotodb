@@ -12,7 +12,7 @@ use PDO;
 class ImagesSearch
 {
     /** @var PDO */
-    public $db;
+    public PDO $db;
 
     /**
      * Keywords constructor.

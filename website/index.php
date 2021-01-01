@@ -1,56 +1,63 @@
 <?php
 
-use PhotoDatabase\Search\FtsFunctions;
-use PhotoDatabase\Search\SearchQuery;
-use Vanderlee\Syllable\Syllable;
+use PhotoDatabase\Search\KeywordsIndexer;
+use PhotoDatabase\Search\SqlKeywordsSource;
+
 
 require_once __DIR__.'/library/vendor/autoload.php';
+require_once __DIR__.'/scripts/php/inc_script.php';
+
+$text = 'Autobahnraststätte Île-de-France! #Füchse# beim Spielen Waldreservat Rotfuchs. Aus Gründen des Naturschutzes/Geheimhaltung werden keine Koordinaten angezeigt.
+    Menschen stehen vor dem Aquarium und betrachten, filmen oder fotografieren die Walhaie im Tank? Graureiher Tafelente!';
+$sql = new SqlKeywordsSource();
+var_dump(\PhotoDatabase\Search\SearchQuery::extractWords($text));
+$indexer = new KeywordsIndexer($db->db, $sql);
+$prefixes = $indexer->createPrefixes($text, false);
+echo "<br>$word:";
+var_dump($prefixes);
+$indexer->cleanup();
 
 
-$text = "Autobahnraststätte Île-de-France! #Füchse# beim Spielen Waldreservat Rotfuchs. Aus Gründen des Naturschutzes/Geheimhaltung werden keine Koordinaten angezeigt.
-    Menschen stehen vor dem Aquarium und betrachten, filmen oder fotografieren die Walhaie im Tank? Graureiher Tafelente";
-$text = FtsFunctions::removePunctuation($text);
-$words = SearchQuery::extractWords($text, 100);
-
-function inDictionary($dict, $word) {
-    if (enchant_dict_check($dict, $word)) {
-        return $word;
-    }
-
-    if (enchant_dict_check($dict, ucfirst($word))) {
-        return ucfirst($word);
-    }
-
-    return false;
+// create the example database
+try {
+    $db = new PDO('sqlite:example.sqlite');
+} catch (PDOException $error) {
+    echo $error->getMessage();
 }
 
-$tag = 'de_CH';
-$broker = enchant_broker_init();
-$dict = enchant_broker_request_dict($broker, $tag);
+// create a virtual fts4 table and populate it with example data
+try {
+    $db->exec("CREATE VIRTUAL TABLE images USING fts4(imgId, title, description, species, speciesEn);
+        INSERT INTO images VALUES(1, 'Great Spotted Woodpecker', 'A great spotted woodpecker with a caterpillar in its beak.', 'Dendrocopos major', 'Great Spotted woodpecker');
+        INSERT INTO images VALUES(2, 'Woodpecker at the pond', 'A green woodpecker drinks water.', 'Picus viridis', 'Green Woodpecker');
+        INSERT INTO images VALUES(3, 'Woodpecker', 'A middle spotted woodpecker is looking for food on an oak tree.', 'Dendrocopos medius', 'Middle Spotted Woodpecker');
+        INSERT INTO images VALUES(4, 'Woodpecker', 'A lesser yellownape showing its green wings.', 'Picus chlorolophus', 'Lesser Yellownape');");
+} catch (PDOException $error) {
+    echo $error->getMessage().'<br>';
+}
 
-$syllable = new Syllable('de-ch-1901');
-$syllable->setMinWordLength(4);
+// use matchinfo when searching for green woodpecker using an implicit AND operator
+$data = $db->query("SELECT imgId, MATCHINFO(images, 'xncp') info FROM images WHERE images MATCH 'green woodpecker'");
 
-foreach ($words as $word) {
-    // 1. insert word as is
-    // 2. iteratively remove first syllable and then insert word until min length is reached
-    $syllables = $syllable->splitWord($word);
-    echo "<p><strong>$word</strong><br>";
-    if (count($syllables) > 1) {
-        foreach ($syllables as $token) {
-            array_shift($syllables);
-            $part = implode("", $syllables);
-            $part = inDictionary($dict, $part);
-            if ($part !== false && mb_strlen($part, 'utf-8') > 3) {
-                echo $part."<br>";
-            }
+// convert the binary output to integers and format integers in groups of three
+while ($row = $data->fetch(PDO::FETCH_ASSOC)) {
+    // matchinfo returns a blob of 32-bit unsigned integers in machine byte-order
+    // note: returned array starts at index 1, not 0
+    $arrInt32 = unpack('L*', $row['info']);
+    $numPhrases = array_pop($arrInt32);
+    $numCols = array_pop($arrInt32);
+    $numRows = array_pop($arrInt32);
+echo implode("", $arrInt32)."<br>";
+    $score = 0;
+    foreach ($arrInt32 as $i => $int) {
+        $remainder = ($i - 1) % 3;
+        if ($remainder === 0) {
+            $tf = $int;   // term frequency
+        } elseif ($remainder === 2) {
+            $df = $int;   // document frequency
+            $idf = $df > 0 ? log10($numCols * $numRows / $df) : 0;
+            $score += $tf * $idf;
         }
     }
-    echo '</p>';
+    echo "score: $score<br>";
 }
-
-enchant_broker_free_dict($dict);
-enchant_broker_free($broker);
-
-
-

@@ -37,12 +37,13 @@ class KeywordsIndexer extends Indexer
      *                    Waldverjüngung | jungung
      *                    Waldverjüngung | ung
      *  use https://github.com/vanderlee/phpSyllable to hyphenate
+     *  then check if new word is in dictionary before adding it to index enchant_dict_check
      * @return int number of affected records
      */
     public function populate(): int
     {
         $sqlTok = "INSERT INTO Keywords_fts(Keyword) ".$this->sqlSource->get();
-            //SELECT Keyword FROM (".$this->sqlSource->getFrom().") WHERE Keyword != '';";
+        //SELECT Keyword FROM (".$this->sqlSource->getFrom().") WHERE Keyword != '';";
         $sqlNoTok = "INSERT INTO Keywords_fts(KeywordOrig, KeywordMod) 
             SELECT REMOVE_DIACRITICS(Keyword), Keyword FROM (".$this->sqlSource->get().");";
         $sql = "BEGIN;".

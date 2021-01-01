@@ -4,8 +4,8 @@ namespace PhotoDatabase\Search;
 
 use PDO;
 use PDOException;
-use PhotoDatabase\Sql\Sql;
 use Vanderlee\Syllable\Syllable;
+use function count;
 
 
 /**
@@ -20,20 +20,23 @@ abstract class Indexer implements Fts4Indexer
     /** @var bool */
     private bool $tokenizerUnicode61;
 
-    /** @var Sql sql query returning data to create index from */
-    protected Sql $sqlSource;
+    /** @var SqlIndexerSource sql query returning data to create index from */
+    protected SqlIndexerSource $sqlSource;
 
     /** @var string language tag for Enchant library with underscore */
     private string $langTagEnchant = 'de_CH';
 
-    /** @var string language tag for Syllable calss with hyphen */
+    /** @var string language tag for Syllable class with hyphen */
     private string $langTagSyllable = 'de-ch-1901';
 
     /** @var resource dictionary */
     private $dict;
 
-    /** @var int minimum length of a word to be hyphenated */
-    private int $minWordLength;
+    /** @var int minimum word length to be hyphenated */
+    private int $minHyphenatedWordLength = 4;
+
+    /** @var int minimum word length to create prefixes from */
+    private int $minWordLength = 6;
 
     /** @var Syllable */
     private Syllable $syll;
@@ -41,15 +44,17 @@ abstract class Indexer implements Fts4Indexer
     /**
      * Fts4Indexer constructor.
      * @param PDO $db
-     * @param Sql $sqlSource
+     * @param SqlIndexerSource $sqlSource
      */
-    public function __construct(PDO $db, Sql $sqlSource)
+    public function __construct(PDO $db, SqlIndexerSource $sqlSource)
     {
+        $this->initEnchant();
+        $this->initSyllable();
         $this->db = $db;
         $this->sqlSource = $sqlSource;
         $this->tokenizerUnicode61 = $this->hasTokenizerUnicode61();
         if ($this->tokenizerUnicode61 === false) {
-            $this->db->sqliteCreateFunction('REMOVE_DIACRITICS', [FtsFunctions::class, 'removeDiacritics']);
+            $this->db->sqliteCreateFunction('REMOVE_DIACRITICS', [FtsFunctions::class, 'removeDiacritics'], 1);
         }
     }
 
@@ -60,15 +65,21 @@ abstract class Indexer implements Fts4Indexer
     {
         $broker = enchant_broker_init();
         $this->dict = enchant_broker_request_dict($broker, $this->langTagEnchant);
+        unset($broker);
     }
 
     /**
-     * Initialize the class to syllabify word.
+     * Initialize the class to syllabify a word.
      */
     protected function initSyllable(): void
     {
         $this->syll = new Syllable($this->langTagSyllable);
-        $this->syll->setMinWordLength($this->minWordLength);
+        $this->syll->setMinWordLength($this->minHyphenatedWordLength);
+    }
+
+    public function cleanup(): void
+    {
+        unset($this->dict);
     }
 
     /**
@@ -77,12 +88,12 @@ abstract class Indexer implements Fts4Indexer
      * @param string $word
      * @return bool|string
      */
-    public function inDictionary(string $word) {
+    public function isInDictionary(string $word)
+    {
         $trueWord = false;
         if (enchant_dict_check($this->dict, $word)) {
             $trueWord = $word;
-        }
-        elseif (enchant_dict_check($this->dict, ucfirst($word))) {
+        } elseif (enchant_dict_check($this->dict, ucfirst($word))) {
             $trueWord = ucfirst($word);
         }
 
@@ -90,20 +101,27 @@ abstract class Indexer implements Fts4Indexer
     }
 
     /**
-     * @param $word
+     * @param string $text Text or word to create prefixes from.
+     * @param bool $checkDict only add word to returned prefixes if it is in dictionary
      * @return array
      */
-    public function createPrefixes($word): array
+    public function createPrefixes(string $text, bool $checkDict = true): array
     {
-        $syllables = $this->syll->splitWord($word);
         $prefixes = [];
-        if (\count($syllables) > 1) {
-            foreach ($syllables as $token) {
-                array_shift($syllables);
-                $part = implode("", $syllables);
-                $part = $this->inDictionary($part);
-                if ($part !== false && mb_strlen($part, 'utf-8') > 3) {
-                    $prefixes[] = $part;
+        $text = FtsFunctions::removePunctuation($text);
+        $words = SearchQuery::extractWords($text, $this->minWordLength);
+        foreach ($words as $word) {
+            $syllables = $this->syll->splitWord($word);
+            if (count($syllables) > 1) {
+                foreach ($syllables as $token) {
+                    array_shift($syllables);
+                    $part = implode('', $syllables);
+                    if ($checkDict === true) {
+                        $part = $this->isInDictionary($part);
+                    }
+                    if ($part !== false && mb_strlen($part, 'utf-8') > 3) {
+                        $prefixes[] = $part;
+                    }
                 }
             }
         }
