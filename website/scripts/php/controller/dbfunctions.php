@@ -4,11 +4,9 @@
 // TODO: check all input before storing in db
 use PhotoDatabase\Database\Exporter;
 use PhotoDatabase\Search\ImagesIndexer;
-use PhotoDatabase\Search\ImagesIndexerNew;
 use PhotoDatabase\Search\ImagesSearch;
 use PhotoDatabase\Search\KeywordsIndexer;
 use PhotoDatabase\Search\SqlImagesSource;
-use PhotoDatabase\Search\SqlImagesSourceNew;
 use PhotoDatabase\Search\SqlKeywordsSource;
 use WebsiteTemplate\Controller;
 use WebsiteTemplate\Error;
@@ -81,12 +79,6 @@ if (property_exists($data, 'Fnc')) {
             $indexer->init();
             $indexer->populate();
             echo 'created image search index<br>';
-
-            $sql = new SqlImagesSourceNew();
-            $indexer = new ImagesIndexerNew($db, $sql);
-            $indexer->init();
-            $indexer->populate();
-            echo 'created NEW image search index<br>';
             // copy database to target
             try {
                 $exporter->publish();

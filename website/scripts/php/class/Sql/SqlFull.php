@@ -3,9 +3,8 @@
 namespace PhotoDatabase\Sql;
 
 /**
- * This defines a template to access different parts of an SQL.
- * You can add public properties as variables and then using getPublicVars() in your bind method
- * Often you need an SQL in slightly different reincarnations such as a limited list of records, filtered list or the number of records.
+ * This defines a template to access different parts of an SQL string.
+ * Useful if you need an SQL in slightly different reincarnations such as a limited list of records, filtered list or the number of records.
  */
 abstract class SqlFull extends Sql
 {

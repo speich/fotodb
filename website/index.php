@@ -1,6 +1,7 @@
-<?php
+<?php /** @noinspection ForgottenDebugOutputInspection */
 
-use PhotoDatabase\Search\KeywordsIndexer;
+use PhotoDatabase\Search\IndexingTools;
+use PhotoDatabase\Search\SearchQuery;
 use PhotoDatabase\Search\SqlKeywordsSource;
 
 
@@ -8,14 +9,22 @@ require_once __DIR__.'/library/vendor/autoload.php';
 require_once __DIR__.'/scripts/php/inc_script.php';
 
 $text = 'Autobahnraststätte Île-de-France! #Füchse# beim Spielen Waldreservat Rotfuchs. Aus Gründen des Naturschutzes/Geheimhaltung werden keine Koordinaten angezeigt.
-    Menschen stehen vor dem Aquarium und betrachten, filmen oder fotografieren die Walhaie im Tank? Graureiher Tafelente!';
+    Menschen stehen vor dem Aquarium und betrachten, filmen oder fotografieren die Walhaie im Tank? Graureiher Tafelente! Wasseramsel';
 $sql = new SqlKeywordsSource();
-var_dump(\PhotoDatabase\Search\SearchQuery::extractWords($text));
-$indexer = new KeywordsIndexer($db->db, $sql);
-$prefixes = $indexer->createPrefixes($text, false);
-echo "<br>$word:";
+
+var_dump(SearchQuery::extractWords($text));
+$indexer = new IndexingTools(6);
+$prefixes = $indexer->createPrefixesFromSyllables($text, 3, true);
 var_dump($prefixes);
+
+//$prefixes = $indexer->createPrefixesFromAll($text, 6, true);
+//var_dump($prefixes);
+
 $indexer->cleanup();
+
+
+
+
 
 
 // create the example database

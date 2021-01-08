@@ -2,10 +2,9 @@
 
 namespace PhotoDatabase\Search;
 
-use PhotoDatabase\Sql\Sql;
 
 
-class SqlKeywordsSource extends Sql
+class SqlKeywordsSource extends SqlIndexerSource
 {
 
     public function getList(): string
@@ -83,5 +82,20 @@ class SqlKeywordsSource extends Sql
               INNER JOIN Themes t ON it.ThemeId = t.Id
               INNER JOIN SubjectAreas a ON t.SubjectAreaId = a.Id
               WHERE i.Public = 1 AND a.NameEn != '';";
+    }
+
+    public function getColWeights(): array
+    {
+        // TODO: Implement getColWeights() method.
+    }
+
+    public function getColPrefixes(): array
+    {
+        // TODO: Implement getColPrefixes() method.
+    }
+
+    public function getColNames(): array
+    {
+        // TODO: Implement getColNames() method.
     }
 }

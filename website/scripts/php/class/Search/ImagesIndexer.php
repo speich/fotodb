@@ -9,13 +9,15 @@ namespace PhotoDatabase\Search;
 class ImagesIndexer extends Indexer
 {
     /**
-     * Create the database tables necessary for searching.
+     * Create the database structure necessary for searching.
      */
     public function init()
     {
+        $cols = $this->toString([$this->sqlSource, 'getColNames']);
+        $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], null, true);
         $sql = 'BEGIN;
             DROP TABLE IF EXISTS Images_fts;
-            CREATE VIRTUAL TABLE Images_fts USING fts4(ImgId, Keyword, Weight, Language, tokenize=unicode61);   -- important: do not pass the row id column !
+            CREATE VIRTUAL TABLE Images_fts USING fts4('.$cols.', '.$prefixCols.', tokenize=unicode61);   -- important: do not pass the row id column !
 			COMMIT;';
 
         return $this->db->exec($sql);
@@ -23,30 +25,67 @@ class ImagesIndexer extends Indexer
 
     /**
      * Fills the virtual table with searchable image info.
-     * @return false|int
+     * // TODO: instead of all records, only add/update new/changed records.
      */
-    public function populate()
+    public function populate(): void
     {
-        $sql = 'BEGIN;
-            /* note: query should return records in a way that rowId is unique for fts4 */'.'
-            INSERT INTO Images_fts(ImgId, Keyword, Weight, Language)'.
-            $this->sqlSource->get().
-            'COMMIT;';
-
-        return $this->db->exec($sql);
+        $tools = new IndexingTools();
+        $cols = $this->toString([$this->sqlSource, 'getColNames']);
+        $colVars = $this->toString([$this->sqlSource, 'getColNames'], true);
+        $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], null, true);
+        $prefixColVars = $this->toString([$this->sqlSource, 'getColPrefixes'], true, true);
+        $this->db->beginTransaction();
+        $stmtSelect = $this->db->query($this->sqlSource->get());
+        /* note: query should return records in a way that rowId is unique for fts4 */
+        $sqlInsert = 'INSERT INTO Images_fts ('.$cols.', '.$prefixCols.') VALUES ('.$colVars.', '.$prefixColVars.')';
+        $stmtInsert = $this->db->prepare($sqlInsert);
+        foreach ($stmtSelect as $row) {
+            $row = $this->addPrefixes($row, $tools);
+            $stmtInsert->execute($row);
+        }
+        $this->db->commit();
     }
 
     /**
-     * Splits the SQL list of columns into an array of column names.
+     * Converts array to a string of column names.
+     * @param callable $fnc
+     * @param null $prefixed prefix names with a colon
+     * @param null $postfixed postfix names with 'Prefixes'
      * @return false|string[]
      */
-    private function getColumns()
+    private function toString(callable $fnc, $prefixed = null, $postfixed = null)
     {
-        $cols = $this->sqlSource->getList();
-        $cols = preg_replace('/\s+/', '', $cols);
-        $cols = explode(',', $cols);
+        $pattern = [];
+        $replacement = [];
+        if ($prefixed === true) {
+            $pattern[] = '/^/';
+            $replacement[] = ':';
+        }
+        if ($postfixed === true) {
+            $pattern[] = '/$/';
+            $replacement[] = 'Prefixes';
+        }
+        if ($prefixed !== null || $postfixed !== null) {
+            $cols = preg_filter($pattern, $replacement, $fnc());
+        } else {
+            $cols = $fnc();
+        }
 
-        return $cols;
+        return implode(', ', $cols);
     }
 
+    /**
+     * @param array $bindValues array of database columns and values
+     * @param IndexingTools $tool
+     * @return array
+     */
+    private function addPrefixes(array $bindValues, IndexingTools $tool): array
+    {
+        foreach ($this->sqlSource->getColPrefixes() as $name) {
+            $prefixes = $bindValues[$name] === null ? null : $tool->createPrefixesFromAll($bindValues[$name], null, true);
+            $bindValues[$name.'Prefixes'] = $prefixes === null ? null : implode(' ', $prefixes);
+        }
+
+        return $bindValues;
+    }
 }

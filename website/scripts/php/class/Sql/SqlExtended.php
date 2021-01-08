@@ -1,15 +1,11 @@
 <?php
 
-namespace PhotoDatabase\Sql;
-
-use ReflectionObject;
-use ReflectionProperty;
+use PhotoDatabase\Sql\SqlFull;
 
 
 /**
  * Class SqlExtended
- * Provides additional methods
- * @package PhotoDatabase\Sql
+ * You can add public properties which will be all bound automatically when using the bind method.
  */
 abstract class SqlExtended extends SqlFull
 {
@@ -29,6 +25,7 @@ abstract class SqlExtended extends SqlFull
      */
     public function bind(callable $fnc): void
     {
+        // note: callable is necessary sind the actual binding depends on the database used
         $vars = $this->getPublicVars();
         foreach ($vars as $name => $val) {
             if ($val !== null && $val !== 'sort') {

@@ -6,18 +6,32 @@ namespace PhotoDatabase\Search;
 use PhotoDatabase\Sql\SqlFull;
 
 
-
 /**
  * Class SqlIndexerSource
  * @package PhotoDatabase\Search
  */
 abstract class SqlIndexerSource extends SqlFull
 {
-    public array $colNames = [];
+    /**
+     * Returns the weights of the columns to index.
+     * @return array
+     */
+    abstract public function getColWeights(): array;
 
-    public array $weights = [];
+    /**
+     * Returns the columns to create and store prefixes from.
+     * @return array
+     */
+    abstract public function getColPrefixes(): array;
 
-    public function getWhere() :string {
+    /**
+     * Returns the columns to index.
+     * @return array
+     */
+    abstract public function getColNames(): array;
+
+    public function getWhere(): string
+    {
         return '';//LastChange > DatePublished OR DatePublished IS NULL';
     }
 
@@ -25,7 +39,8 @@ abstract class SqlIndexerSource extends SqlFull
      * Returns the GROUP BY clause of the SQL.
      * @return string SQL
      */
-    public function getGroupBy(): string {
+    public function getGroupBy(): string
+    {
         return '';
     }
 
@@ -33,7 +48,8 @@ abstract class SqlIndexerSource extends SqlFull
      * Returns the ORDER BY clause of the SQL.
      * @return string SQL
      */
-    public function getOrderBy(): string {
+    public function getOrderBy(): string
+    {
         return '';
     }
 }
