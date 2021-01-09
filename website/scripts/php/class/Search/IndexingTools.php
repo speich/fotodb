@@ -35,9 +35,9 @@ class IndexingTools
 
     /**
      * IndexingTools constructor.
-     * @param int|null $minHyphenatedWordLength default value is 6
-     * @param string|null $langTagEnchant
-     * @param string|null $langTagSyllable
+     * @param int|null $minHyphenatedWordLength minimum word length to be hyphenated. Default value is 6
+     * @param string|null $langTagEnchant language tag for Enchant library with underscore. Default value is de_CH
+     * @param string|null $langTagSyllable language tag for Syllable class with hyphen. Default value is de-ch-1901
      */
     public function __construct(
         ?int $minHyphenatedWordLength = null,
@@ -207,7 +207,14 @@ class IndexingTools
         foreach ($words as $word) {
             $tokens = $tokenizer($word, $minPrefixLength);
             if ($checkDict === true) {
-                $tokens = array_filter($tokens, [$this, 'isInDictionary']);
+                $tokens = array_reduce($tokens, function($arr, $token) {
+                    $val = $this->isInDictionary($token);
+                    if ($val !== false) {
+                        $arr[] = $val;
+                    }
+
+                    return $arr;
+                }, []);
             }
             $prefixes[] = $tokens;
         }
