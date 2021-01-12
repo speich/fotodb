@@ -13,12 +13,6 @@ use PhotoDatabase\Sql\SqlFull;
 abstract class SqlIndexerSource extends SqlFull
 {
     /**
-     * Returns the weights of the columns to index.
-     * @return array
-     */
-    abstract public function getColWeights(): array;
-
-    /**
      * Returns the columns to create and store prefixes from.
      * @return array
      */
@@ -32,7 +26,7 @@ abstract class SqlIndexerSource extends SqlFull
 
     public function getWhere(): string
     {
-        return '';//LastChange > DatePublished OR DatePublished IS NULL';
+        return 'LastChange > DatePublished OR DatePublished IS NULL';
     }
 
     /**
