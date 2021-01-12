@@ -68,4 +68,41 @@ class FtsFunctions
 
         return $score;
     }
+
+    /**
+     * Calculates term frequency - inverse document frequency weighted by column.
+     * Expects the binary output from MATCHINFO with format parameters 'xncp';
+     * @param string $matchinfoOut binary string from matchinfo
+     * @param string $colWeights comma separated column weights
+     * @return float|int
+     */
+    public static function tfIdfWeighted(string $matchinfoOut, string $colWeights)
+    {
+        $arrInt32 = unpack('L*', $matchinfoOut);
+        /** @var array $weights */
+        $weights = explode(',', $colWeights);
+
+        $numPhrases = array_pop($arrInt32);
+        $numCols = array_pop($arrInt32);
+        $numRows = array_pop($arrInt32);
+        $score = 0;
+        $tf = 0;
+        foreach ($arrInt32 as $i => $int) {
+            $j = $i - 1;
+            $z = $j % ($numCols * 3);
+            /** @var int $colIdx */
+            $colIdx = ($z - $z % 3) / 3;
+            $colWeight = $weights[$colIdx];
+            $remainder = $j % 3;
+            if ($remainder === 0) {
+                $tf = $int;   // term frequency
+            } elseif ($remainder === 2) {
+                $df = $int;   // document frequency
+                $idf = $df > 0 ? log10($numCols * $numRows / $df) : 0;
+                $score += $tf * $idf * $colWeight;
+            }
+        }
+
+        return $score;
+    }
 }
