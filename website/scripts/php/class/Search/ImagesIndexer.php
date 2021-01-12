@@ -16,8 +16,7 @@ class ImagesIndexer extends Indexer
         $cols = $this->toString([$this->sqlSource, 'getColNames']);
         $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], null, true);
         $sql = 'BEGIN;
-            DROP TABLE IF EXISTS Images_fts;
-            CREATE VIRTUAL TABLE Images_fts USING fts4('.$cols.', '.$prefixCols.', tokenize=unicode61);   -- important: do not pass the row id column !
+            CREATE VIRTUAL TABLE IF NOT EXISTS Images_fts USING fts4('.$cols.', '.$prefixCols.', tokenize=unicode61);   -- important: do not pass the row id column !
 			COMMIT;';
 
         return $this->db->exec($sql);
