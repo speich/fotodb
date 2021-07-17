@@ -7,7 +7,7 @@
 //ini_set('xdebug.var_display_max_data', -1);
 use PhotoDatabase\ExifService;
 
-require_once '../inc_script.php';
+require_once __DIR__.'/../inc_script.php';
 $config = json_decode(file_get_contents('../config.json'));
 
 $lang = isset($_GET['lang']) ? filter_input(INPUT_GET, 'lang', FILTER_SANITIZE_MAGIC_QUOTES) : 'en';
