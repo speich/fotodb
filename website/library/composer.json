@@ -1,51 +1,60 @@
 {
-    "require": {
-        "speich/websitetemplate": "0.*",
-        "tsmgeek/exif-tool_php_stayopen": "dev-master",
-        "philharvey/exiftool": "^12.",
-        "vanderlee/syllable": "^1.5",
-        "PHP": ">7.",
-        "ext-dom": "*",
-        "ext-gd": "*",
-        "ext-PDO": "*",
-        "ext-exif": "*",
-        "ext-sqlite3": "*",
-        "ext-json": "*",
-        "ext-mbstring": "*",
-        "ext-enchant": "*",
-        "ext-intl": "*"
+  "require": {
+    "speich/websitetemplate": "0.*",
+    "tsmgeek/exif-tool_php_stayopen": "dev-master",
+    "philharvey/exiftool": "^12.",
+    "vanderlee/syllable": "^1.5",
+    "ext-dom": "*",
+    "ext-gd": "*",
+    "ext-PDO": "*",
+    "ext-exif": "*",
+    "ext-sqlite3": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-enchant": "*",
+    "ext-intl": "*",
+    "ext-pcntl": "*"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-latest"
+  },
+  "autoload": {
+    "psr-4": {
+      "PhotoDatabase\\": "../scripts/php/class",
+      "WebsiteTemplate\\": "vendor/speich/websitetemplate/scripts/php"
+    }
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/speich/WebsiteTemplate"
     },
-    "require-dev": {
-        "roave/security-advisories": "dev-master"
+    {
+      "type": "vcs",
+      "url": "https://github.com/mkardakov/ExifTool_PHP_Stayopen"
     },
-    "autoload": {
-        "psr-4": {
-            "PhotoDatabase\\": "../scripts/php/class",
-            "WebsiteTemplate\\": "vendor/speich/websitetemplate/scripts/php"
+    {
+      "type": "package",
+      "package": {
+        "name": "philharvey/exiftool",
+        "version": "12.29",
+        "dist": {
+          "url": "https://exiftool.org/Image-ExifTool-12.29.tar.gz",
+          "type": "tar"
         }
+      }
+    }
+  ],
+  "config": {
+    "platform": {
+      "php": "8.0"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/speich/WebsiteTemplate"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/mkardakov/ExifTool_PHP_Stayopen"
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "philharvey/exiftool",
-                "version": "12.14",
-                "dist": {
-                    "url": "https://exiftool.org/Image-ExifTool-12.14.tar.gz",
-                    "type": "tar"
-                }
-            }
-        }
-    ],
-    "name": "speich/photodb",
-    "description": "Database to manage photos",
-    "license": ["CC-BY-NC-SA-4.0"]
+    "preferred-install": "dist",
+    "optimize-autoloader": true
+  },
+  "name": "speich/photodb",
+  "description": "Database to manage photos",
+  "license": [
+    "CC-BY-NC-SA-4.0"
+  ]
 }
