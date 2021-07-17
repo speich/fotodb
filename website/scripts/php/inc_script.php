@@ -13,4 +13,4 @@ $file = file_get_contents(__DIR__.'/config.json');
 $config = json_decode($file, false);
 $db = new Database($config);
 $db->connect();
-$web = new Website(['fotodb.localhost']);
+$web = new Website(['fotodb.test']);
