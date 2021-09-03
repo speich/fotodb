@@ -5,6 +5,7 @@ namespace PhotoDatabase;
 use Exiftool\Exceptions\ExifToolBatchException;
 use Exiftool\ExifToolBatch;
 use PhotoDatabase\Iterator\FileInfoImage;
+use function count;
 
 
 /**
@@ -48,14 +49,14 @@ class ExifService
      * Returns exif data from raw and xmp as a multidimensional array.
      * Calls the exif tool for NEF and xmp
      * @param string $img full path of image
-     * @return array mixed
+     * @return false|array mixed
      */
-    public function getData(string $img): array
+    public function getData(string $img): false|array
     {
         $imgInfo = new FileInfoImage($img);
         $extRaw = $imgInfo->getRealPathRaw();
         $extXmp = $imgInfo->getRealPathXmp();
-        $files = false;
+        $files = [];
 
         $exifService = ExifToolBatch::getInstance($this->exiftool.'/exiftool', $this->exiftoolParams);
         if ($extRaw !== null) {
@@ -68,15 +69,17 @@ class ExifService
         try {
             $data = $exifService?->fetchAllDecoded(true);
         } catch (ExifToolBatchException $exception) {
-            $data = [];
+            $data = false;
         }
 
         // merge xmp and exif arrays into one without overwriting $data[0]['File'] of NEF and of $data[1]['File'] XMP
-        $files[0] = $data[0]['File'];
-        $files[1] = $data[1]['File'];
-        unset($data[0]['File'], $data[1]['File']);
-        $data = array_merge($data[0], $data[1]);
-        $data['Files'] = $files;
+        if ($data && count($data) > 0) {
+            $files[0] = $data[0]['File'];
+            $files[1] = $data[1]['File'];
+            unset($data[0]['File'], $data[1]['File']);
+            $data = array_merge($data[0], $data[1]);
+            $data['Files'] = $files;
+        }
 
         return $data;
     }
