@@ -1,5 +1,6 @@
 <?php /** @noinspection ForgottenDebugOutputInspection */
 
+use PhotoDatabase\Search\FtsFunctions;
 use PhotoDatabase\Search\IndexingTools;
 use PhotoDatabase\Search\SearchQuery;
 use PhotoDatabase\Search\SqlKeywordsSource;
@@ -17,19 +18,17 @@ $indexer = new IndexingTools(6);
 $prefixes = $indexer->createPrefixesFromSyllables($text, 3, true);
 var_dump($prefixes);
 
-//$prefixes = $indexer->createPrefixesFromAll($text, 6, true);
-//var_dump($prefixes);
+$prefixes = $indexer->createPrefixesFromAll($text, 6, true);
+var_dump($prefixes);
 
 $indexer->cleanup();
-
-
-
-
 
 
 // create the example database
 try {
     $db = new PDO('sqlite:example.sqlite');
+    $db->sqliteCreateFunction('SCORE', [FtsFunctions::class, 'tfIdf']);
+    $db->sqliteCreateFunction('SCOREWEIGHTED', [FtsFunctions::class, 'tfIdfWeighted']);
 } catch (PDOException $error) {
     echo $error->getMessage();
 }
@@ -46,27 +45,27 @@ try {
 }
 
 // use matchinfo when searching for green woodpecker using an implicit AND operator
-$data = $db->query("SELECT imgId, MATCHINFO(images, 'xncp') info FROM images WHERE images MATCH 'green woodpecker'");
+$data = $db->query("SELECT imgId, MATCHINFO(images) info, 
+       SCORE(MATCHINFO(images, 'xncp')) rank,
+       SCOREWEIGHTED(MATCHINFO(images, 'xncp'), '0,2,1,1.5,1') rankWeighted FROM images WHERE images MATCH 'green woodpecker'");
 
 // convert the binary output to integers and format integers in groups of three
 while ($row = $data->fetch(PDO::FETCH_ASSOC)) {
-    // matchinfo returns a blob of 32-bit unsigned integers in machine byte-order
-    // note: returned array starts at index 1, not 0
+
     $arrInt32 = unpack('L*', $row['info']);
-    $numPhrases = array_pop($arrInt32);
-    $numCols = array_pop($arrInt32);
-    $numRows = array_pop($arrInt32);
-echo implode("", $arrInt32)."<br>";
-    $score = 0;
+    echo "<p>";
+    echo formatOutput($arrInt32)."<br>";
+    echo $row['rank']."<br>";
+    echo $row['rankWeighted']."<br>";
+    echo "</p>";
+}
+
+function formatOutput($arrInt32)
+{
+    $str = '';
     foreach ($arrInt32 as $i => $int) {
-        $remainder = ($i - 1) % 3;
-        if ($remainder === 0) {
-            $tf = $int;   // term frequency
-        } elseif ($remainder === 2) {
-            $df = $int;   // document frequency
-            $idf = $df > 0 ? log10($numCols * $numRows / $df) : 0;
-            $score += $tf * $idf;
-        }
+        $str .= ($i % 3 === 0 ? ' ' : '').$int;
     }
-    echo "score: $score<br>";
+
+    return $str;
 }
