@@ -2,6 +2,7 @@
 
 namespace PhotoDatabase\Database;
 
+use JetBrains\PhpStorm\Pure;
 use PDO;
 use PDOStatement;
 use PhotoDatabase\Thumbnail;
@@ -16,15 +17,15 @@ use stdClass;
 class Exporter extends Database
 {
     /** @var string */
-    private $pathTargetDb;
+    private string $pathTargetDb;
 
     /** @var string */
-    private $pathTargetImages;
+    private string $pathTargetImages;
 
     /**
      * @param stdClass $config
      */
-    public function __construct($config)
+    #[Pure] public function __construct(stdClass $config)
     {
         parent::__construct($config);
         $this->pathTargetDb = $config->paths->targetDatabase;
@@ -36,7 +37,7 @@ class Exporter extends Database
      * Returns all records which either have never been published previously or have been changed between the last publishing.
      * @return false|PDOStatement
      */
-    private function getRecords()
+    private function getRecords(): bool|PDOStatement
     {
         // Select all records from source database which will be used to copy/delete images depending on their public status.
         // IMPORTANT: Do not limit sql to only public ones by using target database, because then you would miss deleting
@@ -53,9 +54,9 @@ class Exporter extends Database
 
     /**
      * Set today's date to all new or modified records
-     * @param {PDO} $db photo database
+     * @param PDO $db
      */
-    private function setRecordsPublished($db): void
+    private function setRecordsPublished(PDO $db): void
     {
         $time = time();
         $sql = 'UPDATE Images SET DatePublished = :time WHERE (LastChange > DatePublished OR DatePublished IS NULL)';
@@ -132,9 +133,9 @@ class Exporter extends Database
 
     /**
      * Delete an image from the filesystem.
-     * @param $img
+     * @param string $img
      */
-    public function deleteImage($img): void
+    public function deleteImage(string $img): void
     {
         if ((is_file($img) === true) && unlink(realpath($img)) === false) {
             throw new RuntimeException('could not delete image: '.$img);
@@ -145,7 +146,7 @@ class Exporter extends Database
      * Creates a directory and a thumbnail directory for the image if it does not exist.
      * @param string $dir directory path
      */
-    private function createImgDirectories($dir): void
+    private function createImgDirectories(string $dir): void
     {
         if (!is_dir($dir)) {
             if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
@@ -160,14 +161,16 @@ class Exporter extends Database
 
     /**
      * Copy image and create thumbnail.
-     * @param string $srcImg image path
-     * @param string $destImg image path
+     * @param string $srcImg image path to the source
+     * @param string $destImg image path to the destination
      */
-    private function copyImage($srcImg, $destImg): void
+    private function copyImage(string $srcImg, string $destImg): void
     {
+        unlink($destImg);   // for some reason copy can not overwrite
         if (copy($srcImg, $destImg)) {
             $thumbnail = new Thumbnail();
             $destPath = str_replace('/images/', '/images/thumbs/', $destImg);
+            unlink($destPath);
             $thumbnail->create($destImg, $destPath, $thumbnail->width);
         } else {
             throw new RuntimeException('Copying of image from'.$srcImg.' to '.$destImg.' failed.');
