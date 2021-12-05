@@ -1,7 +1,8 @@
 define([
 	'dojo/_base/declare',
+	'fotodb/GeonamesGeocoder',
 	'//maps.googleapis.com/maps/api/js?key=' + dojoConfig.gmapsApiKey
-], function(declare) {
+], function(declare, GeonamesGeocoder) {
 
 	var
 		/**
@@ -21,11 +22,7 @@ define([
 		mapZoom: 5,	// initial map zoom
 		markers: [],
 		fotoDb: null,
-		/** initial radius for reverse geocoding */
-		geonamesRadius: 1,
-		geonamesRadiusMax: 33,
-		/** user name for geonames service */
-		geonamesUser: 'speichnet',
+		geocoder: null,
 
 		/**
 		 *
@@ -39,50 +36,22 @@ define([
 			};
 
 			this.map = new this.gmaps.Map(byId(mapId), mapOptions);
+			this.geocoder = new GeonamesGeocoder();
 		},
 
 		/**
 		 * Use coordinates and radius to lookup geonames.
 		 */
-		reverseGeocode: function(latLng, radius = this.geonamesRadius) {
-			let promise, marker,
-				url = 'https://secure.geonames.org/findNearbyPlaceNameJSON',
-				query = '?lat=' + latLng.lat() + '&lng=' + latLng.lng() + '&radius=' + radius + '&username=' + this.geonamesUser;
+		reverseGeocode: function(latLng) {
+			let marker;
 
 			marker = this.addMarker({position: latLng}, 'throbber');
 
-			promise = fetch(url + query, {
-				mode: 'cors',
-				credentials: 'omit',
-				method: 'GET'
-			})
-				.then(response => {
-					if (response.ok) {
-						return response.json();
-					}
-					else {
-						throw new Error(response.status + ' ' + response.statusText);
-					}
-				})
-				.then(json => {
-					if (json.geonames.length === 0 && radius < this.geonamesRadiusMax) {
-						radius *= 2;
-						return this.reverseGeocode(latLng, radius);
-					}
-					else {
-
-						return json.geonames;
-					}
-				})
-				.catch(error => {
-					alert('Reverse geocoding failed: ' + error);
-				})
+			return this.geocoder.reverseGeocode(latLng)
 				.then(geonames => {
 					marker.setMap(null);	// remove the loading icon
 					return geonames;
 				});
-
-			return promise;
 		},
 
 		/**

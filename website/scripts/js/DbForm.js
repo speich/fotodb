@@ -398,7 +398,6 @@ define([
 			this.fotoDb.ReloadLocation();	// after adding new location data update list of locations to reflect that
 		},
 
-
 		/**
 		 * Populate locations part of form
 		 * @param {json} geonames
@@ -406,25 +405,21 @@ define([
 		updateLocation: function(geonames) {
 			let self = this,
 				len = geonames.length,
-				i, adminName,
+				geocoder = this.fotoDb.mapTool.geocoder,
+				i, country,
 				opt, target,
 				el = byId('CountryId');
 
 			for (i = 0; i < len; i++) {
-				self.fotoDb.createLocationElements('', geonames[i].name);	// id of HtmlDivElement is given after insert into database
-				if (geonames[i].adminName1 && (adminName === undefined || adminName !== geonames[i].adminName1)) {
-					// also add administrative unit name if not added previously
-					self.fotoDb.createLocationElements('', geonames[i].adminName1);
-					adminName = geonames[i].adminName;
-				}
+				self.fotoDb.createLocationElements('', geocoder.getName(geonames, i));	// id of HtmlDivElement is given after insert into database
+				self.fotoDb.createLocationElements('', geocoder.getAdminName1(geonames, i));
 			}
 
 			// set HTMLSelectElement CountryId selected
+			country = geocoder.getCountry(geonames, 0);
 			for (i = 0, len = el.options.length; i < len; i++) {
-				let countryName = geonames[0].countryName;
-
 				opt = el.options[i];
-				if (opt.text === countryName) {
+				if (opt.text === country) {
 					opt.selected = true;
 					break;
 				}
@@ -449,6 +444,5 @@ define([
 			  }
 			}
 		}
-
 	});
 });
