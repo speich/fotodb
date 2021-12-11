@@ -24,6 +24,10 @@ define([
 		fotoDb: null,
 		geocoder: null,
 
+		init() {
+			this.geocoder = new GeonamesGeocoder();
+		},
+
 		/**
 		 *
 		 * @param {String} mapId
@@ -36,7 +40,6 @@ define([
 			};
 
 			this.map = new this.gmaps.Map(byId(mapId), mapOptions);
-			this.geocoder = new GeonamesGeocoder();
 		},
 
 		/**

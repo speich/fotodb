@@ -600,6 +600,7 @@ define([
 				['CountryId', 'Image']
 			];
 			this.mapTool = new GoogleMap();
+			this.mapTool.init();
 
 			this.Frm = new DbForm(arrFld, this);
 			this.Frm.init('FrmDbFoto');
