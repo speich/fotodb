@@ -6,12 +6,12 @@ namespace PhotoDatabase\Search;
 
 /**
  * Class SqlImagesSource
- * Creates the query to populate the the fts4 image search index.
+ * Creates the query to populate the fts4 image search index.
  * @package PhotoDatabase\Search
  */
 class SqlImagesSource extends SqlIndexerSource
 {
-    /** @var string[] column names to index */
+    /** @var string[] columns to index */
     private array $colNames = [
         'ImgId',
         'ImgFolder',
@@ -24,7 +24,8 @@ class SqlImagesSource extends SqlIndexerSource
         'Locations',
         'CommonName',
         'ScientificName',
-        'Subject'
+        'Subject',
+        'Rating'
     ];
 
     /** @var array scoring weight of each column excluding id column */
@@ -59,7 +60,6 @@ class SqlImagesSource extends SqlIndexerSource
         return $this->colNames;
     }
 
-
     /**
      * @return string
      */
@@ -75,7 +75,8 @@ class SqlImagesSource extends SqlIndexerSource
                 INNER JOIN Images_Locations il ON l.id = il.LocationId
                 WHERE il.ImgId = i.Id) Locations,
             s.NameDe CommonName, s.NameLa ScientificName,
-            sj.NameDe Subject';
+            sj.NameDe Subject,
+            r.Value Rating';
     }
 
     /**
@@ -89,6 +90,7 @@ class SqlImagesSource extends SqlIndexerSource
             LEFT JOIN SubjectAreas sj ON t.SubjectAreaId = sj.Id
             LEFT JOIN Countries c ON c.Id = i.CountryId
             LEFT JOIN Images_ScientificNames isc ON i.Id = isc.ImgId
-            LEFT JOIN ScientificNames s ON isc.ScientificNameId = s.Id';
+            LEFT JOIN ScientificNames s ON isc.ScientificNameId = s.Id
+            INNER JOIN Rating r ON i.RatingId = r.Id';
     }
 }
