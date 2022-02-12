@@ -67,6 +67,7 @@ class Exporter extends Database
 
     /**
      * Export database and images marked as public.
+     * Just copies the whole database, then deletes unwanted records from it.
      * Creates a thumbnail from each exported image.
      * Warning: If the destination database file already exists, it will be overwritten.
      */
@@ -77,15 +78,21 @@ class Exporter extends Database
         $targetDb = $this->copyDatabase();
 
         // Note: Since DB is just copied over, we have to delete all private records every time. Doing this only for changed/new records is not enough,
-        // because previously      // deleted one get copied again.
+        // because previously deleted ones, get copied again.
         $sql = 'UPDATE Images SET ImgLat = NULL, ImgLng = NULL WHERE ShowLoc = 0';
         $targetDb->exec($sql);
 
-        $sql = 'DELETE FROM Exif WHERE ImgId = (SELECT Id FROM Images WHERE Public = 0 OR ShowLoc = 0)';
-        $targetDb->exec($sql);
+        $sql = 'DELETE FROM Exif WHERE ImgId IN (SELECT Id FROM Images WHERE Public = 0 OR ShowLoc = 0)';
+        $num = $targetDb->exec($sql);
+        echo "deleted $num from table Exif<br>";
+
+        $sql = 'DELETE FROM Images_fts WHERE ImgId IN (SELECT Id FROM Images WHERE Public = 0)';
+        $num = $targetDb->exec($sql);
+        echo "deleted $num from table Images_fts<br>";
 
         $sql = 'DELETE FROM Images WHERE Public = 0';
-        $targetDb->exec($sql);
+        $num = $targetDb->exec($sql);
+        echo "deleted $num from table Images<br>";
 
         $sourceDb = $this->connect();
         $this->setRecordsPublished($sourceDb);
