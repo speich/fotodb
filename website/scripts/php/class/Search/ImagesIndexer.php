@@ -36,10 +36,13 @@ class ImagesIndexer extends Indexer
         $this->db->beginTransaction();
         $stmtSelect = $this->db->query($this->sqlSource->get());
         /* note: query should return records in a way that rowId is unique for fts4 */
+        $sqlDelete = 'DELETE FROM Images_fts WHERE ImgId = :ImgId';
         $sqlInsert = 'INSERT INTO Images_fts ('.$cols.', '.$prefixCols.') VALUES ('.$colVars.', '.$prefixColVars.')';
         $stmtInsert = $this->db->prepare($sqlInsert);
+        $stmtDelete = $this->db->prepare($sqlDelete);
         foreach ($stmtSelect as $row) {
             $row = $this->addPrefixes($row, $tools);
+            $stmtDelete->execute([':ImgId' => $row['ImgId']]);
             $stmtInsert->execute($row);
         }
         $this->db->commit();
