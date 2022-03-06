@@ -8,9 +8,7 @@ use SplFileInfo;
 
 
 /**
- * Class SplFileInfo
- * Adds additional attributes from the image database to the file
- * @package PhotoDatabase\Explorer
+ * Adds image database specific attributes and methods to the SplFileInfo class
  */
 class FileInfoImage extends SplFileInfo
 {
@@ -22,6 +20,10 @@ class FileInfoImage extends SplFileInfo
     /** @var null|string sync date */
     private ?string $syncDateExif;
 
+    /**
+     * File extensions to check for raw against.
+     * @var string[]
+     */
     private array $validRawExtensions = ['nef', 'arw', 'dng'];
 
     /**
@@ -74,9 +76,9 @@ class FileInfoImage extends SplFileInfo
 
     /**
      * Returns the image id
-     * @return mixed|int
+     * @return string|int
      */
-    public function getImgId(): mixed
+    public function getImgId(): int|string
     {
         return $this->imgId;
     }
@@ -90,7 +92,7 @@ class FileInfoImage extends SplFileInfo
     {
         $pathNoExt = $this->getRealPathNoExtension();
 
-        return $this->iexists($pathNoExt, 'xmp');
+        return $this->getRealPathCI($pathNoExt, 'xmp');
     }
 
     /**
@@ -103,7 +105,7 @@ class FileInfoImage extends SplFileInfo
         $path = null;
         $pathNoExt = $this->getRealPathNoExtension();
         foreach ($this->validRawExtensions as $ext) {
-            $path = $this->iexists($pathNoExt, $ext);
+            $path = $this->getRealPathCI($pathNoExt, $ext);
             if ($path !== null) {
                 break;
             }
@@ -118,7 +120,7 @@ class FileInfoImage extends SplFileInfo
      * @param string $ext file extension to check with
      * @return string|null
      */
-    private function iexists(string $path, string $ext): ?string
+    private function getRealPathCI(string $path, string $ext): ?string
     {
         $currPath = $path.'.'.$ext;
         if (file_exists($currPath)) {
