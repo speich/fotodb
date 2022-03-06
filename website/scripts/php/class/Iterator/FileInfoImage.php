@@ -3,6 +3,8 @@
 namespace PhotoDatabase\Iterator;
 
 use DateTime;
+use Exception;
+use SplFileInfo;
 
 
 /**
@@ -10,17 +12,17 @@ use DateTime;
  * Adds additional attributes from the image database to the file
  * @package PhotoDatabase\Explorer
  */
-class FileInfoImage extends \SplFileInfo
+class FileInfoImage extends SplFileInfo
 {
-    private $imgId;
+    private mixed $imgId;
 
     /** @var null|string sync date */
-    private $syncDateXmp;
+    private ?string $syncDateXmp;
 
     /** @var null|string sync date */
-    private $syncDateExif;
+    private ?string $syncDateExif;
 
-    private $validRawExtensions = ['nef', 'arw'];
+    private array $validRawExtensions = ['nef', 'arw', 'dng'];
 
     /**
      * Sets the image id attribute
@@ -34,6 +36,7 @@ class FileInfoImage extends \SplFileInfo
     /**
      * Returns the xmp sync date as a DateTime object
      * @return null|DateTime
+     * @throws Exception
      */
     public function getSyncDateXmp(): ?DateTime
     {
@@ -44,6 +47,7 @@ class FileInfoImage extends \SplFileInfo
     /**
      * Returns the exif sync date as a DateTime object
      * @return null|DateTime
+     * @throws Exception
      */
     public function getSyncDateExif(): ?DateTime
     {
@@ -54,7 +58,7 @@ class FileInfoImage extends \SplFileInfo
      * Sets the exif sync data attribute
      * @param string $syncDate SQLite ISO-8601 date string
      */
-    public function setSyncDateExif($syncDate): void
+    public function setSyncDateExif(string $syncDate): void
     {
         $this->syncDateExif = $syncDate;
     }
@@ -63,7 +67,7 @@ class FileInfoImage extends \SplFileInfo
      * Sets the xmp sync data attribute
      * @param string $syncDate SQLite ISO-8601 date string
      */
-    public function setSyncDateXmp($syncDate): void
+    public function setSyncDateXmp(string $syncDate): void
     {
         $this->syncDateXmp = $syncDate;
     }
@@ -72,51 +76,68 @@ class FileInfoImage extends \SplFileInfo
      * Returns the image id
      * @return mixed|int
      */
-    public function getImgId()
+    public function getImgId(): mixed
     {
         return $this->imgId;
     }
 
     /**
      * Returns the extension of the corresponding XMP file of the image if any.
-     * Note: comparison of extension is case insensitive
+     * Note: comparison of extension is case-insensitive
      * @return null|string full path to xmp file of image
      */
     public function getRealPathXmp(): ?string
     {
-        $pathNoExt = $this->getPath().'/'.$this->getBasename('.'.$this->getExtension());
-        $path = $pathNoExt.'.xmp';
-        if (file_exists($path)) {
-            return $path;
-        }
-        $path = $pathNoExt.'.XMP';
-        if (file_exists($path)) {
-            return $path;
-        }
+        $pathNoExt = $this->getRealPathNoExtension();
 
-        return null;
+        return $this->iexists($pathNoExt, 'xmp');
     }
 
     /**
      * Returns the extension of the corresponding raw file of the image if any.
-     * Note: comparison of extension is case insensitive
+     * Note: comparison of extension is case-insensitive
      * @return null|string full path to raw image
      */
     public function getRealPathRaw(): ?string
     {
-        $pathNoExt = $this->getPath().'/'.$this->getBasename('.'.$this->getExtension());
+        $path = null;
+        $pathNoExt = $this->getRealPathNoExtension();
         foreach ($this->validRawExtensions as $ext) {
-            $path = $pathNoExt.'.'.$ext;
-            if (file_exists($path)) {
-                return $path;
-            }
-            $path = $pathNoExt.'.'.strtoupper($ext);
-            if (file_exists($path)) {
-                return $path;
+            $path = $this->iexists($pathNoExt, $ext);
+            if ($path !== null) {
+                break;
             }
         }
 
-        return null;
+        return $path;
+    }
+
+    /**
+     * Check if file path exists with case-insensitive extension.
+     * @param string $path real path without extensions
+     * @param string $ext file extension to check with
+     * @return string|null
+     */
+    private function iexists(string $path, string $ext): ?string
+    {
+        $currPath = $path.'.'.$ext;
+        if (file_exists($currPath)) {
+            $realpath = $currPath;
+        } else {
+            $currPath = $path.'.'.strtoupper($ext);
+            $realpath = file_exists($currPath) ? $currPath : null;
+        }
+
+        return $realpath;
+    }
+
+    /**
+     * Return the real path of this image file without the extension.
+     * @return string
+     */
+    private function getRealPathNoExtension(): string
+    {
+        return $this->getPath().'/'.$this->getBasename('.'.$this->getExtension());
     }
 
 }
