@@ -171,7 +171,6 @@ $speciesSex->setSelected('4');
     var dojoConfig = {
         async: true,
         locale: 'de',
-        gmapsApiKey: 'AIzaSyAW3fEVRPQKGe4jxsp4T0pPFVQ9eJ-o86g',
         baseUrl: '/library',
         packages: [
             {name: 'dojo', location: '../library/dojo/1.17.2/dojo'},
