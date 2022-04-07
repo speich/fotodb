@@ -161,16 +161,16 @@ $speciesSex->setSelected('4');
                     <input type="button" id="FncSaveImg" value="save"><a
                             href="../scripts/php/controller/dbfunctions.php?Fnc=publish">publish</a>
                 </div><!-- End Right2 -->
-
             </div><!-- End LayoutSplit2 -->
-
         </div><!-- End Right1 -->
     </div><!-- End LayoutSplit1 -->
 </form>
+<script src="../scripts/js/GoogleMapKey.js" type="module"></script>
 <script type="text/javascript">
     var dojoConfig = {
         async: true,
         locale: 'de',
+        gmapsApiKey: key,
         baseUrl: '/library',
         packages: [
             {name: 'dojo', location: '../library/dojo/1.17.2/dojo'},

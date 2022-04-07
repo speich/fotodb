@@ -26,3 +26,4 @@ http-client.private.env.json
 /website/library/dojo/
 /website/library/node_modules/
 /setup/fotodb.crt
+/website/scripts/js/GoogleMapKey.js
