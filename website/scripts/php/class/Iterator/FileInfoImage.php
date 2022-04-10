@@ -23,8 +23,9 @@ class FileInfoImage extends SplFileInfo
     /**
      * File extensions to check for raw against.
      * @var string[]
+     * TODO: move to a more sensible place
      */
-    private array $validRawExtensions = ['nef', 'arw', 'dng'];
+    public static array $validRawExtensions = ['nef', 'arw', 'dng'];
 
     /**
      * Sets the image id attribute
@@ -104,7 +105,7 @@ class FileInfoImage extends SplFileInfo
     {
         $path = null;
         $pathNoExt = $this->getRealPathNoExtension();
-        foreach ($this->validRawExtensions as $ext) {
+        foreach (self::$validRawExtensions as $ext) {
             $path = $this->getRealPathCI($pathNoExt, $ext);
             if ($path !== null) {
                 break;
