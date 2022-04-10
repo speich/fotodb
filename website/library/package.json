@@ -4,7 +4,7 @@
   "dependencies": {
     "dojo": "^1.17.2",
     "dijit": "^1.17.2",
-    "dojox": "^1.16.5"
+    "dojox": "^1.17.2"
   },
   "devDependencies": {
     "copyfiles": "^2.4.1",
