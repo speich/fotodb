@@ -2,15 +2,15 @@
   "name": "fotodb",
   "version": "1.0.0",
   "dependencies": {
-    "dojo": "^1.16.3",
-    "dijit": "^1.16.3",
-    "dojox": "^1.16.3"
+    "dojo": "^1.17.2",
+    "dijit": "^1.17.2",
+    "dojox": "^1.16.5"
   },
   "devDependencies": {
-    "copyfiles": "^2.3.0",
+    "copyfiles": "^2.4.1",
     "csso-cli": "^3.0.0",
     "rimraf": "^3.0.2",
-    "uglifyjs-folder": "^2.0.0"
+    "uglifyjs-folder": "^3.1.2"
   },
   "scripts": {
     "dojo:del": "VERSION=$(node -p \"require('dojo/package.json').version\") && rimraf dojo/$VERSION/dojo",
