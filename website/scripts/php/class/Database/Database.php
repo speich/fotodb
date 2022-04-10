@@ -8,6 +8,8 @@ use PDO;
 use SQLite3;
 use PhotoDatabase\ExifService;
 use stdClass;
+use function array_key_exists;
+use function count;
 
 
 /**
@@ -79,7 +81,7 @@ class Database
      * @param string $string string to be escaped
      * @return string escaped string
      */
-    function escapeString(string $string): string
+    protected function escapeString(string $string): string
     {
         // sqlite_escape_string is not supported in php 5.4 anymore
         return SQLite3::escapeString($string);
@@ -137,13 +139,13 @@ class Database
 
     /**
      * Provides access to the different paths in the FotoDB project.
-     * @param string $Name
+     * @param string $name
      * @return string
      */
-    public function getPath($Name): string
+    public function getPath(string $name): string
     {
         $path = '';
-        switch ($Name) {
+        switch ($name) {
             case 'WebRoot':
                 $path = $this->getWebRoot();
                 break;   // redundant, but for convenience
@@ -167,7 +169,7 @@ class Database
      * @param string $img image file including web root path
      * @return string XML file
      */
-    public function insert($img)
+    public function insert(string $img)
     {
         $imgFolder = str_replace($this->getWebRoot().ltrim($this->getPath('Img'), '/'), '', $img);   // remove web images folder path part
         $imgName = substr($imgFolder, strrpos($imgFolder, '/') + 1);
@@ -183,12 +185,12 @@ class Database
         $imgSrc = $imgFolder.'/'.$imgName;
         // insert exif data
         $exifData = $this->getExif($imgSrc);
-        if (!$this->insertExif($imgId, $exifData)) {
+        if (!$this->upsertExif($imgId, $exifData)) {
             echo 'failed';
 
             return false;
         }
-        if (\array_key_exists('XMP', $exifData) && !$this->insertXmp($imgId, $exifData['XMP'])) {
+        if (array_key_exists('XMP', $exifData) && !$this->upsertXmp($imgId, $exifData['XMP'])) {
             echo 'failed';
 
             return false;
@@ -206,7 +208,7 @@ class Database
         $strXml .= '<Image';
         foreach ($stmt->fetch() as $key => $val) {
             // each col in db is attribute of xml element Image
-            if (strpos($key, 'Date') !== false && $key !== 'ImgDateManual' && $val !== null && $val !== '') {
+            if (str_contains($key, 'Date') && $key !== 'ImgDateManual' && $val !== null && $val !== '') {
                 $strXml .= ' '.$key.'="'.date('d.m.Y H:i:s', $val).'"';
             } elseif ($key === 'LastChange' && $val !== null && $val !== '') {
                 $strXml .= ' '.$key.'="'.date('d.m.Y H:i:s', $val).'"';
@@ -229,9 +231,9 @@ class Database
      * Response is returned as an XML to the ajax request to fill form fields.
      * XML attribute names must have the same name as the HTML form field names.
      *
-     * @param integer $ImgId image id
+     * @param int $ImgId image id
      */
-    public function edit($ImgId): void
+    public function edit(int $ImgId): void
     {
         // TODO: use DOM functions instead of string to create xml
         $sql = 'SELECT Id, ImgFolder, ImgName, ImgDateManual, ImgTechInfo, FilmTypeId, RatingId,
@@ -247,7 +249,7 @@ class Database
         $strXml .= '<Image';
         foreach ($stmt->fetch() as $key => $val) {
             // each col in db is attribute of xml element Image
-            if (strpos($key, 'Date') !== false && $key !== 'ImgDateManual' && $val !== null && $val !== '') {
+            if (str_contains($key, 'Date') && $key !== 'ImgDateManual' && $val !== null && $val !== '') {
                 $strXml .= ' '.$key.'="'.date('d.m.Y H:i:s', $val).'"';
             } elseif ($key === 'LastChange' && $val !== null && $val !== '') {
                 $strXml .= ' '.$key.'="'.date('d.m.Y H:i:s', $val).'"';
@@ -309,7 +311,7 @@ class Database
         $stmt->execute();
         $strXml .= '<Locations Id="'.$ImgId;
         $arrData = $stmt->fetchAll();
-        if (!\count($arrData)) {
+        if (!count($arrData)) {
             $strXml .= '" CountryId="">';
         }
         foreach ($arrData as $row) {
@@ -327,14 +329,14 @@ class Database
 
     /**
      * Update image data.
-     * @param string $XmlData
+     * @param string $xmlData
      */
-    public function updateAll($XmlData): void
+    public function updateAll(string $xmlData): void
     {
         // TODO: more generic update
         // TODO: after UpdateAll send updated data back to browser (like Edit), for ex. LocationId would be updated
         $xml = new DOMDocument();
-        $xml->loadXML($XmlData);
+        $xml->loadXML($xmlData);
         $this->beginTransaction();
         // update images
         $attributes = $xml->getElementsByTagName('Image')->item(0)->attributes;
@@ -350,7 +352,7 @@ class Database
         $stmt = $this->db->prepare($sql);
         $count = 0;
         foreach ($attributes as $attr) {
-            if (strpos($attr->nodeName, 'Date') !== false && $attr->nodeName !== 'ImgDateManual') {
+            if (str_contains($attr->nodeName, 'Date') && $attr->nodeName !== 'ImgDateManual') {
                 if ($attr->nodeValue !== '' && strtotime($attr->nodeValue)) {
                     $stmt->bindParam(":Val$count", strtotime($attr->nodeValue));
                 }
@@ -562,13 +564,13 @@ class Database
     }
 
     /**
-     * Insert XMP data into the database.
+     * Insert or replace XMP data into the database.
      * Inserts Adobe Lightroom XMP crop information into the table Xmp.
      * @param int $imgId image id
      * @param array $exifData
      * @return bool
      */
-    public function insertXmp($imgId, $exifData): bool
+    public function upsertXmp(int $imgId, array $exifData): bool
     {
         $sql = 'INSERT OR REPLACE INTO Xmp (ImgId, CropTop, CropLeft, CropBottom, CropRight, CropAngle, SyncDate) 
             VALUES (:imgId, :cropTop, :cropLeft, :cropBottom, :cropRight, :cropAngle, CURRENT_TIMESTAMP)';
@@ -614,7 +616,7 @@ class Database
     }
 
     /**
-     * Insert exif data read from image into fotodb.
+     * Insert or replace exif data read from image into fotodb.
      * Returns true on success or false on failure.
      *
      * @param int $imgId image id
@@ -622,11 +624,11 @@ class Database
      * @return bool
      * @internal param int $img image database id
      */
-    public function insertExif($imgId, $exifData): bool
+    public function upsertExif(int $imgId, array $exifData): bool
     {
         // note: Scanned slides have a lot of empty exif data
         $arrExif = $this->mapExif($exifData);
-        if (\count($arrExif) > 0) {
+        if (count($arrExif) > 0) {
             $sqlTemp = '';
             $sql = 'INSERT OR REPLACE INTO Exif (ImgId,';   // deletes row first if conflict occurs
             foreach ($arrExif as $key => $val) {   // column names
@@ -635,7 +637,7 @@ class Database
             $sql .= rtrim($sqlTemp, ',').', SyncDate) VALUES (:ImgId,';
             $sqlTemp = '';
             foreach ($arrExif as $key => $val) {   // column data
-                if (strpos($key, 'Date') !== false) {
+                if (str_contains($key, 'Date')) {
                     if ($val !== '' && strtotime($val)) {
                         $sqlTemp .= "'".$this->escapeString(strtotime($val))."',";
                     } else {
@@ -791,19 +793,19 @@ class Database
         $data = [];
         $data['ImageWidth'] = $arrExif['XMP']['ImageWidth'];    // exif does not report correct image size
         $data['ImageHeight'] = $arrExif['XMP']['ImageHeight'];
-        $data['DateTimeOriginal'] = \array_key_exists('DateTimeOriginal', $arrExif['EXIF']) ? $arrExif['EXIF']['DateTimeOriginal'] : '';
-        $data['ExposureTime'] = \array_key_exists('ExposureTime', $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureTime'] : '';
-        $data['FNumber'] = \array_key_exists('FNumber', $arrExif['EXIF']) ? $arrExif['EXIF']['FNumber'] : '';
-        $data['ISO'] = \array_key_exists('ISO', $arrExif['EXIF']) ? $arrExif['EXIF']['ISO'] : '';
-        $data['ExposureProgram'] = \array_key_exists('ExposureProgram', $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureProgram'] : '';
-        $data['MeteringMode'] = \array_key_exists('MeteringMode', $arrExif['EXIF']) ? $arrExif['EXIF']['MeteringMode'] : '';
-        $data['Flash'] = \array_key_exists('Flash', $arrExif['EXIF']) ? $arrExif['EXIF']['Flash'] : '';
-        $data['FocusDistance'] = \array_key_exists('FocusDistance', $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['FocusDistance'] : '';
-        if (\array_key_exists('GPSPosition', $arrExif['EXIF'])) {
+        $data['DateTimeOriginal'] = array_key_exists('DateTimeOriginal', $arrExif['EXIF']) ? $arrExif['EXIF']['DateTimeOriginal'] : '';
+        $data['ExposureTime'] = array_key_exists('ExposureTime', $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureTime'] : '';
+        $data['FNumber'] = array_key_exists('FNumber', $arrExif['EXIF']) ? $arrExif['EXIF']['FNumber'] : '';
+        $data['ISO'] = array_key_exists('ISO', $arrExif['EXIF']) ? $arrExif['EXIF']['ISO'] : '';
+        $data['ExposureProgram'] = array_key_exists('ExposureProgram', $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureProgram'] : '';
+        $data['MeteringMode'] = array_key_exists('MeteringMode', $arrExif['EXIF']) ? $arrExif['EXIF']['MeteringMode'] : '';
+        $data['Flash'] = array_key_exists('Flash', $arrExif['EXIF']) ? $arrExif['EXIF']['Flash'] : '';
+        $data['FocusDistance'] = array_key_exists('FocusDistance', $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['FocusDistance'] : '';
+        if (array_key_exists('GPSPosition', $arrExif['EXIF'])) {
             $arr = explode(',', $arrExif['EXIF']['GPSPosition']);
             $data['GPSLatitude'] = str_replace('+', '', $arr[0]);
             $data['GPSLongitude'] = str_replace('+', '', $arr[1]);
-        } elseif (\array_key_exists('GPSLatitude', $arrExif['EXIF'])) {
+        } elseif (array_key_exists('GPSLatitude', $arrExif['EXIF'])) {
             $data['GPSLatitude'] = $arrExif['EXIF']['GPSLatitudeRef'] === 'South' ? abs($arrExif['EXIF']['GPSLatitude']) * -1 : $arrExif['EXIF']['GPSLatitude'];
             $data['GPSLongitude'] = $arrExif['EXIF']['GPSLongitudeRef'] === 'West' ? abs(
                     $arrExif['EXIF']['GPSLongitude']
@@ -812,21 +814,21 @@ class Database
             $data['GPSLatitude'] = '';
             $data['GPSLongitude'] = '';
         }
-        $data['GPSAltitude'] = \array_key_exists('GPSAltitude', $arrExif['EXIF']) ? $arrExif['EXIF']['GPSAltitude'] : '';
-        $data['GPSAltitudeRef'] = \array_key_exists('GPSAltitudeRef', $arrExif['EXIF']) ? $arrExif['EXIF']['GPSAltitudeRef'] : '';
-        $data['LensSpec'] = \array_key_exists('LensSpec', $arrExif['EXIF']) ? $arrExif['EXIF']['LensSpec'] : '';
-        $data['VibrationReduction'] = \array_key_exists('VibrationReduction', $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['VibrationReduction'] : '';
+        $data['GPSAltitude'] = array_key_exists('GPSAltitude', $arrExif['EXIF']) ? $arrExif['EXIF']['GPSAltitude'] : '';
+        $data['GPSAltitudeRef'] = array_key_exists('GPSAltitudeRef', $arrExif['EXIF']) ? $arrExif['EXIF']['GPSAltitudeRef'] : '';
+        $data['LensSpec'] = array_key_exists('LensSpec', $arrExif['EXIF']) ? $arrExif['EXIF']['LensSpec'] : '';
+        $data['VibrationReduction'] = array_key_exists('VibrationReduction', $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['VibrationReduction'] : '';
         foreach ($arrExif['Files'] as $file) {
             if (strtolower($file['FileType']) !== 'xmp') {
                 $data['FileType'] = $file['FileType'];
                 $data['FileSize'] = $file['FileSize'];
             }
         }
-        $data['Lens'] = \array_key_exists('Lens', $arrExif['EXIF']) ? $arrExif['EXIF']['Lens'] : '';
-        $data['LensSpec'] = \array_key_exists('LensID', $arrExif['Composite']) ? $arrExif['Composite']['LensID'] : '';
-        $data['FocalLength'] = \array_key_exists('FocalLength', $arrExif['EXIF']) ? $arrExif['EXIF']['FocalLength'] : '';
-        $data['Make'] = \array_key_exists('Make', $arrExif['EXIF']) ? $arrExif['EXIF']['Make'] : 'Nikon';
-        $data['Model'] = \array_key_exists('Model', $arrExif['EXIF']) ? $arrExif['EXIF']['Model'] : 'Nikon SUPER COOLSCAN 5000 ED';
+        $data['Lens'] = array_key_exists('Lens', $arrExif['EXIF']) ? $arrExif['EXIF']['Lens'] : '';
+        $data['LensSpec'] = array_key_exists('LensID', $arrExif['Composite']) ? $arrExif['Composite']['LensID'] : '';
+        $data['FocalLength'] = array_key_exists('FocalLength', $arrExif['EXIF']) ? $arrExif['EXIF']['FocalLength'] : '';
+        $data['Make'] = array_key_exists('Make', $arrExif['EXIF']) ? $arrExif['EXIF']['Make'] : 'Nikon';
+        $data['Model'] = array_key_exists('Model', $arrExif['EXIF']) ? $arrExif['EXIF']['Model'] : 'Nikon SUPER COOLSCAN 5000 ED';
 
         return $data;
     }

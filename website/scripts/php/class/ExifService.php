@@ -23,7 +23,7 @@ class ExifService
     /** return both xmp and exif data */
     public const FETCH_BOTH = 3;
 
-    private $exiftool;
+    private string $exiftool;
 
     private string $exiftoolParams = '-c "%+.8f" -g -s2 -j';
 
@@ -32,13 +32,13 @@ class ExifService
      * @param string $path
      * @param string $lang
      */
-    public function __construct(string $path, $lang = 'en')
+    public function __construct(string $path, string $lang = 'en')
     {
         $this->exiftool = $path;
         $this->exiftoolParams .= ' -lang '.$lang;    // TODO: check input which is passed as an argument to exiftool
     }
 
-    public function checkForUpdate()
+    public function checkForUpdate(): void
     {
         // TODO: exiftool provides an rss feed I could use to automatically update
         // http://owl.phy.queensu.ca/~phil/exiftool/rss.xml
@@ -89,7 +89,7 @@ class ExifService
      * @param array $data array returned from exiftool
      * @return string HTML table
      */
-    public function render($data): string
+    public function render(array $data): string
     {
         $str = '<table class="exifData">';
         foreach ($data as $heading => $group) {
@@ -119,7 +119,7 @@ class ExifService
      * @param array $files
      * @return string HTML
      */
-    public function renderFiles($files): string
+    public function renderFiles(array $files): string
     {
         $str = '';
         foreach ($files as $file) {

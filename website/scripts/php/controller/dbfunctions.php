@@ -39,7 +39,7 @@ if (property_exists($data, 'Fnc')) {
             $imgId = $_POST['ImgId'];
             $imgSrc = $db->getImageSrc($imgId);
             $exifData = $db->getExif($imgSrc);
-            if ($db->insertExif($imgId, $exifData)) {
+            if ($db->upsertExif($imgId, $exifData)) {
                 echo 'success';
             } else {
                 echo 'failed';
