@@ -165,8 +165,8 @@ $speciesSex->setSelected('4');
         </div><!-- End Right1 -->
     </div><!-- End LayoutSplit1 -->
 </form>
-<script src="../scripts/js/GoogleMapKey.js" type="module"></script>
-<script type="text/javascript">
+<script src="../scripts/js/GoogleMapKey.js"></script>
+<script>
     var dojoConfig = {
         async: true,
         locale: 'de',
@@ -174,9 +174,9 @@ $speciesSex->setSelected('4');
         baseUrl: '/library',
         packages: [
             {name: 'dojo', location: '../library/dojo/1.17.2/dojo'},
-            {name: 'dojox', location: '../library/dojo/1.16.5/dojox'},
+            {name: 'dojox', location: '../library/dojo/1.17.2/dojox'},
             {name: 'dijit', location: '../library/dojo/1.17.2/dijit'},
-            {name: 'fotodb', location: '../../../scripts/js'}
+            {name: 'fotodb', location: '/scripts/js'}
         ]
     };
 </script>
