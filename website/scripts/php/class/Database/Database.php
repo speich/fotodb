@@ -791,8 +791,8 @@ class Database
     public function mapExif($arrExif): array
     {
         $data = [];
-        $data['ImageWidth'] = $arrExif['XMP']['ImageWidth'];    // exif does not report correct image size
-        $data['ImageHeight'] = $arrExif['XMP']['ImageHeight'];
+        $data['ImageWidth'] = $arrExif['XMP']['ImageWidth'] ?? $arrExif['EXIF']['ImageWidth'];    // exif does not report correct image size
+        $data['ImageHeight'] = $arrExif['XMP']['ImageHeight'] ?? $arrExif['EXIF']['ImageHeight'];
         $data['DateTimeOriginal'] = array_key_exists('DateTimeOriginal', $arrExif['EXIF']) ? $arrExif['EXIF']['DateTimeOriginal'] : '';
         $data['ExposureTime'] = array_key_exists('ExposureTime', $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureTime'] : '';
         $data['FNumber'] = array_key_exists('FNumber', $arrExif['EXIF']) ? $arrExif['EXIF']['FNumber'] : '';
