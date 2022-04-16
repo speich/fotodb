@@ -97,8 +97,8 @@ class FileInfoImage extends SplFileInfo
     }
 
     /**
-     * Returns the extension of the corresponding raw file of the image if any.
-     * Note: comparison of extension is case-insensitive
+     * Returns the full path of the corresponding raw file of the image if any.
+     * Note: comparison of file extension is carried out case-insensitively.
      * @return null|string full path to raw image
      */
     public function getRealPathRaw(): ?string
@@ -116,10 +116,12 @@ class FileInfoImage extends SplFileInfo
     }
 
     /**
-     * Check if file path exists with case-insensitive extension.
-     * @param string $path real path without extensions
-     * @param string $ext file extension to check with
-     * @return string|null
+     * Returns the full path to the raw image (nef, arw, dng, etc)..
+     * Finds and returns the full patch to the raw photo independent of the case of the filename extension,
+     * e.g. /media/sf_Bilder/2020-09-Lyon/2020-09-Lyon-005.arw or /media/sf_Bilder/2020-09-Lyon/2020-09-Lyon-005.ARW
+     * @param string $path real path without extension
+     * @param string $ext file extension to check against
+     * @return string|null full file path
      */
     private function getRealPathCI(string $path, string $ext): ?string
     {
