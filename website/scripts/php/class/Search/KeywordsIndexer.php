@@ -15,7 +15,7 @@ class KeywordsIndexer extends Indexer
     public function init(): int
     {
         /* note: unlike ordinary fts4 tables, contentless tables require an explicit integer docid value to be provided. External content tables are assumed to have
-            a unique Id too. Therefore we cannot use a view as the external content, since that does not have a unique id. */
+            a unique id too. Therefore, we cannot use a view as the external content, since that does not have a unique id. */
         $options = $this->isTokenizerUnicode61() ? 'Keyword, tokenize=unicode61' : 'KeywordOrig, KeywordMod';
         $sql = 'BEGIN;
             DROP TABLE IF EXISTS Keywords_fts; 
