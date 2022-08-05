@@ -22,8 +22,8 @@ class SqlImagesSource extends SqlIndexerSource
         'Country',
         'Keywords',
         'Locations',
-        'CommonName',
-        'ScientificName',
+        'CommonNames',
+        'ScientificNames',
         'Subject',
         'Rating'
     ];
@@ -34,7 +34,7 @@ class SqlImagesSource extends SqlIndexerSource
     /**
      * @var string[]
      */
-    private array $colPrefixes = ['ImgTitle', 'ImgDesc', 'Keywords', 'CommonName'];
+    private array $colPrefixes = ['ImgTitle', 'ImgDesc', 'Keywords', 'CommonNames'];
 
     /**
      * @return array
@@ -61,6 +61,7 @@ class SqlImagesSource extends SqlIndexerSource
     }
 
     /**
+     * Return the list part of the SQL.
      * @return string
      */
     public function getList(): string
@@ -74,7 +75,12 @@ class SqlImagesSource extends SqlIndexerSource
             (SELECT GROUP_CONCAT(l.Name) FROM Locations l
                 INNER JOIN Images_Locations il ON l.id = il.LocationId
                 WHERE il.ImgId = i.Id) Locations,
-            s.NameDe CommonName, s.NameLa ScientificName,
+            (SELECT GROUP_CONCAT(s.NameDe) FROM ScientificNames s
+                INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId
+                WHERE isc.ImgId = i.Id) CommonNames,
+            (SELECT GROUP_CONCAT(s.NameLa) FROM ScientificNames s
+                INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId
+                WHERE isc.ImgId = i.Id) ScientificNames,
             sj.NameDe Subject,
             r.Value Rating';
     }
