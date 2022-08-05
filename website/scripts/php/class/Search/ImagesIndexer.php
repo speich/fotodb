@@ -11,7 +11,7 @@ class ImagesIndexer extends Indexer
     /**
      * Create the database structure necessary for searching.
      */
-    public function init()
+    public function init(): bool|int
     {
         $cols = $this->toString([$this->sqlSource, 'getColNames']);
         $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], null, true);
