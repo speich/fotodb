@@ -93,7 +93,6 @@ if (property_exists($data, 'Fnc')) {
 
         case 'search':
             $text = $_GET['q'];
-
             $db = new PDO('sqlite:'.$config->paths->targetDatabase);
             $search = new ImagesSearch($db);
             $query = $search->prepareQuery($text);
