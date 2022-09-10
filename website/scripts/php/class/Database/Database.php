@@ -842,28 +842,23 @@ class Database
     private function createStructure(): void
     {
         $sql = 'BEGIN;
-            create table Countries
-            (
-                Id INTEGER not null
-                    primary key,
+            CREATE TABLE Countries (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
                 NameEn VARCHAR2,
                 NameDe VARCHAR2
-            )
-            ;
+            );
             
-            create table FilmTypes
-            (
-                Id INTEGER not null
-                    primary key,
+            CREATE TABLE FilmTypes (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
                 Name VARCHAR2,
                 Code VARCHAR2
-            )
-            ;
+            );
             
-            create table Images
-            (
-                Id INTEGER not null
-                    primary key,
+            CREATE TABLE Images (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
                 ImgFolder VARCHAR2,
                 ImgName VARCHAR2,
                 ImgDateManual VARCHAR2,
@@ -879,13 +874,11 @@ class Database
                 ImgDateOriginal INTEGER,
                 ImgLat FLOAT,
                 ImgLng FLOAT,
-                ShowLoc INTEGER default 1,
+                ShowLoc INTEGER DEFAULT 1,
                 CountryId INTEGER
-            )
-            ;
+            );
             
-            create table Exif
-            (
+            CREATE TABLE Exif (
                 Make VARCHAR2,
                 Model VARCHAR2,
                 ImageWidth INTEGER,
@@ -899,9 +892,9 @@ class Database
                 MeteringMode VARCHAR2,
                 Flash VARCHAR2,
                 FocusDistance NUMERIC,
-                ImgId INTEGER not null
-                    constraint Exif_Images_Id_fk
-                        references Images,
+                ImgId INTEGER NOT NULL
+                    CONSTRAINT Exif_Images_Id_fk
+                        REFERENCES Images,
                 GPSLatitude FLOAT,
                 GPSLongitude FLOAT,
                 GPSAltitude INTEGER,
@@ -911,157 +904,189 @@ class Database
                 FileType VARCHAR,
                 Lens VARCHAR,
                 FocalLength VARCHAR,
-                SyncDate TEXT default null
-            )
-            ;
+                SyncDate TEXT DEFAULT NULL
+            );
             
-            create unique index Exif_ImgId_uindex
-                on Exif (ImgId)
-            ;
+            CREATE UNIQUE INDEX Exif_ImgId_uindex
+                ON Exif(ImgId);
             
-            create table Images_Keywords
-            (
-                ImgId INTEGER not null,
-                KeywordId INTEGER not null
-            )
-            ;
+            CREATE TABLE Images_Keywords (
+                ImgId INTEGER NOT NULL,
+                KeywordId INTEGER NOT NULL
+            );
             
-            create table Images_Locations
-            (
+            CREATE TABLE Images_Locations (
                 ImgId INTEGER,
                 LocationId INTEGER
-            )
-            ;
+            );
             
-            create table Images_ScientificNames
-            (
-                ImgId INTEGER not null,
-                ScientificNameId INTEGER not null,
-                SexId INTEGER not null,
-                primary key (ImgId, ScientificNameId)
-            )
-            ;
+            CREATE TABLE Images_ScientificNames (
+                ImgId INTEGER NOT NULL,
+                ScientificNameId INTEGER NOT NULL,
+                SexId INTEGER NOT NULL,
+                PRIMARY KEY (ImgId, ScientificNameId)
+            );
             
-            create table Images_Themes
-            (
-                ImgId INTEGER not null,
-                ThemeId INTEGER not null
-            )
-            ;
+            CREATE TABLE Images_Themes (
+                ImgId INTEGER NOT NULL,
+                ThemeId INTEGER NOT NULL
+            );
             
-            create table Keywords
-            (
-                Id INTEGER not null
-                    primary key,
+            CREATE TABLE Images_fts_content (
+                docid INTEGER
+                    PRIMARY KEY,
+                c0ImgId,
+                c1ImgFolder,
+                c2ImgName,
+                c3ImgTitle,
+                c4ImgDesc,
+                c5Theme,
+                c6Country,
+                c7Keywords,
+                c8Locations,
+                c9CommonNames,
+                c10ScientificNames,
+                c11Subject,
+                c12Rating,
+                c13ImgTitlePrefixes,
+                c14ImgDescPrefixes,
+                c15KeywordsPrefixes,
+                c16CommonNamesPrefixes
+            );
+            
+            CREATE TABLE Images_fts_docsize (
+                docid INTEGER
+                    PRIMARY KEY,
+                size BLOB
+            );
+            
+            CREATE TABLE Images_fts_segdir (
+                level INTEGER,
+                idx INTEGER,
+                start_block INTEGER,
+                leaves_end_block INTEGER,
+                end_block INTEGER,
+                root BLOB,
+                PRIMARY KEY (level, idx)
+            );
+            
+            CREATE TABLE Images_fts_segments (
+                blockid INTEGER
+                    PRIMARY KEY,
+                block BLOB
+            );
+            
+            CREATE TABLE Images_fts_stat (
+                id INTEGER
+                    PRIMARY KEY,
+                value BLOB
+            );
+            
+            CREATE TABLE Keywords (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
                 Name VARCHAR2
-            )
-            ;
+            );
             
-            create table Locations
-            (
-                Id INTEGER not null
-                    primary key,
+            CREATE TABLE LicenseTypes (
+                Id INTEGER NOT NULL
+                    CONSTRAINT LicenseTypes_pk
+                        PRIMARY KEY AUTOINCREMENT,
+                NameEn TEXT
+            );
+            
+            CREATE TABLE Licenses (
+                Id INTEGER NOT NULL
+                    CONSTRAINT Licences_Id_pk
+                        PRIMARY KEY AUTOINCREMENT,
+                NameEn TEXT NOT NULL,
+                LicenseTypeId INTEGER NOT NULL
+            );
+            
+            CREATE TABLE Locations (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
                 Name VARCHAR(1024)
-            )
-            ;
+            );
             
-            create table Locations_Countries
-            (
+            CREATE TABLE Locations_Countries (
                 LocationId INTEGER,
                 CountryId INTEGER
-            )
-            ;
+            );
             
-            create table Rating
-            (
-                Id INTEGER not null
-                    primary key,
-                Name VARCHAR2
-            )
-            ;
+            CREATE TABLE Rating (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
+                Name VARCHAR2,
+                Value INTEGER
+            );
             
-            create table ScientificNames
-            (
-                Id INTEGER not null
-                    primary key,
+            CREATE TABLE ScientificNames (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
                 NameDe VARCHAR2,
                 NameEn VARCHAR2,
                 NameLa VARCHAR2,
-                ThemeId INTEGER default null
-            )
-            ;
+                ThemeId INTEGER DEFAULT NULL
+            );
             
-            create table Sexes
-            (
-                Id INTEGER not null
-                    primary key,
+            CREATE TABLE Sexes (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
                 NameEn VARCHAR2,
                 NameDe VARCHAR2,
                 Symbol TEXT
-            )
-            ;
+            );
             
-            create table SubjectAreas
-            (
-                Id INTEGER not null
-                    primary key,
+            CREATE TABLE SubjectAreas (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
                 NameDe VARCHAR,
                 NameEn VARCHAR
-            )
-            ;
+            );
             
-            create table Themes
-            (
-                Id INTEGER not null
-                    primary key,
+            CREATE TABLE Themes (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
                 NameDe VARCHAR2,
                 SubjectAreaId INTEGER,
                 NameEn VARCHAR
-            )
-            ;
+            );
             
-            create table Xmp
-            (
+            CREATE TABLE Xmp (
                 ImgId INT
-                    constraint Xmp_Images_Id_fk
-                        references Images,
+                    CONSTRAINT Xmp_Images_Id_fk
+                        REFERENCES Images,
                 CropTop FLOAT,
                 CropLeft FLOAT,
                 CropBottom FLOAT,
                 CropRight FLOAT,
                 CropAngle FLOAT,
-                SyncDate TEXT default null
-            )
-            ;
+                SyncDate TEXT DEFAULT NULL
+            );
             
-            create unique index Xmp_ImgId_uindex
-                on Xmp (ImgId)
-            ;
+            CREATE UNIQUE INDEX Xmp_ImgId_uindex
+                ON Xmp(ImgId);
             
-            create table searchIndex
-            (
-                id INTEGER
-                    primary key,
-                word TEXT
-                    unique
-                    on conflict ignore
-            )
-            ;
+            CREATE TABLE sqlite_master (
+                type TEXT,
+                name TEXT,
+                tbl_name TEXT,
+                rootpage INT,
+                sql TEXT
+            );
             
-            create table searchOccurrences
-            (
-                wordId INTEGER not null,
-                recordId INTEGER not null
-            )
-            ;
+            CREATE TABLE sqlite_sequence (
+                name,
+                seq
+            );
             
-            create table sqlite_stat1
-            (
+            CREATE TABLE sqlite_stat1 (
                 tbl,
                 idx,
                 stat
-            )
-            ;
+            );
+                        
             COMMIT;';
         $this->db->exec($sql);
         print_r($this->db->errorInfo());
