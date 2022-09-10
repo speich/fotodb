@@ -16,6 +16,9 @@ class FileExplorer {
      */
     private $db; // top level directory. Do not allow going outside it unless explicitly set.
 
+
+    public static array $validExtensions = ['jpg', 'png', 'webp'];
+
     /**
      * Initializes the Explorer class.
      *
@@ -98,7 +101,7 @@ class FileExplorer {
 		$arrRemove = ['.'];
         if ($this->CheckTopDirOutside($path)) {
             // parent directory link, do not display if already in TopDir
-            array_push($arrRemove, '..');
+            $arrRemove[] = '..';
         }
 		$files = scandir($filePath, SCANDIR_SORT_ASCENDING);
         $files = array_diff($files, $arrRemove);
@@ -114,7 +117,8 @@ class FileExplorer {
 				$arrFile[$file]['Type'] = ucfirst(filetype($filePath.$file));
 				$arrFile[$file]['Name'] = $file;
 				$arrFile[$file]['Size'] = number_format(filesize($filePath.$file) / 1000, 2, ".", "'")."kb";
-				if ($arrFile[$file]['Type'] === 'File' && pathinfo($file, PATHINFO_EXTENSION) === 'jpg') {
+                $ext = pathinfo($file, PATHINFO_EXTENSION);
+				if ($arrFile[$file]['Type'] === 'File' && in_array($ext, self::$validExtensions, true)) {
 					$arrFile[$file]['PathDbImg'] = ltrim(str_replace($this->db->getPath('Img'), '', $path), '/');
 					$arrFile[$file]['DbImg'] = ltrim(str_replace($this->db->getPath('Img'), '', $path).$file, '/');
 				}
