@@ -12,10 +12,10 @@ use ImagickException;
  */
 class Thumbnail
 {
-    public int $width = 270;   // 1.5 * 180
+    public int $width = 270;   // 1.5 * 180 = 270
 
     /**
-     * Creates a thumbnail from provided image.
+     * Creates a thumbnail from the provided image.
      * Creates a new image with given width and keeping the aspect ratio and applying an unsharp mask.
      * @param string $srcPath path to source image
      * @param string $filename path of new image to create
@@ -26,8 +26,6 @@ class Thumbnail
     {
         $img = new Imagick($srcPath);
         $img->thumbnailImage($newWidth, $newWidth, true);
-        //$img->resizeImage($newWidth, $newWidth, Imagick::FILTER_LANCZOS, 0.5, true);
-        //$img->writeImage($filename);    // --> write permission error!?
-        file_put_contents ($filename, $img); // works, or:
+        file_put_contents($filename, $img); // works, or:
     }
 }
