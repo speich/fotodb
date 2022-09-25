@@ -2,39 +2,23 @@
 
 namespace PhotoDatabase\Iterator;
 
-use PhotoDatabase\Iterator\PhotoDbDirectoryIterator;
-use RecursiveFilterIterator;
 
 
 /**
  * Class FilterFilesXmp
- * Only returns XMP files from directories and subdirectory recursively.
- * @package PhotoDatabase
+ * Custom filter to exclude non-XMP files from directories and subdirectories.
  */
-class FilterFilesXmp extends RecursiveFilterIterator
+class FilterFilesXmp extends FilterSync
 {
-    protected $validExtension = 'xmp';
-
-    /**
-     * Create a RecursiveFilterIterator from a RecursiveDirectoryIterator
-     * @link http://php.net/manual/en/recursivefilteriterator.construct.php
-     * @param PhotoDbDirectoryIterator $iterator
-     */
-    public function __construct($iterator)
-    {
-        parent::__construct($iterator);
-    }
+    protected string $validExtension = 'xmp';
 
     /**
      * Check whether the current element of the iterator is acceptable
      * @link http://php.net/manual/en/filteriterator.accept.php
      * @return bool true if the current element is acceptable, otherwise false.
-     * @since 5.1.0
      */
-    public function accept()
+    public function accept(): bool
     {
-        $accept = $this->isDir() || strtolower($this->getExtension()) === $this->validExtension;
-
-        return $accept;
+        return parent::accept() && strtolower($this->current()->getExtension()) === $this->validExtension;
     }
 }

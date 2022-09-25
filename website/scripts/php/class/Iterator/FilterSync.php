@@ -3,19 +3,21 @@
 namespace PhotoDatabase\Iterator;
 
 use DateTime;
+use RecursiveFilterIterator;
 
 
 /**
  * Class FilterSyncXmp
+ * Filter out file
  * @package PhotoDatabase
  */
-class FilterSync extends FilterFilesXmp
+class FilterSync extends RecursiveFilterIterator
 {
-    const XMP = 1;
+    public const XMP = 1;
 
-    const EXIF = 2;
+    public const EXIF = 2;
 
-    public function __construct(\PhotoDatabase\Iterator\PhotoDbDirectoryIterator $iterator)
+    public function __construct(PhotoDbDirectoryIterator $iterator)
     {
         parent::__construct($iterator);
     }
@@ -25,13 +27,16 @@ class FilterSync extends FilterFilesXmp
     }
 
     /**
-     * Checks if the xml data from the file has to be updated in the the database.
-     * @param integer $type FilterSync::XMP or FilterSync::EXIF
+     * Checks if the xml data from the file has to be updated in the database.
+     * @param int $type FilterSync::XMP or FilterSync::EXIF
      * @return bool
+     * @throws \Exception
      */
-    public function checkSyncDate()
+    public function checkSyncDate(): bool
     {
-        $date2 = $this->current()->getSyncDateXmp();
+        /** @var FileInfoImage $item */
+        $item = $this->current();
+        $date2 = $item->getSyncDateXmp();
         if ($date2 === null) {
 
             return true;
@@ -48,7 +53,7 @@ class FilterSync extends FilterFilesXmp
      * @return bool true if the current element is acceptable, otherwise false.
      * @since 5.1.0
      */
-    public function accept()
+    public function accept(): bool
     {
         $accept = false;
         if (parent::accept()) {

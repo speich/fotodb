@@ -46,7 +46,7 @@ class ExifService
     }
 
     /**
-     * Returns exif data from raw and xmp as a multidimensional array.
+     * Returns exif data from (NEF) raw and xmp as a multidimensional array.
      * Calls the exif tool for NEF and xmp
      * @param string $img full path of image
      * @return false|array mixed
@@ -54,17 +54,13 @@ class ExifService
     public function getData(string $img): false|array
     {
         $imgInfo = new FileInfoImage($img);
-        $extRaw = $imgInfo->getRealPathRaw();
-        $extXmp = $imgInfo->getRealPathXmp();
+        $pathRaw = $imgInfo->getRealPathRaw();
+        $pathXmp = $imgInfo->getRealPathXmp();   // dng files do not have a sidecar xml, so this will be null
         $files = [];
 
         $exifService = ExifToolBatch::getInstance($this->exiftool.'/exiftool', $this->exiftoolParams);
-        if ($extRaw !== null) {
-            $files[] = $extRaw;
-        }
-        if ($extXmp !== null) {
-            $files[] = $extXmp;
-        }
+        $files[] = $pathRaw;
+        $files[] = $pathXmp;
         $exifService?->add($files);
         try {
             $data = $exifService?->fetchAllDecoded(true);
@@ -72,10 +68,15 @@ class ExifService
             $data = false;
         }
 
-        // merge xmp and exif arrays into one without overwriting $data[0]['File'] of NEF and of $data[1]['File'] XMP
-        if ($data && count($data) > 0) {
-            $files[0] = $data[0]['File'];
-            $files[1] = $data[1]['File'];
+        // merge xmp and exif arrays into one without overwriting $data[0]['File'] of NEF and of $data[1]['File'] of XMP
+        if ($data) {
+            $files[0] = $data[0]['File'];   // e.g. /media/sf_Bilder/2020-09-Lyon/2020-09-Lyon-005.arw
+            if (count($data) === 2) {
+                $files[1] = $data[1]['File'];   // e.g. /media/sf_Bilder/2020-09-Lyon/2020-09-Lyon-005.xmp
+            } else {
+                unset($files[1]);
+                $data[1] = [];
+            }
             unset($data[0]['File'], $data[1]['File']);
             $data = array_merge($data[0], $data[1]);
             $data['Files'] = $files;

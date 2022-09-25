@@ -27,10 +27,12 @@ $response = null;
 
 
 // directory to sync from image root
-$dir = 'ch/2017-10-Fenalet';
-//$dir = '2017-03-Florida';
-//$dir = '2015-09-Australia';
+// $dir = 'ch/2017-10-Fenalet';
+// $dir = '2017-03-Florida';
+// $dir = '2015-09-Australia';
+$dir = '2012-04-Florida';
 $sync = new Synchronizer($db, $config);
+//$sync->updateExif($dir);
 $sync->updateXmp($dir);
 
 

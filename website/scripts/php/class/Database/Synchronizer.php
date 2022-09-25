@@ -9,6 +9,7 @@ use PhotoDatabase\Iterator\FilterSync;
 use PhotoDatabase\Iterator\PhotoDbDirectoryIterator;
 use RecursiveIteratorIterator;
 use stdClass;
+use PhotoDatabase\Iterator\FileInfoImage;
 
 
 /**
@@ -48,18 +49,18 @@ class Synchronizer
 
         // get and filter images to sync from filesystem
         $dir = $this->pathImagesOriginal.'/'.$dir;
-        $files = new PhotoDbDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS, $imagesDb, $this->pathImagesOriginal);
-        $files->setInfoClass('\PhotoDatabase\Iterator\FileInfoImage');
-        $filteredFiles = new FilterSync($files);
+        $iterator = new PhotoDbDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS, $imagesDb, $this->pathImagesOriginal);
+        $iterator->setInfoClass(FileInfoImage::class);
+        $filteredFiles = new FilterFilesXmp($iterator);
         $filteredFiles = new RecursiveIteratorIterator($filteredFiles);
 
         $exifService = ExifToolBatch::getInstance($this->pathExifTool.'/exiftool');
         foreach($filteredFiles as $fileinfo) {
             $imgId = $fileinfo->getImgId();
             $imgSrc = $fileinfo->getRealPath();
-            $exifService->add($imgSrc);
+            $exifService?->add($imgSrc);
             try {
-                $arrExif = $exifService->fetchDecoded(true);
+                $arrExif = $exifService?->fetchDecoded(true);
                 //$this->db->insertXmp($imgId, $arrExif[0]['XMP']);
                 echo "syncing $imgSrc successful<br>";
             }
@@ -85,6 +86,7 @@ class Synchronizer
         // get and filter images to sync from filesystem
         $dir = $this->pathImagesOriginal.'/'.$dir;
         $files = new PhotoDbDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS, $imagesDb, $this->pathImagesOriginal);
+        $files->setInfoClass(FileInfoImage::class);
         $filteredFiles = new FilterSyncExif($files);
         $filteredFiles = new RecursiveIteratorIterator($filteredFiles);
 
@@ -92,10 +94,10 @@ class Synchronizer
         foreach($filteredFiles as $fileinfo) {
             $imgId = $fileinfo->getImgId();
             $imgSrc = $fileinfo->getRealPath();
-            $exifService->add($imgSrc);
+            $exifService?->add($imgSrc);
             try {
-                $arrExif = $exifService->fetchDecoded(true);
-                $this->db->insertExif($imgId, $arrExif[0]['EXIF']);
+                $arrExif = $exifService?->fetchDecoded(true);
+                $this->db->upsertExif($imgId, $arrExif[0]['EXIF']);
                 echo "syncing $imgSrc successful<br>";
             }
             catch (ExifToolBatchException $exception) {
