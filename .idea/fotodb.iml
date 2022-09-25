@@ -3,7 +3,7 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/website/library/vendor/speich/websitetemplate/scripts/php" isTestSource="false" packagePrefix="WebsiteTemplate\" />
-      <sourceFolder url="file://$MODULE_DIR$/website/scripts/php/class" isTestSource="false" packagePrefix="PhotoDatabase\" />
+      <sourceFolder url="file://$MODULE_DIR$/website/library/../scripts/php/class" isTestSource="false" packagePrefix="PhotoDatabase\" />
       <excludeFolder url="file://$MODULE_DIR$/library/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/library/vendor/philharvey/exiftool" />
       <excludeFolder url="file://$MODULE_DIR$/library/vendor/speich.net/WebsiteTemplate" />
