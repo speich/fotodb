@@ -5,8 +5,8 @@ namespace PhotoDatabase\Database;
 use DOMDocument;
 use DOMElement;
 use PDO;
-use SQLite3;
 use PhotoDatabase\ExifService;
+use SQLite3;
 use stdClass;
 use function array_key_exists;
 use function count;
@@ -23,9 +23,8 @@ class Database
     public PDO $db;
     // paths are always appended to webroot ('/' or a subfolder) and start therefore with a foldername
     // and not with a slash, but end with a slash
-
-    private $folderImageOriginal;    // absolute path where image originals are stored*/
-    protected bool $hasActiveTransaction = false;    // keep track of open transactions
+    protected bool $hasActiveTransaction = false;    // absolute path where image originals are stored*/
+    private $folderImageOriginal;    // keep track of open transactions
     private string $webroot = '/';
     private $exiftool;
     private $dbPath;
@@ -77,53 +76,264 @@ class Database
     }
 
     /**
-     * Returns a properly escaped string that may be used safely in an SQL statement.
-     * @param string $string string to be escaped
-     * @return string escaped string
+     * Creates the database structure.
+     * @return void
      */
-    protected function escapeString(string $string): string
+    private function createStructure(): void
     {
-        // sqlite_escape_string is not supported in php 5.4 anymore
-        return SQLite3::escapeString($string);
-    }
-
-    /**
-     * Open transaction with a flag that you can check if it is already started.
-     * PDO whould throw an error if you opend a transaction which is already open
-     * and does not provide a means of checking status. So use this method instead
-     * together with Commit and RollBack.
-     * @return bool
-     */
-    public function beginTransaction(): bool
-    {
-        if ($this->hasActiveTransaction === true) {
-            return false;
-        }
-        $this->hasActiveTransaction = $this->db->beginTransaction();
-
-        return $this->hasActiveTransaction;
-    }
-
-    /**
-     * Comit transaction and set flag to false.
-     * @return bool
-     */
-    public function commit(): bool
-    {
-        $this->hasActiveTransaction = false;
-
-        return $this->db->commit();
-    }
-
-    /**
-     * Rollback transaction and set flag to false.
-     * @return bool
-     */
-    public function rollback(): bool
-    {
-        $this->hasActiveTransaction = false;
-
-        return $this->db->rollback();
+        $sql = 'BEGIN;
+            CREATE TABLE Countries (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
+                NameEn VARCHAR2,
+                NameDe VARCHAR2
+            );
+            
+            CREATE TABLE FilmTypes (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
+                Name VARCHAR2,
+                Code VARCHAR2
+            );
+            
+            CREATE TABLE Images (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
+                ImgFolder VARCHAR2,
+                ImgName VARCHAR2,
+                ImgDateManual VARCHAR2,
+                ImgTechInfo VARCHAR2,
+                FilmTypeId INTEGER,
+                RatingId INTEGER,
+                DateAdded INTEGER,
+                LastChange INTEGER,
+                ImgDesc VARCHAR2,
+                ImgTitle VARCHAR2,
+                Public INTEGER,
+                DatePublished INTEGER,
+                ImgDateOriginal INTEGER,
+                ImgLat FLOAT,
+                ImgLng FLOAT,
+                ShowLoc INTEGER DEFAULT 1,
+                CountryId INTEGER,
+                LicenseId INTEGER
+            );
+            
+            CREATE TABLE Exif (
+                Make VARCHAR2,
+                Model VARCHAR2,
+                ImageWidth INTEGER,
+                ImageHeight INTEGER,
+                FileSize VARCHAR2,
+                DateTimeOriginal INTEGER,
+                ExposureTime VARCHAR2,
+                FNumber INTEGER,
+                ISO INTEGER,
+                ExposureProgram VARCHAR2,
+                MeteringMode VARCHAR2,
+                Flash VARCHAR2,
+                FocusDistance NUMERIC,
+                ImgId INTEGER NOT NULL
+                    CONSTRAINT Exif_Images_Id_fk
+                        REFERENCES Images,
+                GPSLatitude FLOAT,
+                GPSLongitude FLOAT,
+                GPSAltitude INTEGER,
+                GPSAltitudeRef INTEGER,
+                LensSpec VARCHAR,
+                VibrationReduction TEXT,
+                FileType VARCHAR,
+                Lens VARCHAR,
+                FocalLength VARCHAR,
+                SyncDate TEXT DEFAULT NULL
+            );
+            
+            CREATE UNIQUE INDEX Exif_ImgId_uindex
+                ON Exif(ImgId);
+            
+            CREATE TABLE Images_Keywords (
+                ImgId INTEGER NOT NULL,
+                KeywordId INTEGER NOT NULL
+            );
+            
+            CREATE TABLE Images_Locations (
+                ImgId INTEGER,
+                LocationId INTEGER
+            );
+            
+            CREATE TABLE Images_ScientificNames (
+                ImgId INTEGER NOT NULL,
+                ScientificNameId INTEGER NOT NULL,
+                SexId INTEGER NOT NULL,
+                PRIMARY KEY (ImgId, ScientificNameId)
+            );
+            
+            CREATE TABLE Images_Themes (
+                ImgId INTEGER NOT NULL,
+                ThemeId INTEGER NOT NULL
+            );
+            
+            CREATE TABLE Images_fts_content (
+                docid INTEGER
+                    PRIMARY KEY,
+                c0ImgId,
+                c1ImgFolder,
+                c2ImgName,
+                c3ImgTitle,
+                c4ImgDesc,
+                c5Theme,
+                c6Country,
+                c7Keywords,
+                c8Locations,
+                c9CommonNames,
+                c10ScientificNames,
+                c11Subject,
+                c12Rating,
+                c13ImgTitlePrefixes,
+                c14ImgDescPrefixes,
+                c15KeywordsPrefixes,
+                c16CommonNamesPrefixes
+            );
+            
+            CREATE TABLE Images_fts_docsize (
+                docid INTEGER
+                    PRIMARY KEY,
+                size BLOB
+            );
+            
+            CREATE TABLE Images_fts_segdir (
+                level INTEGER,
+                idx INTEGER,
+                start_block INTEGER,
+                leaves_end_block INTEGER,
+                end_block INTEGER,
+                root BLOB,
+                PRIMARY KEY (level, idx)
+            );
+            
+            CREATE TABLE Images_fts_segments (
+                blockid INTEGER
+                    PRIMARY KEY,
+                block BLOB
+            );
+            
+            CREATE TABLE Images_fts_stat (
+                id INTEGER
+                    PRIMARY KEY,
+                value BLOB
+            );
+            
+            CREATE TABLE Keywords (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
+                Name VARCHAR2
+            );
+            
+            CREATE TABLE LicenseTypes (
+                Id INTEGER NOT NULL
+                    CONSTRAINT LicenseTypes_pk
+                        PRIMARY KEY AUTOINCREMENT,
+                NameEn TEXT
+            );
+            
+            CREATE TABLE Licenses (
+                Id INTEGER NOT NULL
+                    CONSTRAINT Licences_Id_pk
+                        PRIMARY KEY AUTOINCREMENT,
+                Name TEXT NOT NULL,
+                LabelEn TEXT,
+                LabelDe TEXT,
+                UrlLink TEXT,
+                UrlLogo TEXT
+            );
+            
+            CREATE TABLE Locations (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
+                Name VARCHAR(1024)
+            );
+            
+            CREATE TABLE Locations_Countries (
+                LocationId INTEGER,
+                CountryId INTEGER
+            );
+            
+            CREATE TABLE Rating (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
+                Name VARCHAR2,
+                Value INTEGER
+            );
+            
+            CREATE TABLE ScientificNames (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
+                NameDe VARCHAR2,
+                NameEn VARCHAR2,
+                NameLa VARCHAR2,
+                ThemeId INTEGER DEFAULT NULL
+            );
+            
+            CREATE TABLE Sexes (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
+                NameEn VARCHAR2,
+                NameDe VARCHAR2,
+                Symbol TEXT
+            );
+            
+            CREATE TABLE SubjectAreas (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
+                NameDe VARCHAR,
+                NameEn VARCHAR
+            );
+            
+            CREATE TABLE Themes (
+                Id INTEGER NOT NULL
+                    PRIMARY KEY,
+                NameDe VARCHAR2,
+                SubjectAreaId INTEGER,
+                NameEn VARCHAR
+            );
+            
+            CREATE TABLE Xmp (
+                ImgId INT
+                    CONSTRAINT Xmp_Images_Id_fk
+                        REFERENCES Images,
+                CropTop FLOAT,
+                CropLeft FLOAT,
+                CropBottom FLOAT,
+                CropRight FLOAT,
+                CropAngle FLOAT,
+                SyncDate TEXT DEFAULT NULL
+            );
+            
+            CREATE UNIQUE INDEX Xmp_ImgId_uindex
+                ON Xmp(ImgId);
+            
+            CREATE TABLE sqlite_master (
+                type TEXT,
+                name TEXT,
+                tbl_name TEXT,
+                rootpage INT,
+                sql TEXT
+            );
+            
+            CREATE TABLE sqlite_sequence (
+                name,
+                seq
+            );
+            
+            CREATE TABLE sqlite_stat1 (
+                tbl,
+                idx,
+                stat
+            );
+                        
+            COMMIT;';
+        $this->db->exec($sql);
+        print_r($this->db->errorInfo());
     }
 
     /**
@@ -135,31 +345,6 @@ class Database
         $parts = pathinfo($this->dbPath);
 
         return $parts['filename'];
-    }
-
-    /**
-     * Provides access to the different paths in the FotoDB project.
-     * @param string $name
-     * @return string
-     */
-    public function getPath(string $name): string
-    {
-        $path = '';
-        switch ($name) {
-            case 'WebRoot':
-                $path = $this->getWebRoot();
-                break;   // redundant, but for convenience
-            case 'Db':
-                $path = $this->dbPath;
-                break;
-            case 'Img':
-                $path = $this->pathImg;
-                break;
-            case 'ImgOriginal':
-                $path = $this->folderImageOriginal;
-        }
-
-        return $path;   // pdo functions need full path to work with subfolders on windows
     }
 
     /**
@@ -222,6 +407,228 @@ class Database
         echo $strXml;
 
         return true;
+    }
+
+    /**
+     * @return string
+     */
+    private function getWebRoot(): string
+    {
+        return $this->webroot;
+    }
+
+    /**
+     * Provides access to the different paths in the FotoDB project.
+     * @param string $name
+     * @return string
+     */
+    public function getPath(string $name): string
+    {
+        $path = '';
+        switch ($name) {
+            case 'WebRoot':
+                $path = $this->getWebRoot();
+                break;   // redundant, but for convenience
+            case 'Db':
+                $path = $this->dbPath;
+                break;
+            case 'Img':
+                $path = $this->pathImg;
+                break;
+            case 'ImgOriginal':
+                $path = $this->folderImageOriginal;
+        }
+
+        return $path;   // pdo functions need full path to work with subfolders on windows
+    }
+
+    /**
+     * Open transaction with a flag that you can check if it is already started.
+     * PDO whould throw an error if you opend a transaction which is already open
+     * and does not provide a means of checking status. So use this method instead
+     * together with Commit and RollBack.
+     * @return bool
+     */
+    public function beginTransaction(): bool
+    {
+        if ($this->hasActiveTransaction === true) {
+            return false;
+        }
+        $this->hasActiveTransaction = $this->db->beginTransaction();
+
+        return $this->hasActiveTransaction;
+    }
+
+    /**
+     * Executes the exif service and returns the read image exif and xmp data.
+     * @param string $imgSrc image name and folder
+     * @return array
+     */
+    public function getExif($imgSrc): array
+    {
+        // TODO: use https://github.com/tsmgeek/ExifTool_PHP_Stayopen
+        $img = $this->folderImageOriginal.'/'.$imgSrc;
+        $exifService = new ExifService($this->exiftool);
+
+        return $exifService->getData($img);
+    }
+
+    /**
+     * Insert or replace exif data read from image into fotodb.
+     * Returns true on success or false on failure.
+     *
+     * @param int $imgId image id
+     * @param array $exifData exif data
+     * @return bool
+     * @internal param int $img image database id
+     */
+    public function upsertExif(int $imgId, array $exifData): bool
+    {
+        // note: Scanned slides have a lot of empty exif data
+        $arrExif = $this->mapExif($exifData);
+        if (count($arrExif) > 0) {
+            $sqlTemp = '';
+            $sql = 'INSERT OR REPLACE INTO Exif (ImgId,';   // deletes row first if conflict occurs
+            foreach ($arrExif as $key => $val) {   // column names
+                $sqlTemp .= "$key,";
+            }
+            $sql .= rtrim($sqlTemp, ',').', SyncDate) VALUES (:ImgId,';
+            $sqlTemp = '';
+            foreach ($arrExif as $key => $val) {   // column data
+                if (str_contains($key, 'Date')) {
+                    if ($val !== '' && strtotime($val)) {
+                        $sqlTemp .= "'".$this->escapeString(strtotime($val))."',";
+                    } else {
+                        $sqlTemp .= 'NULL,';
+                    }
+                } else {
+                    $sqlTemp .= "'".$this->escapeString($val)."',";
+                }
+            }
+            $sql .= rtrim($sqlTemp, ',').', CURRENT_TIMESTAMP);';
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':ImgId', $imgId);
+            $stmt->execute();
+            // Use exif DateTimeOriginal also as column value in the Images table, but
+            // not in case of scanned slides which have only date of scanning.
+            if ($arrExif['Model'] !== 'Nikon SUPER COOLSCAN 5000 ED' && $arrExif['DateTimeOriginal'] !== '') {
+                $sql = 'UPDATE Images SET ImgDateOriginal = :Date WHERE Id = :ImgId';
+                $stmt = $this->db->prepare($sql);
+                $stmt->bindParam(':ImgId', $imgId);
+                $stmt->bindParam(':Date', strtotime($arrExif['DateTimeOriginal']));
+                $stmt->execute();
+            }
+            if ($arrExif['GPSLatitude'] !== '') {
+                $sql = 'UPDATE Images SET ImgLat = :lat, ImgLng = :lng WHERE Id = :imgId';
+                $stmt = $this->db->prepare($sql);
+                $stmt->bindParam(':imgId', $imgId);
+                $stmt->bindParam(':lat', $arrExif['GPSLatitude']);
+                $stmt->bindParam(':lng', $arrExif['GPSLongitude']);
+                $stmt->execute();
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Map exif data to an array with keys matching database columns to insert data into.
+     * Depending on the type, either image data from the original image is read (other analog directory)
+     * or exif data from the effectively selected image is used.
+     * @param array $arrExif
+     * @return array
+     */
+    public function mapExif($arrExif): array
+    {
+        $data = [];
+        $data['ImageWidth'] = $arrExif['XMP']['ImageWidth'] ?? $arrExif['EXIF']['ImageWidth'];    // exif does not report correct image size
+        $data['ImageHeight'] = $arrExif['XMP']['ImageHeight'] ?? $arrExif['EXIF']['ImageHeight'];
+        $data['DateTimeOriginal'] = array_key_exists('DateTimeOriginal', $arrExif['EXIF']) ? $arrExif['EXIF']['DateTimeOriginal'] : '';
+        $data['ExposureTime'] = array_key_exists('ExposureTime', $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureTime'] : '';
+        $data['FNumber'] = array_key_exists('FNumber', $arrExif['EXIF']) ? $arrExif['EXIF']['FNumber'] : '';
+        $data['ISO'] = array_key_exists('ISO', $arrExif['EXIF']) ? $arrExif['EXIF']['ISO'] : '';
+        $data['ExposureProgram'] = array_key_exists('ExposureProgram', $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureProgram'] : '';
+        $data['MeteringMode'] = array_key_exists('MeteringMode', $arrExif['EXIF']) ? $arrExif['EXIF']['MeteringMode'] : '';
+        $data['Flash'] = array_key_exists('Flash', $arrExif['EXIF']) ? $arrExif['EXIF']['Flash'] : '';
+        $data['FocusDistance'] = array_key_exists('FocusDistance', $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['FocusDistance'] : '';
+        if (array_key_exists('GPSPosition', $arrExif['EXIF'])) {
+            $arr = explode(',', $arrExif['EXIF']['GPSPosition']);
+            $data['GPSLatitude'] = str_replace('+', '', $arr[0]);
+            $data['GPSLongitude'] = str_replace('+', '', $arr[1]);
+        } elseif (array_key_exists('GPSLatitude', $arrExif['EXIF'])) {
+            $data['GPSLatitude'] = $arrExif['EXIF']['GPSLatitudeRef'] === 'South' ? abs($arrExif['EXIF']['GPSLatitude']) * -1 : $arrExif['EXIF']['GPSLatitude'];
+            $data['GPSLongitude'] = $arrExif['EXIF']['GPSLongitudeRef'] === 'West' ? abs(
+                    $arrExif['EXIF']['GPSLongitude']
+                ) * -1 : $arrExif['EXIF']['GPSLongitude'];
+        } else {
+            $data['GPSLatitude'] = '';
+            $data['GPSLongitude'] = '';
+        }
+        $data['GPSAltitude'] = array_key_exists('GPSAltitude', $arrExif['EXIF']) ? $arrExif['EXIF']['GPSAltitude'] : '';
+        $data['GPSAltitudeRef'] = array_key_exists('GPSAltitudeRef', $arrExif['EXIF']) ? $arrExif['EXIF']['GPSAltitudeRef'] : '';
+        $data['VibrationReduction'] = array_key_exists('VibrationReduction', $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['VibrationReduction'] : '';
+        foreach ($arrExif['Files'] as $file) {
+            if (strtolower($file['FileType']) !== 'xmp') {
+                $data['FileType'] = $file['FileType'];
+                $data['FileSize'] = $file['FileSize'];
+            }
+        }
+        $data['Lens'] = array_key_exists('Lens', $arrExif['EXIF']) ? $arrExif['EXIF']['Lens'] : '';
+        $data['LensSpec'] = array_key_exists('LensSpec', $arrExif['EXIF']) ? $arrExif['EXIF']['LensSpec'] : '';
+        if ($data['LensSpec'] === '') {
+            $data['LensSpec'] = array_key_exists('LensID', $arrExif['Composite']) ? $arrExif['Composite']['LensID'] : '';
+        }
+        $data['FocalLength'] = array_key_exists('FocalLength', $arrExif['EXIF']) ? $arrExif['EXIF']['FocalLength'] : '';
+        $data['Make'] = array_key_exists('Make', $arrExif['EXIF']) ? $arrExif['EXIF']['Make'] : 'Nikon';
+        $data['Model'] = array_key_exists('Model', $arrExif['EXIF']) ? $arrExif['EXIF']['Model'] : 'Nikon SUPER COOLSCAN 5000 ED';
+
+        return $data;
+    }
+
+    /**
+     * Returns a properly escaped string that may be used safely in an SQL statement.
+     * @param string $string string to be escaped
+     * @return string escaped string
+     */
+    protected function escapeString(string $string): string
+    {
+        // sqlite_escape_string is not supported in php 5.4 anymore
+        return SQLite3::escapeString($string);
+    }
+
+    /**
+     * Insert or replace XMP data into the database.
+     * Inserts Adobe Lightroom XMP crop information into the table Xmp.
+     * @param int $imgId image id
+     * @param array $exifData
+     * @return bool
+     */
+    public function upsertXmp(int $imgId, array $exifData): bool
+    {
+        $sql = 'INSERT OR REPLACE INTO Xmp (ImgId, CropTop, CropLeft, CropBottom, CropRight, CropAngle, SyncDate) 
+            VALUES (:imgId, :cropTop, :cropLeft, :cropBottom, :cropRight, :cropAngle, CURRENT_TIMESTAMP)';
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':imgId', $imgId);
+        $stmt->bindParam(':cropTop', $exifData['CropTop']);
+        $stmt->bindParam(':cropLeft', $exifData['CropLeft']);
+        $stmt->bindParam(':cropBottom', $exifData['CropBottom']);
+        $stmt->bindParam(':cropRight', $exifData['CropRight']);
+        $stmt->bindParam(':cropAngle', $exifData['CropAngle']);
+
+        return $stmt->execute();
+    }
+
+    /**
+     * Comit transaction and set flag to false.
+     * @return bool
+     */
+    public function commit(): bool
+    {
+        $this->hasActiveTransaction = false;
+
+        return $this->db->commit();
     }
 
     /**
@@ -347,7 +754,7 @@ class Database
             $sql .= ' '.$this->escapeString($attr->nodeName)." = :Val$count,";
             $count++;
         }
-        $sql = rtrim($sql, ',');
+        $sql .= ', LastChange='.time().', LicenseId=2';
         $sql .= ' WHERE Id = :imgId';
         $stmt = $this->db->prepare($sql);
         $count = 0;
@@ -520,6 +927,17 @@ class Database
     }
 
     /**
+     * Rollback transaction and set flag to false.
+     * @return bool
+     */
+    public function rollback(): bool
+    {
+        $this->hasActiveTransaction = false;
+
+        return $this->db->rollback();
+    }
+
+    /**
      * Delete image data from database.
      *
      * @param integer $imgId image id
@@ -564,28 +982,6 @@ class Database
     }
 
     /**
-     * Insert or replace XMP data into the database.
-     * Inserts Adobe Lightroom XMP crop information into the table Xmp.
-     * @param int $imgId image id
-     * @param array $exifData
-     * @return bool
-     */
-    public function upsertXmp(int $imgId, array $exifData): bool
-    {
-        $sql = 'INSERT OR REPLACE INTO Xmp (ImgId, CropTop, CropLeft, CropBottom, CropRight, CropAngle, SyncDate) 
-            VALUES (:imgId, :cropTop, :cropLeft, :cropBottom, :cropRight, :cropAngle, CURRENT_TIMESTAMP)';
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':imgId', $imgId);
-        $stmt->bindParam(':cropTop', $exifData['CropTop']);
-        $stmt->bindParam(':cropLeft', $exifData['CropLeft']);
-        $stmt->bindParam(':cropBottom', $exifData['CropBottom']);
-        $stmt->bindParam(':cropRight', $exifData['CropRight']);
-        $stmt->bindParam(':cropAngle', $exifData['CropAngle']);
-
-        return $stmt->execute();
-    }
-
-    /**
      * Returns the image name and folder.
      * @param int $imgId image id
      * @return string
@@ -599,80 +995,6 @@ class Database
         $row = $stmt->fetch();
 
         return $row['ImgFolder'].'/'.$row['ImgName'];
-    }
-
-    /**
-     * Executes the exif service and returns the read image exif and xmp data.
-     * @param string $imgSrc image name and folder
-     * @return array
-     */
-    public function getExif($imgSrc): array
-    {
-        // TODO: use https://github.com/tsmgeek/ExifTool_PHP_Stayopen
-        $img = $this->folderImageOriginal.'/'.$imgSrc;
-        $exifService = new ExifService($this->exiftool);
-
-        return $exifService->getData($img);
-    }
-
-    /**
-     * Insert or replace exif data read from image into fotodb.
-     * Returns true on success or false on failure.
-     *
-     * @param int $imgId image id
-     * @param array $exifData exif data
-     * @return bool
-     * @internal param int $img image database id
-     */
-    public function upsertExif(int $imgId, array $exifData): bool
-    {
-        // note: Scanned slides have a lot of empty exif data
-        $arrExif = $this->mapExif($exifData);
-        if (count($arrExif) > 0) {
-            $sqlTemp = '';
-            $sql = 'INSERT OR REPLACE INTO Exif (ImgId,';   // deletes row first if conflict occurs
-            foreach ($arrExif as $key => $val) {   // column names
-                $sqlTemp .= "$key,";
-            }
-            $sql .= rtrim($sqlTemp, ',').', SyncDate) VALUES (:ImgId,';
-            $sqlTemp = '';
-            foreach ($arrExif as $key => $val) {   // column data
-                if (str_contains($key, 'Date')) {
-                    if ($val !== '' && strtotime($val)) {
-                        $sqlTemp .= "'".$this->escapeString(strtotime($val))."',";
-                    } else {
-                        $sqlTemp .= 'NULL,';
-                    }
-                } else {
-                    $sqlTemp .= "'".$this->escapeString($val)."',";
-                }
-            }
-            $sql .= rtrim($sqlTemp, ',').', CURRENT_TIMESTAMP);';
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':ImgId', $imgId);
-            $stmt->execute();
-            // Use exif DateTimeOriginal also as column value in the Images table, but
-            // not in case of scanned slides which have only date of scanning.
-            if ($arrExif['Model'] !== 'Nikon SUPER COOLSCAN 5000 ED' && $arrExif['DateTimeOriginal'] !== '') {
-                $sql = 'UPDATE Images SET ImgDateOriginal = :Date WHERE Id = :ImgId';
-                $stmt = $this->db->prepare($sql);
-                $stmt->bindParam(':ImgId', $imgId);
-                $stmt->bindParam(':Date', strtotime($arrExif['DateTimeOriginal']));
-                $stmt->execute();
-            }
-            if ($arrExif['GPSLatitude'] !== '') {
-                $sql = 'UPDATE Images SET ImgLat = :lat, ImgLng = :lng WHERE Id = :imgId';
-                $stmt = $this->db->prepare($sql);
-                $stmt->bindParam(':imgId', $imgId);
-                $stmt->bindParam(':lat', $arrExif['GPSLatitude']);
-                $stmt->bindParam(':lng', $arrExif['GPSLongitude']);
-                $stmt->execute();
-            }
-
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -779,324 +1101,5 @@ class Database
         }
 
         return null;
-    }
-
-    /**
-     * Map exif data to an array with keys matching database columns to insert data into.
-     * Depending on the type, either image data from the original image is read (other analog directory)
-     * or exif data from the effectively selected image is used.
-     * @param array $arrExif
-     * @return array
-     */
-    public function mapExif($arrExif): array
-    {
-        $data = [];
-        $data['ImageWidth'] = $arrExif['XMP']['ImageWidth'] ?? $arrExif['EXIF']['ImageWidth'];    // exif does not report correct image size
-        $data['ImageHeight'] = $arrExif['XMP']['ImageHeight'] ?? $arrExif['EXIF']['ImageHeight'];
-        $data['DateTimeOriginal'] = array_key_exists('DateTimeOriginal', $arrExif['EXIF']) ? $arrExif['EXIF']['DateTimeOriginal'] : '';
-        $data['ExposureTime'] = array_key_exists('ExposureTime', $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureTime'] : '';
-        $data['FNumber'] = array_key_exists('FNumber', $arrExif['EXIF']) ? $arrExif['EXIF']['FNumber'] : '';
-        $data['ISO'] = array_key_exists('ISO', $arrExif['EXIF']) ? $arrExif['EXIF']['ISO'] : '';
-        $data['ExposureProgram'] = array_key_exists('ExposureProgram', $arrExif['EXIF']) ? $arrExif['EXIF']['ExposureProgram'] : '';
-        $data['MeteringMode'] = array_key_exists('MeteringMode', $arrExif['EXIF']) ? $arrExif['EXIF']['MeteringMode'] : '';
-        $data['Flash'] = array_key_exists('Flash', $arrExif['EXIF']) ? $arrExif['EXIF']['Flash'] : '';
-        $data['FocusDistance'] = array_key_exists('FocusDistance', $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['FocusDistance'] : '';
-        if (array_key_exists('GPSPosition', $arrExif['EXIF'])) {
-            $arr = explode(',', $arrExif['EXIF']['GPSPosition']);
-            $data['GPSLatitude'] = str_replace('+', '', $arr[0]);
-            $data['GPSLongitude'] = str_replace('+', '', $arr[1]);
-        } elseif (array_key_exists('GPSLatitude', $arrExif['EXIF'])) {
-            $data['GPSLatitude'] = $arrExif['EXIF']['GPSLatitudeRef'] === 'South' ? abs($arrExif['EXIF']['GPSLatitude']) * -1 : $arrExif['EXIF']['GPSLatitude'];
-            $data['GPSLongitude'] = $arrExif['EXIF']['GPSLongitudeRef'] === 'West' ? abs(
-                    $arrExif['EXIF']['GPSLongitude']
-                ) * -1 : $arrExif['EXIF']['GPSLongitude'];
-        } else {
-            $data['GPSLatitude'] = '';
-            $data['GPSLongitude'] = '';
-        }
-        $data['GPSAltitude'] = array_key_exists('GPSAltitude', $arrExif['EXIF']) ? $arrExif['EXIF']['GPSAltitude'] : '';
-        $data['GPSAltitudeRef'] = array_key_exists('GPSAltitudeRef', $arrExif['EXIF']) ? $arrExif['EXIF']['GPSAltitudeRef'] : '';
-        $data['VibrationReduction'] = array_key_exists('VibrationReduction', $arrExif['MakerNotes']) ? $arrExif['MakerNotes']['VibrationReduction'] : '';
-        foreach ($arrExif['Files'] as $file) {
-            if (strtolower($file['FileType']) !== 'xmp') {
-                $data['FileType'] = $file['FileType'];
-                $data['FileSize'] = $file['FileSize'];
-            }
-        }
-        $data['Lens'] = array_key_exists('Lens', $arrExif['EXIF']) ? $arrExif['EXIF']['Lens'] : '';
-        $data['LensSpec'] = array_key_exists('LensSpec', $arrExif['EXIF']) ? $arrExif['EXIF']['LensSpec'] : '';
-        if ($data['LensSpec'] === '') {
-            $data['LensSpec'] = array_key_exists('LensID', $arrExif['Composite']) ? $arrExif['Composite']['LensID'] : '';
-        }
-        $data['FocalLength'] = array_key_exists('FocalLength', $arrExif['EXIF']) ? $arrExif['EXIF']['FocalLength'] : '';
-        $data['Make'] = array_key_exists('Make', $arrExif['EXIF']) ? $arrExif['EXIF']['Make'] : 'Nikon';
-        $data['Model'] = array_key_exists('Model', $arrExif['EXIF']) ? $arrExif['EXIF']['Model'] : 'Nikon SUPER COOLSCAN 5000 ED';
-
-        return $data;
-    }
-
-    /**
-     * Creates the database structure.
-     * @return void
-     */
-    private function createStructure(): void
-    {
-        $sql = 'BEGIN;
-            CREATE TABLE Countries (
-                Id INTEGER NOT NULL
-                    PRIMARY KEY,
-                NameEn VARCHAR2,
-                NameDe VARCHAR2
-            );
-            
-            CREATE TABLE FilmTypes (
-                Id INTEGER NOT NULL
-                    PRIMARY KEY,
-                Name VARCHAR2,
-                Code VARCHAR2
-            );
-            
-            CREATE TABLE Images (
-                Id INTEGER NOT NULL
-                    PRIMARY KEY,
-                ImgFolder VARCHAR2,
-                ImgName VARCHAR2,
-                ImgDateManual VARCHAR2,
-                ImgTechInfo VARCHAR2,
-                FilmTypeId INTEGER,
-                RatingId INTEGER,
-                DateAdded INTEGER,
-                LastChange INTEGER,
-                ImgDesc VARCHAR2,
-                ImgTitle VARCHAR2,
-                Public INTEGER,
-                DatePublished INTEGER,
-                ImgDateOriginal INTEGER,
-                ImgLat FLOAT,
-                ImgLng FLOAT,
-                ShowLoc INTEGER DEFAULT 1,
-                CountryId INTEGER
-            );
-            
-            CREATE TABLE Exif (
-                Make VARCHAR2,
-                Model VARCHAR2,
-                ImageWidth INTEGER,
-                ImageHeight INTEGER,
-                FileSize VARCHAR2,
-                DateTimeOriginal INTEGER,
-                ExposureTime VARCHAR2,
-                FNumber INTEGER,
-                ISO INTEGER,
-                ExposureProgram VARCHAR2,
-                MeteringMode VARCHAR2,
-                Flash VARCHAR2,
-                FocusDistance NUMERIC,
-                ImgId INTEGER NOT NULL
-                    CONSTRAINT Exif_Images_Id_fk
-                        REFERENCES Images,
-                GPSLatitude FLOAT,
-                GPSLongitude FLOAT,
-                GPSAltitude INTEGER,
-                GPSAltitudeRef INTEGER,
-                LensSpec VARCHAR,
-                VibrationReduction TEXT,
-                FileType VARCHAR,
-                Lens VARCHAR,
-                FocalLength VARCHAR,
-                SyncDate TEXT DEFAULT NULL
-            );
-            
-            CREATE UNIQUE INDEX Exif_ImgId_uindex
-                ON Exif(ImgId);
-            
-            CREATE TABLE Images_Keywords (
-                ImgId INTEGER NOT NULL,
-                KeywordId INTEGER NOT NULL
-            );
-            
-            CREATE TABLE Images_Locations (
-                ImgId INTEGER,
-                LocationId INTEGER
-            );
-            
-            CREATE TABLE Images_ScientificNames (
-                ImgId INTEGER NOT NULL,
-                ScientificNameId INTEGER NOT NULL,
-                SexId INTEGER NOT NULL,
-                PRIMARY KEY (ImgId, ScientificNameId)
-            );
-            
-            CREATE TABLE Images_Themes (
-                ImgId INTEGER NOT NULL,
-                ThemeId INTEGER NOT NULL
-            );
-            
-            CREATE TABLE Images_fts_content (
-                docid INTEGER
-                    PRIMARY KEY,
-                c0ImgId,
-                c1ImgFolder,
-                c2ImgName,
-                c3ImgTitle,
-                c4ImgDesc,
-                c5Theme,
-                c6Country,
-                c7Keywords,
-                c8Locations,
-                c9CommonNames,
-                c10ScientificNames,
-                c11Subject,
-                c12Rating,
-                c13ImgTitlePrefixes,
-                c14ImgDescPrefixes,
-                c15KeywordsPrefixes,
-                c16CommonNamesPrefixes
-            );
-            
-            CREATE TABLE Images_fts_docsize (
-                docid INTEGER
-                    PRIMARY KEY,
-                size BLOB
-            );
-            
-            CREATE TABLE Images_fts_segdir (
-                level INTEGER,
-                idx INTEGER,
-                start_block INTEGER,
-                leaves_end_block INTEGER,
-                end_block INTEGER,
-                root BLOB,
-                PRIMARY KEY (level, idx)
-            );
-            
-            CREATE TABLE Images_fts_segments (
-                blockid INTEGER
-                    PRIMARY KEY,
-                block BLOB
-            );
-            
-            CREATE TABLE Images_fts_stat (
-                id INTEGER
-                    PRIMARY KEY,
-                value BLOB
-            );
-            
-            CREATE TABLE Keywords (
-                Id INTEGER NOT NULL
-                    PRIMARY KEY,
-                Name VARCHAR2
-            );
-            
-            CREATE TABLE LicenseTypes (
-                Id INTEGER NOT NULL
-                    CONSTRAINT LicenseTypes_pk
-                        PRIMARY KEY AUTOINCREMENT,
-                NameEn TEXT
-            );
-            
-            CREATE TABLE Licenses (
-                Id INTEGER NOT NULL
-                    CONSTRAINT Licences_Id_pk
-                        PRIMARY KEY AUTOINCREMENT,
-                NameEn TEXT NOT NULL,
-                LicenseTypeId INTEGER NOT NULL
-            );
-            
-            CREATE TABLE Locations (
-                Id INTEGER NOT NULL
-                    PRIMARY KEY,
-                Name VARCHAR(1024)
-            );
-            
-            CREATE TABLE Locations_Countries (
-                LocationId INTEGER,
-                CountryId INTEGER
-            );
-            
-            CREATE TABLE Rating (
-                Id INTEGER NOT NULL
-                    PRIMARY KEY,
-                Name VARCHAR2,
-                Value INTEGER
-            );
-            
-            CREATE TABLE ScientificNames (
-                Id INTEGER NOT NULL
-                    PRIMARY KEY,
-                NameDe VARCHAR2,
-                NameEn VARCHAR2,
-                NameLa VARCHAR2,
-                ThemeId INTEGER DEFAULT NULL
-            );
-            
-            CREATE TABLE Sexes (
-                Id INTEGER NOT NULL
-                    PRIMARY KEY,
-                NameEn VARCHAR2,
-                NameDe VARCHAR2,
-                Symbol TEXT
-            );
-            
-            CREATE TABLE SubjectAreas (
-                Id INTEGER NOT NULL
-                    PRIMARY KEY,
-                NameDe VARCHAR,
-                NameEn VARCHAR
-            );
-            
-            CREATE TABLE Themes (
-                Id INTEGER NOT NULL
-                    PRIMARY KEY,
-                NameDe VARCHAR2,
-                SubjectAreaId INTEGER,
-                NameEn VARCHAR
-            );
-            
-            CREATE TABLE Xmp (
-                ImgId INT
-                    CONSTRAINT Xmp_Images_Id_fk
-                        REFERENCES Images,
-                CropTop FLOAT,
-                CropLeft FLOAT,
-                CropBottom FLOAT,
-                CropRight FLOAT,
-                CropAngle FLOAT,
-                SyncDate TEXT DEFAULT NULL
-            );
-            
-            CREATE UNIQUE INDEX Xmp_ImgId_uindex
-                ON Xmp(ImgId);
-            
-            CREATE TABLE sqlite_master (
-                type TEXT,
-                name TEXT,
-                tbl_name TEXT,
-                rootpage INT,
-                sql TEXT
-            );
-            
-            CREATE TABLE sqlite_sequence (
-                name,
-                seq
-            );
-            
-            CREATE TABLE sqlite_stat1 (
-                tbl,
-                idx,
-                stat
-            );
-                        
-            COMMIT;';
-        $this->db->exec($sql);
-        print_r($this->db->errorInfo());
-    }
-
-    /**
-     * @return string
-     */
-    private function getWebRoot(): string
-    {
-        return $this->webroot;
     }
 }
