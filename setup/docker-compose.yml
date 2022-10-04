@@ -1,19 +1,30 @@
 version: '3'
 services:
-  fotodb:
-    # image: 'php:7.3-apache-ssl'
+  webserver:
     build:
-      context: .
-      dockerfile: ./Dockerfile
+      context: ./apache2
+      dockerfile: Dockerfile
+    container_name: apache2
     ports:
       - "80:80"
       - "443:443"
-    environment:
-      APP_ENV: development
-      APACHE_RUN_USER: apache-www-volume
-      APACHE_RUN_GROUP: apache-www-volume
-      XDEBUG_CONFIG: remote_host=ERITHACUS
     volumes:
-    - ../website:/var/www/html/fotodb # do not mount complete project folder into /var/www/html/fotodb only folder containing the website
-    - ~/Websites/speich.net:/var/www/html/speich.net
-    - /media/simon/IMAGES/Bilder:/media/sf_Bilder
+      - ./apache2/fotodb.conf:/etc/apache2/sites-enabled/fotodb.conf
+      - ../website:/var/www/html/fotodb
+    networks:
+      frontend:
+      backend:
+  php:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    container_name: php
+    volumes:
+      - .php/php.ini:/usr/local/etc/php/conf.d/php.ini
+      - ./php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ../website:/var/www/html/fotodb
+    networks:
+      backend:
+networks:
+  frontend:
+  backend:
