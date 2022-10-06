@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=fotodb
+Exec=sh -c "docker compose -f ~/Websites/fotodb/setup/docker-compose.yml up -d; firefox https://fotodb.test/info.php"
+Comment=
+Terminal=true
+Icon=cinnamon-panel-launcher
+Type=Application
