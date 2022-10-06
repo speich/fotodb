@@ -6,8 +6,8 @@ services:
       dockerfile: Dockerfile
     container_name: apache2
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
     volumes:
       - ./apache2/fotodb.conf:/etc/apache2/sites-enabled/fotodb.conf
       - ../website:/var/www/html/fotodb
@@ -25,6 +25,8 @@ services:
       - ../website:/var/www/html/fotodb
     networks:
       backend:
+    depends_on:
+      - webserver
 networks:
   frontend:
   backend:
