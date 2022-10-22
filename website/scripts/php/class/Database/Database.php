@@ -754,7 +754,7 @@ class Database
             $sql .= ' '.$this->escapeString($attr->nodeName)." = :Val$count,";
             $count++;
         }
-        $sql .= ', LastChange='.time().', LicenseId=2';
+        $sql .= ' LastChange='.time().', LicenseId=2';
         $sql .= ' WHERE Id = :imgId';
         $stmt = $this->db->prepare($sql);
         $count = 0;
