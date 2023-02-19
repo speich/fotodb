@@ -16,7 +16,7 @@ $filmType->setSelected('10');
 $q = $db->db->query('SELECT * FROM Rating ORDER BY Name ASC');
 $rating = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'RatingId');
 $rating->setDefaultVal(false);
-$rating->setSelected('2');
+$rating->setSelected(2);
 
 $q = $db->db->query('SELECT * FROM Themes ORDER BY NameDe ASC');
 $theme = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'Theme');
@@ -31,7 +31,8 @@ $location->setDefaultVal(false);
 
 $q = $db->db->query('SELECT Id, NameDe FROM Sexes ORDER BY NameDe ASC');
 $speciesSex = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'SpeciesSexId');
-$speciesSex->setSelected('4');
+$speciesSex->setDefaultVal(false);
+$speciesSex->setSelected(4);
 ?>
 <!DOCTYPE html>
 <head>
