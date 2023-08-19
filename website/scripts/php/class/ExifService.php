@@ -56,11 +56,18 @@ class ExifService
         $imgInfo = new FileInfoImage($img);
         $pathRaw = $imgInfo->getRealPathRaw();
         $pathXmp = $imgInfo->getRealPathXmp();   // dng files do not have a sidecar xml, so this will be null
+        if ($pathRaw === null) {
+            // maybe we have a virtual copy, e.g. myPhoto-002-2.jpg instead of myPhoto-002.jpg
+            $virtCopy = preg_replace('/(-\d+)(-\d)(\.\D+$)/', '$1$3', $img);
+            if ($virtCopy !== null && $virtCopy !== $img) {
+                return $this->getData($virtCopy);
+            }
+        }
         $files = [];
-
-        $exifService = ExifToolBatch::getInstance($this->exiftool.'/exiftool', $this->exiftoolParams);
         $files[] = $pathRaw;
         $files[] = $pathXmp;
+
+        $exifService = ExifToolBatch::getInstance($this->exiftool.'/exiftool', $this->exiftoolParams);
         $exifService?->add($files);
         try {
             $data = $exifService?->fetchAllDecoded(true);
