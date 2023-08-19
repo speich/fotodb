@@ -121,7 +121,7 @@ class FileInfoImage extends SplFileInfo
      * e.g. /media/sf_Bilder/2020-09-Lyon/2020-09-Lyon-005.arw or /media/sf_Bilder/2020-09-Lyon/2020-09-Lyon-005.ARW
      * @param string $path real path without extension
      * @param string $ext file extension to check against
-     * @return string|null full file path
+     * @return string|null full file path including extension
      */
     private function getRealPathCI(string $path, string $ext): ?string
     {
