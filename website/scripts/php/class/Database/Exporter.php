@@ -128,7 +128,7 @@ class Exporter extends Database
         foreach ($arrData as $row) {
             $destImg = $this->pathTargetImages.'/'.$row['Img'];
             // copy image
-            if ($row['Public'] === '1') {
+            if ($row['Public'] === 1) {
                 $dir = $this->pathTargetImages.'/'.$row['ImgFolder'];
                 $this->createImgDirectories($dir);
                 $srcImg = __DIR__.'/../../../../dbprivate/images/'.$row['Img'];
