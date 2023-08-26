@@ -160,12 +160,16 @@ class Exporter extends Database
     private function createImgDirectories(string $dir): void
     {
         if (!is_dir($dir)) {
-            if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
-                throw new RuntimeException('creating directory '.$dir.' failed.');
+            $created = mkdir($dir, 0755, true);
+            if (!$created) {
+                throw new RuntimeException('creating directory '.$dir.' failed.<br>');
             }
-            $dirThumbnails = str_replace('/images/', '/images/thumbs/', $dir);
-            if (!mkdir($dirThumbnails, 0777, true) && !is_dir($dirThumbnails)) {
-                throw new RuntimeException('Creating thumbnails directory '.$dir.' failed.');
+        }
+        $dirThumbnails = str_replace('/images/', '/images/thumbs/', $dir);
+        if (!is_dir($dirThumbnails)) {
+            $created = mkdir($dirThumbnails, 0755, true);
+            if (!$created) {
+                throw new RuntimeException('Creating thumbnails directory '.$dir.' failed.<br>');
             }
         }
     }
