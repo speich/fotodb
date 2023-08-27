@@ -369,17 +369,7 @@ class Database
         $imgId = $this->db->lastInsertId();
         $imgSrc = $imgFolder.'/'.$imgName;
         // insert exif data
-        $exifData = $this->getExif($imgSrc);
-        if (!$this->upsertExif($imgId, $exifData)) {
-            echo 'failed';
-
-            return false;
-        }
-        if (array_key_exists('XMP', $exifData) && !$this->upsertXmp($imgId, $exifData['XMP'])) {
-            echo 'failed';
-
-            return false;
-        }
+        $this->handleExif($imgId, $imgSrc);
         $sql = 'SELECT Id, ImgFolder, ImgName, ImgDateManual, ImgTechInfo, FilmTypeId, RatingId,
 			DateAdded, LastChange, ImgDesc,	ImgTitle, Public, DatePublished, ImgDateOriginal, ImgLat, ImgLng, ShowLoc, CountryId
 			FROM Images WHERE Id = :ImgId';
@@ -460,11 +450,37 @@ class Database
     }
 
     /**
+     * Insert or update EXIF und XMP data.
+     * @param int $imgId image id
+     * @param string $imgSrc image source (path)
+     * @return bool
+     */
+    private function handleExif(int $imgId, string $imgSrc): bool
+    {
+        $exifData = $this->getExif($imgSrc);
+        if ($exifData !== false && count($exifData) > 0) {
+            if (!$this->upsertExif($imgId, $exifData)) {
+                echo 'inserting Exif data failed';
+
+                return false;
+            }
+            if (array_key_exists('XMP', $exifData) && !$this->upsertXmp($imgId, $exifData['XMP'])) {
+                echo 'inserting XMP data failed';
+
+                return false;
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Executes the exif service and returns the read image exif and xmp data.
      * @param string $imgSrc image name and folder
      * @return array
      */
-    public function getExif($imgSrc): array
+    public function getExif(string $imgSrc): false|array
     {
         // TODO: use https://github.com/tsmgeek/ExifTool_PHP_Stayopen
         $img = $this->folderImageOriginal.'/'.$imgSrc;
