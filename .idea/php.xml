@@ -7,6 +7,16 @@
       <MessDetectorConfiguration tool_path="C:/Program Files (x86)/PHP/phpmd" />
     </phpmd_settings>
   </component>
+  <component name="MessDetectorOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PHPCSFixerOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PHPCodeSnifferOptionsConfiguration">
+    <option name="codingStandard" />
+    <option name="transferred" value="true" />
+  </component>
   <component name="PhpCodeSniffer">
     <phpcs_settings>
       <phpcs_by_interpreter interpreter_id="a08b2a07-7232-41ea-b1a2-cbad45fd829c" standards="MySource;PEAR;PSR1;PSR2;Squiz;Zend" tool_path="/usr/bin/phpcs" />
@@ -18,47 +28,45 @@
   <component name="PhpIncludePathManager">
     <include_path>
       <path value="$PROJECT_DIR$/website/library/vendor/composer" />
-      <path value="$PROJECT_DIR$/website/library/vendor/philharvey/exiftool" />
-      <path value="$PROJECT_DIR$/website/library/vendor/tsmgeek/exif-tool_php_stayopen" />
       <path value="$PROJECT_DIR$/website/library/vendor/speich/websitetemplate" />
       <path value="$PROJECT_DIR$/website/library/vendor/vanderlee/syllable" />
       <path value="$PROJECT_DIR$/website/scripts/php" />
+      <path value="$PROJECT_DIR$/website/library/vendor/speich/websitetemplate_compare" />
+      <path value="$PROJECT_DIR$/website/library/vendor/philharvey/exiftool" />
+      <path value="$PROJECT_DIR$/website/library/vendor/tsmgeek/exif-tool_php_stayopen" />
     </include_path>
   </component>
   <component name="PhpInterpreters">
     <interpreters>
-      <interpreter id="2ca59533-b049-4eea-8514-c167c76597cc" name="php" home="docker-compose://DATA" debugger_id="php.debugger.XDebug">
-        <remote_data INTERPRETER_PATH="php" HELPERS_PATH="/opt/.phpstorm_helpers" INITIALIZED="false" VALID="true" RUN_AS_ROOT_VIA_SUDO="false" DOCKER_ACCOUNT_NAME="Docker" DOCKER_COMPOSE_SERVICE_NAME="php" DOCKER_REMOTE_PROJECT_PATH="/opt/project">
-          <type_data command="EXEC" />
-          <dockerComposeConfigurationPaths>
-            <item value="$PROJECT_DIR$/setup/docker-compose.yml" />
-          </dockerComposeConfigurationPaths>
-          <envs />
-        </remote_data>
+      <interpreter id="c4a4d6ae-7a99-425d-9948-9866117fbaa4" name="developer@192.168.1.52:22 password" home="sshConfig://DATA" auto="false" debugger_id="php.debugger.XDebug">
+        <remote_data INTERPRETER_PATH="/usr/bin/php" HELPERS_PATH="/home/developer/.phpstorm_helpers" VALID="true" RUN_AS_ROOT_VIA_SUDO="false" SSH_CONFIG_ID="e3441382-b435-42cb-85d4-502836b9b1e2" SSH_CONFIG_NAME="developer@192.168.1.52:22 password" SSH_CREDENTIALS_ID="sshConfig://developer@192.168.1.52:22 password" />
       </interpreter>
     </interpreters>
   </component>
   <component name="PhpInterpretersPhpInfoCache">
     <phpInfoCache>
-      <interpreter name="php">
-        <phpinfo binary_type="PHP" php_cli="/usr/local/bin/php" path_separator=":" version="8.1.11">
-          <additional_php_ini>/usr/local/etc/php/conf.d/docker-php-ext-enchant.ini, /usr/local/etc/php/conf.d/docker-php-ext-exif.ini, /usr/local/etc/php/conf.d/docker-php-ext-imagick.ini, /usr/local/etc/php/conf.d/docker-php-ext-intl.ini, /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini, /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini, /usr/local/etc/php/conf.d/xdebug.ini</additional_php_ini>
-          <configuration_file />
+      <interpreter name="developer@192.168.1.52:22 password">
+        <phpinfo binary_type="PHP" php_cli="/usr/bin/php8.2" path_separator=":" remote_host="192.168.1.68" version="8.2.7">
+          <additional_php_ini>/etc/php/8.2/cli/conf.d/10-mysqlnd.ini, /etc/php/8.2/cli/conf.d/10-opcache.ini, /etc/php/8.2/cli/conf.d/10-pdo.ini, /etc/php/8.2/cli/conf.d/15-xml.ini, /etc/php/8.2/cli/conf.d/20-calendar.ini, /etc/php/8.2/cli/conf.d/20-ctype.ini, /etc/php/8.2/cli/conf.d/20-curl.ini, /etc/php/8.2/cli/conf.d/20-dom.ini, /etc/php/8.2/cli/conf.d/20-enchant.ini, /etc/php/8.2/cli/conf.d/20-exif.ini, /etc/php/8.2/cli/conf.d/20-ffi.ini, /etc/php/8.2/cli/conf.d/20-fileinfo.ini, /etc/php/8.2/cli/conf.d/20-ftp.ini, /etc/php/8.2/cli/conf.d/20-gd.ini, /etc/php/8.2/cli/conf.d/20-gettext.ini, /etc/php/8.2/cli/conf.d/20-iconv.ini, /etc/php/8.2/cli/conf.d/20-imagick.ini, /etc/php/8.2/cli/conf.d/20-intl.ini, /etc/php/8.2/cli/conf.d/20-mbstring.ini, /etc/php/8.2/cli/conf.d/20-mysqli.ini, /etc/php/8.2/cli/conf.d/20-pdo_mysql.ini, /etc/php/8.2/cli/conf.d/20-pdo_sqlite.ini, /etc/php/8.2/cli/conf.d/20-phar.ini, /etc/php/8.2/cli/conf.d/20-posix.ini, /etc/php/8.2/cli/conf.d/20-readline.ini, /etc/php/8.2/cli/conf.d/20-shmop.ini, /etc/php/8.2/cli/conf.d/20-simplexml.ini, /etc/php/8.2/cli/conf.d/20-sockets.ini, /etc/php/8.2/cli/conf.d/20-sqlite3.ini, /etc/php/8.2/cli/conf.d/20-sysvmsg.ini, /etc/php/8.2/cli/conf.d/20-sysvsem.ini, /etc/php/8.2/cli/conf.d/20-sysvshm.ini, /etc/php/8.2/cli/conf.d/20-tokenizer.ini, /etc/php/8.2/cli/conf.d/20-xdebug.ini, /etc/php/8.2/cli/conf.d/20-xmlreader.ini, /etc/php/8.2/cli/conf.d/20-xmlwriter.ini, /etc/php/8.2/cli/conf.d/20-xsl.ini</additional_php_ini>
+          <configuration_file>/etc/php/8.2/cli/php.ini</configuration_file>
           <configuration_options>
-            <configuration_option name="include_path" value=".:/usr/local/lib/php" />
+            <configuration_option name="include_path" value=".:/usr/share/php" />
           </configuration_options>
           <debuggers>
-            <debugger_info debugger="xdebug" debugger_version="3.1.5">
+            <debugger_info debugger="xdebug" debugger_version="3.2.0">
               <debug_extensions />
             </debugger_info>
           </debuggers>
           <loaded_extensions>
             <extension name="Core" />
+            <extension name="FFI" />
             <extension name="PDO" />
             <extension name="Phar" />
             <extension name="Reflection" />
             <extension name="SPL" />
             <extension name="SimpleXML" />
+            <extension name="Zend OPcache" />
+            <extension name="calendar" />
             <extension name="ctype" />
             <extension name="curl" />
             <extension name="date" />
@@ -68,6 +76,8 @@
             <extension name="fileinfo" />
             <extension name="filter" />
             <extension name="ftp" />
+            <extension name="gd" />
+            <extension name="gettext" />
             <extension name="hash" />
             <extension name="iconv" />
             <extension name="imagick" />
@@ -75,28 +85,38 @@
             <extension name="json" />
             <extension name="libxml" />
             <extension name="mbstring" />
+            <extension name="mysqli" />
             <extension name="mysqlnd" />
             <extension name="openssl" />
+            <extension name="pcntl" />
             <extension name="pcre" />
+            <extension name="pdo_mysql" />
             <extension name="pdo_sqlite" />
             <extension name="posix" />
+            <extension name="random" />
             <extension name="readline" />
             <extension name="session" />
+            <extension name="shmop" />
+            <extension name="sockets" />
             <extension name="sodium" />
             <extension name="sqlite3" />
             <extension name="standard" />
+            <extension name="sysvmsg" />
+            <extension name="sysvsem" />
+            <extension name="sysvshm" />
             <extension name="tokenizer" />
             <extension name="xdebug" />
             <extension name="xml" />
             <extension name="xmlreader" />
             <extension name="xmlwriter" />
+            <extension name="xsl" />
             <extension name="zlib" />
           </loaded_extensions>
         </phpinfo>
       </interpreter>
     </phpInfoCache>
   </component>
-  <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />
   <component name="PhpRuntimeConfiguration">
     <extensions>
       <extension name="Ev" enabled="false" />
@@ -113,11 +133,15 @@
       <extension name="cassandra" enabled="false" />
       <extension name="couchbase" enabled="false" />
       <extension name="cubrid" enabled="false" />
+      <extension name="curl" enabled="false" />
       <extension name="dba" enabled="false" />
       <extension name="decimal" enabled="false" />
       <extension name="dio" enabled="false" />
+      <extension name="elastic_apm" enabled="false" />
+      <extension name="enchant" enabled="false" />
       <extension name="fann" enabled="false" />
       <extension name="ffmpeg" enabled="false" />
+      <extension name="gd" enabled="false" />
       <extension name="gearman" enabled="false" />
       <extension name="geoip" enabled="false" />
       <extension name="geos" enabled="false" />
@@ -131,11 +155,13 @@
       <extension name="imap" enabled="false" />
       <extension name="inotify" enabled="false" />
       <extension name="interbase" enabled="false" />
+      <extension name="intl" enabled="false" />
       <extension name="judy" enabled="false" />
       <extension name="ldap" enabled="false" />
       <extension name="libevent" enabled="false" />
       <extension name="libsodium" enabled="false" />
       <extension name="mailparse" enabled="false" />
+      <extension name="mbstring" enabled="false" />
       <extension name="mcrypt" enabled="false" />
       <extension name="memcache" enabled="false" />
       <extension name="memcached" enabled="false" />
@@ -150,19 +176,24 @@
       <extension name="ncurses" enabled="false" />
       <extension name="newrelic" enabled="false" />
       <extension name="oauth" enabled="false" />
+      <extension name="oci8" enabled="false" />
       <extension name="odbc" enabled="false" />
       <extension name="pdflib" enabled="false" />
       <extension name="pdo_ibm" enabled="false" />
       <extension name="pdo_pgsql" enabled="false" />
+      <extension name="pdo_sqlite" enabled="false" />
       <extension name="pgsql" enabled="false" />
       <extension name="pspell" enabled="false" />
       <extension name="pthreads" enabled="false" />
       <extension name="rar" enabled="false" />
       <extension name="recode" enabled="false" />
       <extension name="redis" enabled="false" />
+      <extension name="relay" enabled="false" />
       <extension name="rrd" enabled="false" />
+      <extension name="snappy" enabled="false" />
       <extension name="snmp" enabled="false" />
       <extension name="soap" enabled="false" />
+      <extension name="sqlite3" enabled="false" />
       <extension name="sqlsrv" enabled="false" />
       <extension name="ssh2" enabled="false" />
       <extension name="suhosin" enabled="false" />
@@ -178,12 +209,19 @@
       <extension name="xmlrpc" enabled="false" />
       <extension name="yaml" enabled="false" />
       <extension name="zend" enabled="false" />
+      <extension name="zip" enabled="false" />
       <extension name="zmq" enabled="false" />
     </extensions>
   </component>
+  <component name="PhpStanOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
   <component name="PhpUnit">
     <phpunit_settings>
-      <PhpUnitSettings custom_loader_path="$PROJECT_DIR$/website/library/vendor/autoload.php" />
+      <PhpUnitSettings custom_loader_path="$PROJECT_DIR$/website/library/vendor/autoload.php" phpunit_phar_path="" />
     </phpunit_settings>
+  </component>
+  <component name="PsalmOptionsConfiguration">
+    <option name="transferred" value="true" />
   </component>
 </project>

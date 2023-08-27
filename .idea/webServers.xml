@@ -5,7 +5,7 @@
       <webServer id="73c7ce6d-daee-4451-9727-394ee10f7d9b" name="fotodb.test" url="https://fotodb.test">
         <fileTransfer rootFolder="/var/www/html/fotodb/website" accessType="SFTP" host="192.168.1.52" port="22" sshConfigId="e3441382-b435-42cb-85d4-502836b9b1e2" sshConfig="developer@192.168.1.52:22 password">
           <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" isUseRsync="true" />
           </advancedOptions>
         </fileTransfer>
       </webServer>

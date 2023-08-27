@@ -2,7 +2,7 @@
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
     <data-source source="LOCAL" name="FotoDb" uuid="deaf27d0-1049-46e0-88da-f7ca7c9eb38b">
-      <driver-ref>f6fc1b78-d020-44cf-ab4e-64b69909aac3</driver-ref>
+      <driver-ref>4c7b6f67-4fb5-4e09-a12b-fecc327dc94b</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/website/dbprivate/dbfiles/FotoDb.sqlite</jdbc-url>
@@ -25,7 +25,7 @@
       <jdbc-url>jdbc:sqlite:test.sqlite</jdbc-url>
     </data-source>
     <data-source source="LOCAL" name="fts" uuid="7940922b-9b7d-44d9-b8ac-71b18950a971">
-      <driver-ref>03dac3bf-f0c1-4904-8830-0f6f7d94c6e7</driver-ref>
+      <driver-ref>955366b3-3203-4653-b1c6-58cb935e7ea6</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/fts</jdbc-url>
