@@ -37,7 +37,7 @@ define(['dojo/_base/declare'], function(declare) {
         })
         .then(json => {
           if (json.geonames.length === 0 && radius < this.radiusMax) {
-            radius *= 2;
+            radius *= 3;
             return this.reverseGeocode(latLng, radius);
           } else {
 
