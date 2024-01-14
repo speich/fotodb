@@ -55,7 +55,7 @@ class ImagesIndexer extends Indexer
      * @param null $postfixed postfix names with 'Prefixes'
      * @return false|string[]
      */
-    private function toString(callable $fnc, $prefixed = null, $postfixed = null): array|false
+    private function toString(callable $fnc, $prefixed = null, $postfixed = null): string|false
     {
         $pattern = [];
         $replacement = [];
