@@ -133,15 +133,12 @@
       <extension name="cassandra" enabled="false" />
       <extension name="couchbase" enabled="false" />
       <extension name="cubrid" enabled="false" />
-      <extension name="curl" enabled="false" />
       <extension name="dba" enabled="false" />
       <extension name="decimal" enabled="false" />
       <extension name="dio" enabled="false" />
       <extension name="elastic_apm" enabled="false" />
-      <extension name="enchant" enabled="false" />
       <extension name="fann" enabled="false" />
       <extension name="ffmpeg" enabled="false" />
-      <extension name="gd" enabled="false" />
       <extension name="gearman" enabled="false" />
       <extension name="geoip" enabled="false" />
       <extension name="geos" enabled="false" />
@@ -155,13 +152,11 @@
       <extension name="imap" enabled="false" />
       <extension name="inotify" enabled="false" />
       <extension name="interbase" enabled="false" />
-      <extension name="intl" enabled="false" />
       <extension name="judy" enabled="false" />
       <extension name="ldap" enabled="false" />
       <extension name="libevent" enabled="false" />
       <extension name="libsodium" enabled="false" />
       <extension name="mailparse" enabled="false" />
-      <extension name="mbstring" enabled="false" />
       <extension name="mcrypt" enabled="false" />
       <extension name="memcache" enabled="false" />
       <extension name="memcached" enabled="false" />
@@ -178,10 +173,10 @@
       <extension name="oauth" enabled="false" />
       <extension name="oci8" enabled="false" />
       <extension name="odbc" enabled="false" />
+      <extension name="opentelemetry" enabled="false" />
       <extension name="pdflib" enabled="false" />
       <extension name="pdo_ibm" enabled="false" />
       <extension name="pdo_pgsql" enabled="false" />
-      <extension name="pdo_sqlite" enabled="false" />
       <extension name="pgsql" enabled="false" />
       <extension name="pspell" enabled="false" />
       <extension name="pthreads" enabled="false" />
@@ -193,7 +188,6 @@
       <extension name="snappy" enabled="false" />
       <extension name="snmp" enabled="false" />
       <extension name="soap" enabled="false" />
-      <extension name="sqlite3" enabled="false" />
       <extension name="sqlsrv" enabled="false" />
       <extension name="ssh2" enabled="false" />
       <extension name="suhosin" enabled="false" />
