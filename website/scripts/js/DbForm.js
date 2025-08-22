@@ -351,6 +351,10 @@ define([
 				this.UpdateSelectFields();	// after saving image data some select fields should be updated
 			});
 			Ajax.LoadData(PHPDbFncUrl);
+      // uncomment if you need to update the exif data of the image
+      //const img = byId(this.fotoDb.GetCurImgId());
+      //const img = byId(this.fotoDb.GetCurImgId());
+      //this.fotoDb.updateExif(img)
 		},
 
 		/**
