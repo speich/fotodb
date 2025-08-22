@@ -114,7 +114,7 @@ class Database
                 ImgDateOriginal INTEGER,
                 ImgLat FLOAT,
                 ImgLng FLOAT,
-                ShowLoc INTEGER DEFAULT 1,
+                ShowLoc INTEGER DEFAULT 0,
                 CountryId INTEGER,
                 LicenseId INTEGER
             );
@@ -1055,7 +1055,7 @@ class Database
                 $colName = (isset($_POST['ColName']) && preg_match('/^\w+$/', $_POST['ColName']) === 1) ? $_POST['ColName'] : 'NameDe';
                 $limit = (isset($_POST['count']) && preg_match('/[0-9]+/', $_POST['count']) !== false) ? $_POST['count'] : 50;
                 $offset = (isset($_POST['start']) && preg_match('/[0-9]+/', $_POST['start']) !== false) ? $_POST['start'] : 0;
-                $sql = "SELECT Id, NameDe, NameEn, NameLa, ThemeId FROM ScientificNames WHERE $colName LIKE '%'||:query||'%' LIMIT :limit OFFSET :offset";
+                $sql = "SELECT Id, NameDe, NameEn, NameLa, ThemeId FROM ScientificNames WHERE $colName LIKE '%'||:query||'%' ORDER BY $colName ASC LIMIT :limit OFFSET :offset";
                 $stmt = $this->db->prepare($sql);
                 $stmt->bindParam(':query', $query);
                 $stmt->bindParam(':limit', $limit);
