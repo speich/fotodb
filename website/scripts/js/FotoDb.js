@@ -676,7 +676,7 @@ define([
 				queryExpr: '${0}',
 				autoComplete: false,
 				invalidMessage: 'No name found.',
-				pageSize: 12,
+				pageSize: 24,
 				onKeyUp: function(evt) {
 					self.setSpeciesNames(evt, this);
 				}
@@ -688,7 +688,7 @@ define([
 				queryExpr: '${0}',
 				autoComplete: false,
 				invalidMessage: 'No name found.',
-				pageSize: 12,
+				pageSize: 24,
 				onKeyUp: function(evt) {
 					self.setSpeciesNames(evt, this);
 				}
@@ -700,7 +700,7 @@ define([
 				queryExpr: '${0}',
 				autoComplete: false,
 				invalidMessage: 'No name found.',
-				pageSize: 12,
+				pageSize: 24,
 				onKeyUp: function(evt) {
 					self.setSpeciesNames(evt, this);
 				}
