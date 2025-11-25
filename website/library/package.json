@@ -1,16 +1,16 @@
 {
   "name": "fotodb",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "dependencies": {
-    "dojo": "^1.17.2",
-    "dijit": "^1.17.2",
-    "dojox": "^1.17.2"
+    "dojo": "1.17.3",
+    "dijit": "1.17.3",
+    "dojox": "1.17.3"
   },
   "devDependencies": {
-    "copyfiles": "^2.4.1",
-    "csso-cli": "^4.0.2",
-    "rimraf": "^5.0.7",
-    "uglifyjs-folder": "^3.3.0"
+    "copyfiles": "2.4.1",
+    "csso-cli": "4.0.2",
+    "rimraf": "6.1.2",
+    "uglifyjs-folder": "3.3.0"
   },
   "scripts": {
     "dojo:del": "VERSION=$(node -p \"require('dojo/package.json').version\") && rimraf dojo/$VERSION/dojo",
@@ -27,6 +27,6 @@
     "dojox:build": "npm run dojox:del && npm run dojox:copy && npm run dojox:js",
     "cleanup": "rimraf node_modules",
     "build:keep": "npm run dojo:build && npm run dijit:build && npm run dojox:build",
-    "build": "npm run dojo:build && npm run dijit:build && npm run dojox:build && npm run cleanup"
+    "build": "npm run dojo:build && npm run dijit:build && npm run dojox:build && npm run cleanup && npm audit fix"
   }
 }
