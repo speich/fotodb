@@ -23,6 +23,6 @@
     "_dojox:del": "rimraf dojo/dojox",
     "_dojox:copy": "esbuild ./node_modules/dojox/*.js --platform=node --bundle --minify --sourcemap --external:*.js --format=cjs --outdir=./dojo/dojox & esbuild ./node_modules/dojox/**/*.js --platform=node --bundle --minify --sourcemap --external:*.js --format=cjs --outdir=./dojo/dojox",
     "dojox:build": "npm run _dojox:del && npm run _dojox:copy",
-    "build": "npm run dojo:build & npm run dijit:build & npm run dojox:build && npm audit fix"
+    "build": "npm audit fix && npm run dojo:build & npm run dijit:build & npm run dojox:build"
   }
 }
