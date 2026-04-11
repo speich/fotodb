@@ -1,13 +1,13 @@
 <?php
 
-use WebsiteTemplate\html\SelectField;
+use WebsiteTemplate\Html\SelectField;
 
 
 require_once __DIR__.'/../scripts/php/inc_script.php';
 
 $q = $db->db->query('SELECT * FROM Countries ORDER BY NameEn ASC');
 $country = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'CountryId');
-$country->setDefaultVal('Land wählen');
+$country->setDefaultText('Land wählen');
 
 $q = $db->db->query("SELECT Id, CASE WHEN Code NOT NULL THEN Name ||' ('||Code||')' ELSE Name END Name FROM FilmTypes ORDER BY Name ASC");
 $filmType = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'FilmTypeId');
@@ -15,23 +15,23 @@ $filmType->setSelected('10');
 
 $q = $db->db->query('SELECT * FROM Rating ORDER BY Name ASC');
 $rating = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'RatingId');
-$rating->setDefaultVal(false);
+$rating->setDefaultText(false);
 $rating->setSelected(2);
 
 $q = $db->db->query('SELECT * FROM Themes ORDER BY NameDe ASC');
 $theme = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'Theme');
 $theme->setMultiple();
-$theme->setDefaultVal(false);
+$theme->setDefaultText(false);
 $theme->setCssStyle('height: 200px');
 
 $q = $db->db->query('SELECT * FROM Locations ORDER BY Name ASC');
 $location = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'Location');
 $location->setMultiple();
-$location->setDefaultVal(false);
+$location->setDefaultText(false);
 
 $q = $db->db->query('SELECT Id, NameDe FROM Sexes ORDER BY NameDe ASC');
 $speciesSex = new SelectField($q->fetchAll(PDO::FETCH_NUM), 'SpeciesSexId');
-$speciesSex->setDefaultVal(false);
+$speciesSex->setDefaultText(false);
 $speciesSex->setSelected(4);
 ?>
 <!DOCTYPE html>
