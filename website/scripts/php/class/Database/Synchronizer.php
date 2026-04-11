@@ -5,6 +5,7 @@ use Exiftool\Exceptions\ExifToolBatchException;
 use Exiftool\ExifToolBatch;
 use FilesystemIterator;
 use PDO;
+use PhotoDatabase\Iterator\FilterFilesXmp;
 use PhotoDatabase\Iterator\FilterSync;
 use PhotoDatabase\Iterator\PhotoDbDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -87,7 +88,7 @@ class Synchronizer
         $dir = $this->pathImagesOriginal.'/'.$dir;
         $files = new PhotoDbDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS, $imagesDb, $this->pathImagesOriginal);
         $files->setInfoClass(FileInfoImage::class);
-        $filteredFiles = new FilterSyncExif($files);
+        $filteredFiles = new FilterSync($files);
         $filteredFiles = new RecursiveIteratorIterator($filteredFiles);
 
         $exifService = ExifToolBatch::getInstance($this->pathExifTool.'/exiftool');
