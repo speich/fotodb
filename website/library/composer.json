@@ -2,7 +2,7 @@
   "require": {
     "speich/websitetemplate": "0.*",
     "tsmgeek/exif-tool_php_stayopen": "dev-master",
-    "philharvey/exiftool": "^12.",
+    "philharvey/exiftool": "^13.53",
     "vanderlee/syllable": "^1.",
     "ext-dom": "*",
     "ext-gd": "*",
@@ -38,9 +38,9 @@
       "type": "package",
       "package": {
         "name": "philharvey/exiftool",
-        "version": "12.63",
+        "version": "13.53",
         "dist": {
-          "url": "https://exiftool.org/Image-ExifTool-12.63.tar.gz",
+          "url": "https://exiftool.org/Image-ExifTool-13.53.tar.gz",
           "type": "tar"
         }
       }
