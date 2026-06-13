@@ -329,20 +329,21 @@ define([
 		/**
 		 * Delete image data on keyup.
 		 *
-		 * @param object KeyboardEvent
+		 * @param {boolean} deleteFile also delete image from file system
 		 */
-		DelImage: function() {
+		DelImage: function(deleteFile) {
 			// TODO: this method should only be available to authenticated users (->PHP)
 			var ImgId = this.GetCurImgId();
 			if (!ImgId) {
 				alert('select an image first.');
 				return false;
 			}
-			if (confirm('delete image data?')) {
+			var msg = 'delete image data' + (deleteFile ? ' and the image file?' : '?');
+			if (confirm(msg)) {
 				var Ajax = new XmlHttp();
 				Ajax.Method = 'POST';
 				Ajax.Charset = 'UTF-8';
-				Ajax.Query = 'Fnc=Del&ImgId=' + ImgId;
+				Ajax.Query = 'Fnc=Del&ImgId=' + ImgId + (deleteFile ? '&DeleteFile=true' : '');
 				Ajax.SetLoadingFnc(this, function() {
 					this.Frm.DisableFields();
 				});
@@ -467,7 +468,7 @@ define([
 					case 'Delete':
 						evt.stopPropagation();
 						evt.preventDefault();
-						this.DelImage();
+						this.DelImage(evt.shiftKey);
 						break;
 					// ctrl + s save
 					case 's':

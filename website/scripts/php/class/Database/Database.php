@@ -957,9 +957,17 @@ class Database
      * Delete image data from database.
      *
      * @param integer $imgId image id
+     * @param bool $deleteFile also delete the image file (only the jpg)
      */
-    public function delete($imgId): void
+    public function delete($imgId, $deleteFile = false): void
     {
+        if ($deleteFile) {
+            $imgSrc = $this->getImageSrc($imgId);
+            $file = $_SERVER['DOCUMENT_ROOT'].$this->getPath('Img').'/'.$imgSrc;
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
         $this->beginTransaction();
         $sql = 'DELETE FROM Images WHERE Id = :imgId';
         $stmt = $this->db->prepare($sql);

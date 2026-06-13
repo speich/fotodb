@@ -55,7 +55,8 @@ if (property_exists($data, 'Fnc')) {
             break;
         case 'Del':
             // delete db data
-            $db->delete($_POST['ImgId']);
+            $deleteFile = (isset($_POST['DeleteFile']) && $_POST['DeleteFile'] === 'true');
+            $db->delete($_POST['ImgId'], $deleteFile);
             break;
         case 'FldLoadData':
             // load specific form data, e.g. locations in a certain country or a scientific name
