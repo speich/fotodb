@@ -38,7 +38,7 @@
       "type": "package",
       "package": {
         "name": "philharvey/exiftool",
-        "version": "13.53",
+        "version": "13.59",
         "dist": {
           "url": "https://exiftool.org/Image-ExifTool-13.53.tar.gz",
           "type": "tar"
