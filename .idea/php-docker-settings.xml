@@ -3,6 +3,22 @@
   <component name="PhpDockerContainerSettings">
     <list>
       <map>
+        <entry key="2c18fbdc-1801-47f6-b4ea-fd8b40797779">
+          <value>
+            <DockerContainerSettings>
+              <option name="runCliOptions" value="" />
+              <option name="version" value="1" />
+              <option name="volumeBindings">
+                <list>
+                  <DockerVolumeBindingImpl>
+                    <option name="containerPath" value="/app/fotodb" />
+                    <option name="hostPath" value="$PROJECT_DIR$" />
+                  </DockerVolumeBindingImpl>
+                </list>
+              </option>
+            </DockerContainerSettings>
+          </value>
+        </entry>
         <entry key="33bfdd8b-5bad-41de-81c6-36c232f158cf">
           <value>
             <DockerContainerSettings>

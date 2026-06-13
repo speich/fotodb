@@ -15,7 +15,6 @@
       <excludeFolder url="file://$MODULE_DIR$/website/library/vendor/tsmgeek/exif-tool_php_stayopen" />
       <excludeFolder url="file://$MODULE_DIR$/website/library/vendor/vanderlee/syllable" />
       <excludeFolder url="file://$MODULE_DIR$/website/library/dojo" />
-      <excludeFolder url="file://$MODULE_DIR$/website/library/vendor/speich/websitetemplate_compare" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

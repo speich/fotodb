@@ -12,6 +12,13 @@
           </settings>
         </remote-mappings>
         <remote-mappings server-id="php@6ad846d8-b3ce-47c5-8769-03af38dd5cb2" />
+        <remote-mappings server-id="php@2c18fbdc-1801-47f6-b4ea-fd8b40797779">
+          <settings>
+            <list>
+              <mapping local-root="$PROJECT_DIR$" remote-root="/app/fotodb" />
+            </list>
+          </settings>
+        </remote-mappings>
       </list>
     </list>
   </component>

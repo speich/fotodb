@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="LaravelPint">
+    <laravel_pint_settings>
+      <laravel_pint_by_interpreter asDefaultInterpreter="true" interpreter_id="b82d3956-35c5-4310-96e0-4e443b7f24a8">
+        <option name="timeout" value="30000" />
+      </laravel_pint_by_interpreter>
+    </laravel_pint_settings>
+  </component>
   <component name="MessDetector">
     <phpmd_settings>
       <phpmd_by_interpreter interpreter_id="a08b2a07-7232-41ea-b1a2-cbad45fd829c" tool_path="phpmd" />
       <phpmd_by_interpreter interpreter_id="a08b2a07-7232-41ea-b1a2-cbad45fd829c" tool_path="phpmd" />
       <MessDetectorConfiguration tool_path="C:/Program Files (x86)/PHP/phpmd" />
+      <phpmd_by_interpreter asDefaultInterpreter="true" interpreter_id="b82d3956-35c5-4310-96e0-4e443b7f24a8" tool_path="C:/Program Files (x86)/PHP/phpmd" timeout="30000" />
     </phpmd_settings>
   </component>
   <component name="MessDetectorOptionsConfiguration">
@@ -17,29 +25,43 @@
     <option name="codingStandard" />
     <option name="transferred" value="true" />
   </component>
+  <component name="PhpCSFixer">
+    <phpcsfixer_settings>
+      <phpcs_fixer_by_interpreter asDefaultInterpreter="true" interpreter_id="b82d3956-35c5-4310-96e0-4e443b7f24a8" timeout="30000" />
+    </phpcsfixer_settings>
+  </component>
   <component name="PhpCodeSniffer">
     <phpcs_settings>
       <phpcs_by_interpreter interpreter_id="a08b2a07-7232-41ea-b1a2-cbad45fd829c" standards="MySource;PEAR;PSR1;PSR2;Squiz;Zend" tool_path="/usr/bin/phpcs" />
       <phpcs_by_interpreter interpreter_id="a08b2a07-7232-41ea-b1a2-cbad45fd829c" standards="MySource;PEAR;PSR1;PSR2;Squiz;Zend" tool_path="/usr/bin/phpcs" />
       <PhpCSConfiguration tool_path="/usr/bin/phpcs" />
+      <phpcs_by_interpreter asDefaultInterpreter="true" interpreter_id="b82d3956-35c5-4310-96e0-4e443b7f24a8" tool_path="/usr/bin/phpcs" timeout="30000" />
     </phpcs_settings>
   </component>
   <component name="PhpDebugIgnoredPathsSettings" notify="false" />
   <component name="PhpIncludePathManager">
     <include_path>
       <path value="$PROJECT_DIR$/website/library/vendor/composer" />
+      <path value="$PROJECT_DIR$/website/library/vendor/philharvey/exiftool" />
       <path value="$PROJECT_DIR$/website/library/vendor/speich/websitetemplate" />
+      <path value="$PROJECT_DIR$/website/library/vendor/tsmgeek/exif-tool_php_stayopen" />
       <path value="$PROJECT_DIR$/website/library/vendor/vanderlee/syllable" />
       <path value="$PROJECT_DIR$/website/scripts/php" />
-      <path value="$PROJECT_DIR$/website/library/vendor/speich/websitetemplate_compare" />
-      <path value="$PROJECT_DIR$/website/library/vendor/philharvey/exiftool" />
-      <path value="$PROJECT_DIR$/website/library/vendor/tsmgeek/exif-tool_php_stayopen" />
     </include_path>
   </component>
   <component name="PhpInterpreters">
     <interpreters>
       <interpreter id="c4a4d6ae-7a99-425d-9948-9866117fbaa4" name="developer@192.168.1.52:22 password" home="sshConfig://DATA" auto="false" debugger_id="php.debugger.XDebug">
         <remote_data INTERPRETER_PATH="/usr/bin/php" HELPERS_PATH="/home/developer/.phpstorm_helpers" VALID="true" RUN_AS_ROOT_VIA_SUDO="false" SSH_CONFIG_ID="e3441382-b435-42cb-85d4-502836b9b1e2" SSH_CONFIG_NAME="developer@192.168.1.52:22 password" SSH_CREDENTIALS_ID="sshConfig://developer@192.168.1.52:22 password" />
+      </interpreter>
+      <interpreter id="b82d3956-35c5-4310-96e0-4e443b7f24a8" name="web-dev" home="docker-compose://DATA" auto="false" debugger_id="php.debugger.XDebug">
+        <remote_data INTERPRETER_PATH="php" HELPERS_PATH="/opt/.phpstorm_helpers" VALID="true" RUN_AS_ROOT_VIA_SUDO="false" DOCKER_ACCOUNT_NAME="Docker ERITHACUS" DOCKER_COMPOSE_SERVICE_NAME="web-dev" DOCKER_REMOTE_PROJECT_PATH="/opt/project">
+          <type_data command="RUN" />
+          <dockerComposeConfigurationPaths>
+            <item value="$PROJECT_DIR$/../frankenphp/docker-compose.yml" />
+          </dockerComposeConfigurationPaths>
+          <envs />
+        </remote_data>
       </interpreter>
     </interpreters>
   </component>
@@ -114,6 +136,69 @@
           </loaded_extensions>
         </phpinfo>
       </interpreter>
+      <interpreter name="web-dev">
+        <phpinfo binary_type="PHP" php_cgi="/usr/local/bin/php-cgi" php_cli="/usr/local/bin/php" path_separator=":" version="8.5.7">
+          <additional_php_ini>/usr/local/etc/php/conf.d/docker-php-ext-enchant.ini, /usr/local/etc/php/conf.d/docker-php-ext-exif.ini, /usr/local/etc/php/conf.d/docker-php-ext-gd.ini, /usr/local/etc/php/conf.d/docker-php-ext-imagick.ini, /usr/local/etc/php/conf.d/docker-php-ext-intl.ini, /usr/local/etc/php/conf.d/docker-php-ext-pcntl.ini, /usr/local/etc/php/conf.d/docker-php-ext-pdo_pgsql.ini, /usr/local/etc/php/conf.d/docker-php-ext-pgsql.ini, /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini, /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini, /usr/local/etc/php/conf.d/docker-php-ext-xsl.ini, /usr/local/etc/php/conf.d/docker-php-ext-zip.ini</additional_php_ini>
+          <configuration_file />
+          <configuration_options>
+            <configuration_option name="include_path" value=".:/usr/local/lib/php" />
+          </configuration_options>
+          <debuggers>
+            <debugger_info debugger="xdebug" debugger_version="3.5.1">
+              <debug_extensions />
+            </debugger_info>
+          </debuggers>
+          <loaded_extensions>
+            <extension name="Core" />
+            <extension name="PDO" />
+            <extension name="Phar" />
+            <extension name="Reflection" />
+            <extension name="SPL" />
+            <extension name="SimpleXML" />
+            <extension name="Zend OPcache" />
+            <extension name="ctype" />
+            <extension name="curl" />
+            <extension name="date" />
+            <extension name="dom" />
+            <extension name="enchant" />
+            <extension name="exif" />
+            <extension name="fileinfo" />
+            <extension name="filter" />
+            <extension name="gd" />
+            <extension name="hash" />
+            <extension name="iconv" />
+            <extension name="imagick" />
+            <extension name="intl" />
+            <extension name="json" />
+            <extension name="lexbor" />
+            <extension name="libxml" />
+            <extension name="mbstring" />
+            <extension name="mysqlnd" />
+            <extension name="openssl" />
+            <extension name="pcntl" />
+            <extension name="pcre" />
+            <extension name="pdo_pgsql" />
+            <extension name="pdo_sqlite" />
+            <extension name="pgsql" />
+            <extension name="posix" />
+            <extension name="random" />
+            <extension name="readline" />
+            <extension name="session" />
+            <extension name="sodium" />
+            <extension name="sqlite3" />
+            <extension name="standard" />
+            <extension name="tokenizer" />
+            <extension name="uri" />
+            <extension name="xdebug" />
+            <extension name="xml" />
+            <extension name="xmlreader" />
+            <extension name="xmlwriter" />
+            <extension name="xsl" />
+            <extension name="zip" />
+            <extension name="zlib" />
+          </loaded_extensions>
+        </phpinfo>
+      </interpreter>
     </phpInfoCache>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />
@@ -175,8 +260,6 @@
       <extension name="odbc" enabled="false" />
       <extension name="opentelemetry" enabled="false" />
       <extension name="pdflib" enabled="false" />
-      <extension name="pdo_ibm" enabled="false" />
-      <extension name="pdo_pgsql" enabled="false" />
       <extension name="pgsql" enabled="false" />
       <extension name="pspell" enabled="false" />
       <extension name="pthreads" enabled="false" />
@@ -207,6 +290,11 @@
       <extension name="zmq" enabled="false" />
     </extensions>
   </component>
+  <component name="PhpStan">
+    <PhpStan_settings>
+      <phpstan_by_interpreter asDefaultInterpreter="true" interpreter_id="b82d3956-35c5-4310-96e0-4e443b7f24a8" timeout="60000" />
+    </PhpStan_settings>
+  </component>
   <component name="PhpStanOptionsConfiguration">
     <option name="transferred" value="true" />
   </component>
@@ -214,6 +302,11 @@
     <phpunit_settings>
       <PhpUnitSettings custom_loader_path="$PROJECT_DIR$/website/library/vendor/autoload.php" phpunit_phar_path="" />
     </phpunit_settings>
+  </component>
+  <component name="Psalm">
+    <Psalm_settings>
+      <psalm_fixer_by_interpreter asDefaultInterpreter="true" interpreter_id="b82d3956-35c5-4310-96e0-4e443b7f24a8" timeout="60000" />
+    </Psalm_settings>
   </component>
   <component name="PsalmOptionsConfiguration">
     <option name="transferred" value="true" />
