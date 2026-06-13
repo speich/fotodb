@@ -348,8 +348,28 @@ define([
 					this.Frm.DisableFields();
 				});
 				Ajax.SetDoneFnc(this, function() {
-					byId(ImgId).parentNode.setAttribute('class', 'MarkOpen');
-					byId(ImgId).removeAttribute('id');
+					let elImg = byId(ImgId);
+					if (deleteFile) {
+						let tr = elImg.parentNode.parentNode;
+						let nextTr = Tool.NextNode(tr);
+						if (!nextTr || nextTr.classList.contains('dir')) {
+							nextTr = Tool.PreviousNode(tr);
+						}
+						tr.parentNode.removeChild(tr);
+						if (nextTr && !nextTr.classList.contains('dir')) {
+							let nextImg = nextTr.getElementsByTagName('img').item(0);
+							if (nextImg) {
+								this.Explorer.HighlightRow(nextTr);
+								this.DisplExifData(nextImg, byId('PaneLeftExifContent'));
+								this.SetImg(nextImg);
+								nextTr.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+							}
+						}
+					}
+					else {
+						elImg.parentNode.setAttribute('class', 'MarkOpen');
+						elImg.removeAttribute('id');
+					}
 					this.SetCurImgId(null);
 					this.Frm.SetCurImgId(null);
 					byId('ImgPreview').src = 'none';
