@@ -1,6 +1,6 @@
 {
   "require": {
-    "speich/websitetemplate": "0.*",
+    "speich/websitetemplate": "dev-dev",
     "tsmgeek/exif-tool_php_stayopen": "dev-master",
     "philharvey/exiftool": "^13.53",
     "vanderlee/syllable": "^1.",
@@ -40,7 +40,7 @@
         "name": "philharvey/exiftool",
         "version": "13.59",
         "dist": {
-          "url": "https://exiftool.org/Image-ExifTool-13.53.tar.gz",
+          "url": "https://sourceforge.net/projects/exiftool/files/Image-ExifTool-13.59.tar.gz/download",
           "type": "tar"
         }
       }
