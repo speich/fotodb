@@ -1,7 +1,10 @@
 <?php
 
-use PhotoDatabase\Sql\SqlFull;
+namespace PhotoDatabase\Sql;
 
+
+use ReflectionObject;
+use ReflectionProperty;
 
 /**
  * Class SqlExtended
