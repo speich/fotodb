@@ -92,6 +92,30 @@ if (property_exists($data, 'Fnc')) {
             echo 'done';
             break;
 
+        case 'republish':
+            $imgFolder = $_GET['ImgFolder'];
+            echo 'republishing folder '.$imgFolder.'...<br>';
+            $exporter = new Exporter($config);
+            $db = $exporter->connect();
+
+            // update search indexes in the source before publishing it so it will be also copied to target database
+            $sql = new SqlImagesSource();
+            $indexer = new ImagesIndexer($db, $sql);
+            $indexer->init();
+            $indexer->populate();
+            echo 'created image search index<br>';
+            // reset DatePublished on the records of the given folder and republish it
+            try {
+                $exporter->republish($imgFolder);
+                echo 'db copy successful<br>';
+            } catch (RuntimeException $exception) {
+                echo 'Error exporting database:<br>';
+                echo $exception->getMessage();
+            }
+
+            echo 'done';
+            break;
+
         case 'search':
             $text = $_GET['q'];
             $db = new PDO('sqlite:'.$config->paths->targetDatabase);

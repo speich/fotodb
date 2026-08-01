@@ -2,6 +2,7 @@
 
 namespace PhotoDatabase\Database;
 
+use ImagickException;
 use JetBrains\PhpStorm\Pure;
 use PDO;
 use PDOStatement;
@@ -34,13 +35,13 @@ class Exporter extends Database
 
     /**
      * Query all new or modified records to process after export.
-     * Returns all records which either have never been published previously or have been changed between the last publishing.
+     * Returns all records that either have never been published previously or have been changed between the last publishing.
      * @return false|PDOStatement
      */
     private function getRecords(): bool|PDOStatement
     {
-        // Select all records from source database which will be used to copy/delete images depending on their public status.
-        // IMPORTANT: Do not limit sql to only public ones by using target database, because then you would miss deleting
+        // Select all records from the source database that will be used to copy/delete images depending on their public status.
+        // IMPORTANT: Do not limit SQL to only public ones by using the target database, because then you would miss deleting
         // thumbnails that changed state from public in previous export to private in this export
         // We purposely do not use WHERE IN, instead we update records in a loop one at a time after creation of
         // the thumbnail (since we don't use a transaction because journaling mode is off for speed)
@@ -63,6 +64,20 @@ class Exporter extends Database
         $stmtDateSrc = $db->prepare($sql);
         $stmtDateSrc->bindParam(':time', $time);
         $stmtDateSrc->execute();
+    }
+
+    /**
+     * Reset DatePublished to null for all records of the given image folder.
+     * This forces getRecords() to return all records of that folder instead of only the new or modified ones.
+     * @param PDO $db
+     * @param string $imgFolder
+     */
+    private function resetRecordsPublished(PDO $db, string $imgFolder): void
+    {
+        $sql = 'UPDATE Images SET DatePublished = NULL WHERE ImgFolder = :imgFolder';
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':imgFolder', $imgFolder);
+        $stmt->execute();
     }
 
     /**
@@ -104,8 +119,22 @@ class Exporter extends Database
     }
 
     /**
-     * Copy database file to target database file.
-     * Previous target database file will be overwritten.
+     * Republish the given image folder.
+     * Resets DatePublished to null for all records of that folder first, so getRecords() will return
+     * all of them instead of only the new or modified ones, then republishes everything using publish().
+     * Warning: If the destination database file already exists, it will be overwritten.
+     * @param string $imgFolder
+     */
+    public function republish(string $imgFolder): void
+    {
+        $sourceDb = $this->connect();
+        $this->resetRecordsPublished($sourceDb, $imgFolder);
+        $this->publish();
+    }
+
+    /**
+     * Copy the database file to the target database file.
+     * Note: The previous target database file will be overwritten.
      * @return PDO target database
      */
     private function copyDatabase(): PDO
@@ -175,9 +204,10 @@ class Exporter extends Database
     }
 
     /**
-     * Copy image and create thumbnail.
+     * Copy the image and create the thumbnail.
      * @param string $srcImg image path to the source
      * @param string $destImg image path to the destination
+     * @throws ImagickException
      */
     private function copyImage(string $srcImg, string $destImg): void
     {

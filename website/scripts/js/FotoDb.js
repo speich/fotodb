@@ -279,7 +279,7 @@ define([
 		},
 
 		/**
-		 * Place image element on canvas.
+		 * Place the image element on canvas.
 		 * @param img
 		 */
 		placeImage: function(img) {
@@ -299,11 +299,11 @@ define([
 		},
 
 		/**
-		 * Show image in full size centered on screen.
-		 *
-		 * @param {object} img HTMLImgElement
-		 * @param {object} object with width (obj.W) and height (obj.H) attribute
-		 */
+     * Show image in full size centered on screen.
+     *
+     * @param ElImg
+     * @param Dim
+     */
 		ZoomImg: function(ElImg, Dim) {
 			var img = new Image();
 			img.src = ElImg.src;
@@ -329,7 +329,7 @@ define([
 		/**
 		 * Delete image data on keyup.
 		 *
-		 * @param {boolean} deleteFile also delete image from file system
+		 * @param {boolean} deleteFile also delete image from the file system
 		 */
 		DelImage: function(deleteFile) {
 			// TODO: this method should only be available to authenticated users (->PHP)
@@ -632,6 +632,10 @@ define([
 			// events
 			byId('FncSaveImg').addEventListener('click', function() {
 				self.Frm.SaveAll();
+			}, true);
+			byId('FncRepublish').addEventListener('click', function() {
+				var imgFolder = byId('ImgFolder').value;
+				this.href = '../scripts/php/controller/dbfunctions.php?Fnc=republish&ImgFolder=' + encodeURIComponent(imgFolder);
 			}, true);
 			window.addEventListener('keydown', function(evt) { // use keydown instead of keypress because dijit traps events and stops bubbling
 				self.Keys(evt);

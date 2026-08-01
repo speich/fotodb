@@ -160,7 +160,9 @@ $speciesSex->setSelected(4);
                     <label for="ImgTechInfo">TechInfo</label>
                     <textarea id="ImgTechInfo"></textarea>
                     <input type="button" id="FncSaveImg" value="save"><a
-                            href="../scripts/php/controller/dbfunctions.php?Fnc=publish">publish</a>
+                            href="../scripts/php/controller/dbfunctions.php?Fnc=publish">publish</a> <a
+                            id="FncRepublish"
+                            href="../scripts/php/controller/dbfunctions.php?Fnc=republish">republish current folder</a>
                 </div><!-- End Right2 -->
             </div><!-- End LayoutSplit2 -->
         </div><!-- End Right1 -->
