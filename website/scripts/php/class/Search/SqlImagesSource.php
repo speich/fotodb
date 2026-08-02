@@ -35,7 +35,7 @@ class SqlImagesSource extends SqlIndexerSource
      * Columns that should not be tokenized.
      * @var string[]
      */
-    private array $prefixExclusions = ['ImgId', 'ImgFolder', 'ImgName', 'CountryDe', 'CountryEn', 'ScientificNames', 'Rating'];
+    private array $prefixExclusions = ['ImgId', 'ImgFolder', 'ImgName', 'CountryDe', 'CountryEn', 'ThemeDe', 'ThemeEn', 'ScientificNames', 'Rating'];
 
     /**
      * Returns the columns that need prefix processing.
