@@ -65,6 +65,8 @@ if (property_exists($data, 'Fnc')) {
             break;
 
         case 'publish':
+            $imgFolder = $_GET['ImgFolder'] ?? null;
+
             echo 'exporting database...<br>';
             $exporter = new Exporter($config);
             $db = $exporter->connect();
@@ -83,32 +85,13 @@ if (property_exists($data, 'Fnc')) {
             echo 'created image search index<br>';
             // copy database to target and remove private records
             try {
-                $exporter->publish();
-                echo 'db copy successful<br>';
-            } catch (RuntimeException $exception) {
-                echo 'Error exporting database:<br>';
-                echo $exception->getMessage();
-            }
-
-            echo 'done';
-            break;
-
-        case 'republish':
-            // TODO: unify with case publish
-            $imgFolder = $_GET['ImgFolder'];
-            echo 'republishing folder '.$imgFolder.'...<br>';
-            $exporter = new Exporter($config);
-            $db = $exporter->connect();
-
-            // update search indexes in the source before publishing it so it will be also copied to target database
-            $sql = new SqlImagesSource();
-            $indexer = new ImagesIndexer($db, $sql);
-            $indexer->init();
-            $indexer->populate();
-            echo 'created image search index<br>';
-            // reset DatePublished on the records of the given folder and republish it
-            try {
-                $exporter->republish($imgFolder);
+                if ($imgFolder === null) {
+                    $exporter->publish();
+                }
+                else {
+                    echo 'republishing folder '.$imgFolder.'...<br>';
+                    $exporter->republish($imgFolder);
+                }
                 echo 'db copy successful<br>';
             } catch (RuntimeException $exception) {
                 echo 'Error exporting database:<br>';
