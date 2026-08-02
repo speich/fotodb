@@ -13,6 +13,10 @@ use PhotoDatabase\Sql\SqlFull;
  */
 abstract class SqlIndexerSource extends SqlFull
 {
+
+    /** @var bool query only records that are new or changed */
+    private bool $onlyChanged = true;
+
     /**
      * Returns the columns to create and store prefixes from.
      * @return array
@@ -27,7 +31,7 @@ abstract class SqlIndexerSource extends SqlFull
 
     public function getWhere(): string
     {
-        return Exporter::SQL_UPDATEABLE;
+        return $this->onlyChanged ? Exporter::SQL_UPDATEABLE : '';
     }
 
     /**
@@ -46,5 +50,10 @@ abstract class SqlIndexerSource extends SqlFull
     public function getOrderBy(): string
     {
         return '';
+    }
+
+    public function setOnlyChanged(bool $onlyChanged): void
+    {
+        $this->onlyChanged = $onlyChanged;
     }
 }

@@ -8,6 +8,7 @@ namespace PhotoDatabase\Search;
  */
 class ImagesIndexer extends Indexer
 {
+
     /**
      * Create the database structure necessary for searching.
      */
@@ -24,24 +25,35 @@ class ImagesIndexer extends Indexer
 
     /**
      * Fills the virtual table with searchable image info.
+     * @param bool $onlyChanged populate only with new or changed images
      */
-    public function populate(): void
+    public function populate(bool $onlyChanged = true): void
     {
         $tools = new IndexingTools();
         $cols = $this->toString([$this->sqlSource, 'getColNames']);
         $colVars = $this->toString([$this->sqlSource, 'getColNames'], true);
         $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], postfixed: true);
         $prefixColVars = $this->toString([$this->sqlSource, 'getColPrefixes'], true, true);
+
+        $this->sqlSource->setOnlyChanged($onlyChanged);
+
         $this->db->beginTransaction();
-        $stmtSelect = $this->db->query($this->sqlSource->get());
         /* note: query should return records in a way that rowId is unique for fts4 */
-        $sqlDelete = 'DELETE FROM Images_fts WHERE ImgId = :ImgId';
+        $stmtSelect = $this->db->query($this->sqlSource->get());
+        $sqlDelete = 'DELETE FROM Images_fts'.($onlyChanged ? ' WHERE ImgId = :ImgId' : '');
         $sqlInsert = 'INSERT INTO Images_fts ('.$cols.', '.$prefixCols.') VALUES ('.$colVars.', '.$prefixColVars.')';
         $stmtInsert = $this->db->prepare($sqlInsert);
         $stmtDelete = $this->db->prepare($sqlDelete);
+        if ($onlyChanged === false) {
+            // delete all records first before re-inserting
+            $stmtDelete->execute();
+        }
         foreach ($stmtSelect as $row) {
             $row = $this->addPrefixes($row, $tools);
-            $stmtDelete->execute([':ImgId' => $row['ImgId']]);
+            if ($onlyChanged) {
+                // delete only changed records
+                $stmtDelete->execute([':ImgId' => $row['ImgId']]);
+            }
             $stmtInsert->execute($row);
         }
         $this->db->commit();
