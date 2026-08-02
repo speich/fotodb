@@ -23,6 +23,7 @@ class SqlImagesSource extends SqlIndexerSource
         'SubjectEn' => 'sj.NameEn',
         'CountryDe'  => 'c.NameDe',
         'CountryEn'  => 'c.NameEn',
+        'Locations' => '(SELECT GROUP_CONCAT(l.Name) FROM Locations l INNER JOIN Images_Locations il ON l.id = il.LocationId WHERE il.ImgId = i.Id)',
         'KeywordsDe' => '(SELECT GROUP_CONCAT(k.NameDe) FROM Keywords k INNER JOIN Images_Keywords ik ON k.Id = ik.KeywordId WHERE ik.ImgId = i.Id)',
         'KeywordsEn' => '(SELECT GROUP_CONCAT(k.NameEn) FROM Keywords k INNER JOIN Images_Keywords ik ON k.Id = ik.KeywordId WHERE ik.ImgId = i.Id)',
         'CommonNamesDe' => '(SELECT GROUP_CONCAT(s.NameDe) FROM ScientificNames s INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId WHERE isc.ImgId = i.Id)',
@@ -35,7 +36,7 @@ class SqlImagesSource extends SqlIndexerSource
      * Columns that should not be tokenized.
      * @var string[]
      */
-    private array $prefixExclusions = ['ImgId', 'ImgFolder', 'ImgName', 'CountryDe', 'CountryEn', 'ThemeDe', 'ThemeEn', 'ScientificNames', 'Rating'];
+    private array $prefixExclusions = ['ImgId', 'ImgFolder', 'ImgName', 'ThemeDe', 'ThemeEn', 'CountryDe', 'CountryEn', 'Locations', 'ScientificNames', 'Rating'];
 
     /**
      * Returns the columns that need prefix processing.
