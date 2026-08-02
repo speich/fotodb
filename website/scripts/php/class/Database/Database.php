@@ -10,6 +10,7 @@ use SQLite3;
 use stdClass;
 use function array_key_exists;
 use function count;
+use function strlen;
 
 
 /**
@@ -34,7 +35,7 @@ class Database
      * @constructor
      * @param stdClass $config
      */
-    public function __construct($config)
+    public function __construct(stdClass $config)
     {
         $this->pathImg = $config->paths->imagesWebRoot;
         $this->folderImageOriginal = $config->paths->imagesOriginal;
@@ -85,30 +86,30 @@ class Database
             CREATE TABLE Countries (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                NameEn VARCHAR2,
-                NameDe VARCHAR2
+                NameEn TEXT,
+                NameDe TEXT
             );
             
             CREATE TABLE FilmTypes (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                Name VARCHAR2,
-                Code VARCHAR2
+                Name TEXT,
+                Code TEXT
             );
             
             CREATE TABLE Images (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                ImgFolder VARCHAR2,
-                ImgName VARCHAR2,
-                ImgDateManual VARCHAR2,
-                ImgTechInfo VARCHAR2,
+                ImgFolder TEXT,
+                ImgName TEXT,
+                ImgDateManual TEXT,
+                ImgTechInfo TEXT,
                 FilmTypeId INTEGER,
                 RatingId INTEGER,
                 DateAdded INTEGER,
                 LastChange INTEGER,
-                ImgDesc VARCHAR2,
-                ImgTitle VARCHAR2,
+                ImgDesc TEXT,
+                ImgTitle TEXT,
                 Public INTEGER,
                 DatePublished INTEGER,
                 ImgDateOriginal INTEGER,
@@ -120,18 +121,18 @@ class Database
             );
             
             CREATE TABLE Exif (
-                Make VARCHAR2,
-                Model VARCHAR2,
+                Make TEXT,
+                Model TEXT,
                 ImageWidth INTEGER,
                 ImageHeight INTEGER,
-                FileSize VARCHAR2,
+                FileSize TEXT,
                 DateTimeOriginal INTEGER,
-                ExposureTime VARCHAR2,
+                ExposureTime TEXT,
                 FNumber INTEGER,
                 ISO INTEGER,
-                ExposureProgram VARCHAR2,
-                MeteringMode VARCHAR2,
-                Flash VARCHAR2,
+                ExposureProgram TEXT,
+                MeteringMode TEXT,
+                Flash TEXT,
                 FocusDistance NUMERIC,
                 ImgId INTEGER NOT NULL
                     CONSTRAINT Exif_Images_Id_fk
@@ -140,11 +141,11 @@ class Database
                 GPSLongitude FLOAT,
                 GPSAltitude INTEGER,
                 GPSAltitudeRef INTEGER,
-                LensSpec VARCHAR,
+                LensSpec TEXT,
                 VibrationReduction TEXT,
-                FileType VARCHAR,
-                Lens VARCHAR,
-                FocalLength VARCHAR,
+                FileType TEXT,
+                Lens TEXT,
+                FocalLength TEXT,
                 SyncDate TEXT DEFAULT NULL
             );
             
@@ -177,22 +178,23 @@ class Database
                 docid INTEGER
                     PRIMARY KEY,
                 c0ImgId,
-                c1ImgFolder,
-                c2ImgName,
-                c3ImgTitle,
-                c4ImgDesc,
-                c5Theme,
-                c6Country,
-                c7Keywords,
-                c8Locations,
-                c9CommonNames,
-                c10ScientificNames,
-                c11Subject,
-                c12Rating,
-                c13ImgTitlePrefixes,
-                c14ImgDescPrefixes,
-                c15KeywordsPrefixes,
-                c16CommonNamesPrefixes
+                c1Lang,
+                c2ImgFolder,
+                c3ImgName,
+                c4ImgTitle,
+                c5ImgDesc,
+                c6Theme,
+                c7Country,
+                c8Keywords,
+                c9Locations,
+                c10CommonNames,
+                c11ScientificNames,
+                c12Subject,
+                c13Rating,
+                c14ImgTitlePrefixes,
+                c15ImgDescPrefixes,
+                c16KeywordsPrefixes,
+                c17CommonNamesPrefixes
             );
             
             CREATE TABLE Images_fts_docsize (
@@ -226,7 +228,8 @@ class Database
             CREATE TABLE Keywords (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                Name VARCHAR2
+                Name TEXT,
+                NameEn TEXT
             );
             
             CREATE TABLE LicenseTypes (
@@ -250,7 +253,7 @@ class Database
             CREATE TABLE Locations (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                Name VARCHAR(1024)
+                Name TEXT(1024)
             );
             
             CREATE TABLE Locations_Countries (
@@ -261,40 +264,40 @@ class Database
             CREATE TABLE Rating (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                Name VARCHAR2,
+                Name TEXT,
                 Value INTEGER
             );
             
             CREATE TABLE ScientificNames (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                NameDe VARCHAR2,
-                NameEn VARCHAR2,
-                NameLa VARCHAR2,
+                NameDe TEXT,
+                NameEn TEXT,
+                NameLa TEXT,
                 ThemeId INTEGER DEFAULT NULL
             );
             
             CREATE TABLE Sexes (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                NameEn VARCHAR2,
-                NameDe VARCHAR2,
+                NameEn TEXT,
+                NameDe TEXT,
                 Symbol TEXT
             );
             
             CREATE TABLE SubjectAreas (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                NameDe VARCHAR,
-                NameEn VARCHAR
+                NameDe TEXT,
+                NameEn TEXT
             );
             
             CREATE TABLE Themes (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                NameDe VARCHAR2,
+                NameDe TEXT,
                 SubjectAreaId INTEGER,
-                NameEn VARCHAR
+                NameEn TEXT
             );
             
             CREATE TABLE Xmp (
@@ -352,9 +355,9 @@ class Database
      *
      * This method is only called once, when the image is selected by the user for the first time.
      * @param string $img image file including web root path
-     * @return string XML file
+     * @return true|string XML file
      */
-    public function insert(string $img)
+    public function insert(string $img): true|string
     {
         $imgFolder = str_replace($this->getWebRoot().ltrim($this->getPath('Img'), '/'), '', $img);   // remove web images folder path part
         $imgName = substr($imgFolder, strrpos($imgFolder, '/') + 1);
@@ -433,7 +436,7 @@ class Database
     }
 
     /**
-     * Open transaction with a flag that you can check if it is already started.
+     * Open a transaction with a flag that you can check if it is already started.
      * PDO whould throw an error if you opend a transaction which is already open
      * and does not provide a means of checking status. So use this method instead
      * together with Commit and RollBack.
@@ -453,26 +456,25 @@ class Database
      * Insert or update EXIF und XMP data.
      * @param int $imgId image id
      * @param string $imgSrc image source (path)
-     * @return bool
+     * @return void
      */
-    private function handleExif(int $imgId, string $imgSrc): bool
+    private function handleExif(int $imgId, string $imgSrc): void
     {
         $exifData = $this->getExif($imgSrc);
         if ($exifData !== false && count($exifData) > 0) {
             if (!$this->upsertExif($imgId, $exifData)) {
                 echo 'inserting Exif data failed';
 
-                return false;
+                return;
             }
             if (array_key_exists('XMP', $exifData) && !$this->upsertXmp($imgId, $exifData['XMP'])) {
                 echo 'inserting XMP data failed';
 
-                return false;
+                return;
             }
-            return true;
+            return;
         }
 
-        return false;
     }
 
     /**
@@ -490,7 +492,7 @@ class Database
     }
 
     /**
-     * Insert or replace exif data read from image into fotodb.
+     * Insert or replace exif data read from the image into fotodb.
      * Returns true on success or false on failure.
      *
      * @param int $imgId image id
@@ -650,7 +652,7 @@ class Database
     /**
      * Edit image data.
      *
-     * Data is selected from database and posted back as an xml page.
+     * Data is selected from the database and posted back as an xml page.
      * Response is returned as an XML to the ajax request to fill form fields.
      * XML attribute names must have the same name as the HTML form field names.
      *
@@ -1083,15 +1085,15 @@ class Database
      * @param string $Context
      * @param string $RowId
      * @param string $String
-     * @param bool [$Unique]
-     * @param string [$Separator]
-     * @return
+     * @param bool $Unique [$Unique]
+     * @param string $Separator [$Separator]
+     * @return string
      */
-    function groupConcatStep($Context, $RowId, $String, $Unique = false, $Separator = ', ')
+    public function groupConcatStep(string $Context, string $RowId, string $String, $Unique = false, $Separator = ', '): string
     {
         if ($Context) {
             if ($Unique) {
-                if (strpos($Context, $String) !== false) {
+                if (str_contains($Context, $String)) {
                     return $Context;
                 }
 
@@ -1104,7 +1106,7 @@ class Database
         return $String;
     }
 
-    function groupConcatFinalize($Context)
+    public function groupConcatFinalize($Context): mixed
     {
         return $Context;
     }
@@ -1112,11 +1114,11 @@ class Database
     /**
      * Adds the PHP strtotime function to PDO SQLite.
      * @param string $Context
-     * @return string
+     * @return string|null
      */
-    function strToTime($Context): ?string
+    public function strToTime(string $Context): ?string
     {
-        if (\strlen($Context) > 4) {
+        if (strlen($Context) > 4) {
             return strtotime($Context);
         }
 
