@@ -3,6 +3,7 @@
 
 namespace PhotoDatabase\Search;
 
+use PhotoDatabase\Database\Exporter;
 use PhotoDatabase\Sql\SqlFull;
 
 
@@ -26,7 +27,7 @@ abstract class SqlIndexerSource extends SqlFull
 
     public function getWhere(): string
     {
-        return 'LastChange > DatePublished OR DatePublished IS NULL';
+        return Exporter::SQL_UPDATABLE;
     }
 
     /**

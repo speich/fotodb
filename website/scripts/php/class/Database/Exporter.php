@@ -23,6 +23,8 @@ class Exporter extends Database
     /** @var string */
     private string $pathTargetImages;
 
+    public const SQL_UPDATABLE = 'LastChange > DatePublished OR DatePublished IS NULL';
+
     /**
      * @param stdClass $config
      */
@@ -48,7 +50,7 @@ class Exporter extends Database
         // Note: we need to query all private records te be able to remove them from the target database after copying
         $sql = "SELECT Id, ImgFolder, ImgFolder||'/'||ImgName Img, Public, ShowLoc, LastChange, DatePublished
             FROM Images
-			WHERE LastChange > DatePublished OR DatePublished IS NULL";
+			WHERE ".self::SQL_UPDATABLE;
 
         return $this->db->query($sql, PDO::FETCH_ASSOC);
     }
@@ -60,7 +62,7 @@ class Exporter extends Database
     private function setRecordsPublished(PDO $db): void
     {
         $time = time();
-        $sql = 'UPDATE Images SET DatePublished = :time WHERE (LastChange > DatePublished OR DatePublished IS NULL)';
+        $sql = 'UPDATE Images SET DatePublished = :time WHERE ('.self::SQL_UPDATABLE.')';
         $stmtDateSrc = $db->prepare($sql);
         $stmtDateSrc->bindParam(':time', $time);
         $stmtDateSrc->execute();
@@ -211,7 +213,7 @@ class Exporter extends Database
      */
     private function copyImage(string $srcImg, string $destImg): void
     {
-        unlink($destImg);   // for some reason copy can not overwrite
+        unlink($destImg);   // for some reason copy cannot overwrite
         if (copy($srcImg, $destImg)) {
             $thumbnail = new Thumbnail();
             $destPath = str_replace('/images/', '/images/thumbs/', $destImg);
