@@ -1,6 +1,6 @@
 <?php
 // TODO: this code should only be available to authenticated users (->PHP)
-// specially the delete function!!!!
+//  especially the delete function!!!!
 // TODO: check all input before storing in db
 use PhotoDatabase\Database\Exporter;
 use PhotoDatabase\Search\ImagesIndexer;
@@ -121,6 +121,6 @@ if (property_exists($data, 'Fnc')) {
             $db = new PDO('sqlite:'.$config->paths->targetDatabase);
             $search = new ImagesSearch($db);
             $query = $search->prepareQuery($text);
-            var_dump($search->search($query));
+            //var_dump($search->search($query));
     }
 }
