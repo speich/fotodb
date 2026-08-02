@@ -170,7 +170,7 @@ define([
 			let request;
 
 			this.Frm.GetFormEl().reset();
-			// disable form input on until insert image has completed. Otherwise CurImgId not correctly set for form
+			// disable form input on until inserting the image has completed. Otherwise, CurImgId not correctly set for form
 			this.Frm.DisableFields();
 			img.parentNode.parentNode.style.opacity = 0.3;	// set visual clue that image data is being set
 
@@ -299,7 +299,7 @@ define([
 		},
 
 		/**
-     * Show image in full size centered on screen.
+     * Show image in full size centered on the screen.
      *
      * @param ElImg
      * @param Dim
@@ -386,7 +386,7 @@ define([
 		},
 
 		/**
-		 * Advance to next image and select it.
+		 * Advance to the next image and select it.
 		 */
 		NextImage: function() {
 			// current selected image (has an Id only after ajax request completed)
@@ -423,7 +423,7 @@ define([
 		},
 
 		/**
-		 * Go to previous image in explorer and select it.
+		 * Go to the previous image in the explorer and select it.
 		 */
 		PreviousImage: function() {
 			let img, tr, el = byId(this.GetCurImgId());	// current selected image (has an Id only after ajax request completed)
@@ -460,7 +460,7 @@ define([
 
 		/**
 		 * Handles all main window keys.
-		 * Note: Use ctrl instead of alt key, since there is less interference with existing keys such as arrow keys in select fields
+		 * Note: Use ctrl instead of an alt key, since there is less interference with existing keys such as arrow keys in select fields
 		 */
 		Keys: function(evt) {
 			if (evt.ctrlKey) {
@@ -897,7 +897,7 @@ define([
 
 		/**
 		 * Reload HTMLSelectElement Location and filter it by selected country. *
-		 * If argument is given all locations are loaded if no country is selected. *
+		 * If an argument is given, all locations are loaded if no country is selected. *
 		 * @param {string} [argument] load all locations
 		 */
 		ReloadLocation: function() {
