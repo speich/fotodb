@@ -36,10 +36,10 @@ class SqlKeywordsSource extends SqlIndexerSource
               INNER JOIN Countries c ON i.CountryId = c.Id
               WHERE i.Public = 1 AND c.NameEn != ''
           UNION
-          SELECT i.Id, k.Name, 1, 'de' FROM Images i
+          SELECT i.Id, k.NameDe, 1, 'de' FROM Images i
             INNER JOIN Images_Keywords ik ON i.Id = ik.ImgId
             INNER JOIN Keywords k ON ik.KeywordId = k.Id
-            WHERE i.Public = 1 AND k.Name != ''
+            WHERE i.Public = 1 AND k.NameDe != ''
           UNION
           SELECT i.Id, l.Name, 0.5, NULL FROM Images i
               INNER JOIN Images_Locations il ON il.ImgId = i.Id
@@ -82,11 +82,6 @@ class SqlKeywordsSource extends SqlIndexerSource
               INNER JOIN Themes t ON it.ThemeId = t.Id
               INNER JOIN SubjectAreas a ON t.SubjectAreaId = a.Id
               WHERE i.Public = 1 AND a.NameEn != '';";
-    }
-
-    public function getColWeights(): array
-    {
-        // TODO: Implement getColWeights() method.
     }
 
     public function getColPrefixes(): array

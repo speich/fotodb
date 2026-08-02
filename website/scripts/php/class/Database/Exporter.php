@@ -5,6 +5,7 @@ namespace PhotoDatabase\Database;
 use ImagickException;
 use JetBrains\PhpStorm\Pure;
 use PDO;
+use Pdo\Sqlite;
 use PDOStatement;
 use PhotoDatabase\Thumbnail;
 use RuntimeException;
@@ -23,7 +24,7 @@ class Exporter extends Database
     /** @var string */
     private string $pathTargetImages;
 
-    public const SQL_UPDATABLE = 'LastChange > DatePublished OR DatePublished IS NULL';
+    public const SQL_UPDATEABLE = 'LastChange > DatePublished OR DatePublished IS NULL';
 
     /**
      * @param stdClass $config
@@ -36,7 +37,7 @@ class Exporter extends Database
     }
 
     /**
-     * Query all new or modified records to process after export.
+     * Query all new or modified records to process after copying the database.
      * Returns all records that either have never been published previously or have been changed between the last publishing.
      * @return false|PDOStatement
      */
@@ -50,19 +51,19 @@ class Exporter extends Database
         // Note: we need to query all private records te be able to remove them from the target database after copying
         $sql = "SELECT Id, ImgFolder, ImgFolder||'/'||ImgName Img, Public, ShowLoc, LastChange, DatePublished
             FROM Images
-			WHERE ".self::SQL_UPDATABLE;
+			WHERE ".self::SQL_UPDATEABLE;
 
         return $this->db->query($sql, PDO::FETCH_ASSOC);
     }
 
     /**
      * Set today's date to all new or modified records
-     * @param PDO $db
+     * @param Sqlite $db
      */
-    private function setRecordsPublished(PDO $db): void
+    private function setRecordsPublished(Sqlite $db): void
     {
         $time = time();
-        $sql = 'UPDATE Images SET DatePublished = :time WHERE ('.self::SQL_UPDATABLE.')';
+        $sql = 'UPDATE Images SET DatePublished = :time WHERE ('.self::SQL_UPDATEABLE.')';
         $stmtDateSrc = $db->prepare($sql);
         $stmtDateSrc->bindParam(':time', $time);
         $stmtDateSrc->execute();
@@ -71,10 +72,10 @@ class Exporter extends Database
     /**
      * Reset DatePublished to null for all records of the given image folder.
      * This forces getRecords() to return all records of that folder instead of only the new or modified ones.
-     * @param PDO $db
+     * @param Sqlite $db
      * @param string $imgFolder
      */
-    private function resetRecordsPublished(PDO $db, string $imgFolder): void
+    private function resetRecordsPublished(Sqlite $db, string $imgFolder): void
     {
         $sql = 'UPDATE Images SET DatePublished = NULL WHERE ImgFolder = :imgFolder';
         $stmt = $db->prepare($sql);
@@ -137,13 +138,13 @@ class Exporter extends Database
     /**
      * Copy the database file to the target database file.
      * Note: The previous target database file will be overwritten.
-     * @return PDO target database
+     * @return Sqlite target database
      */
-    private function copyDatabase(): PDO
+    private function copyDatabase(): Sqlite
     {
         $source = $this->getPath('Db');
         if (copy($source, $this->pathTargetDb)) {
-            return new PDO('sqlite:'.$this->pathTargetDb);
+            return new Sqlite('sqlite:'.$this->pathTargetDb);
         }
 
         $err = error_get_last();

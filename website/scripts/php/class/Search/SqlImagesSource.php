@@ -7,57 +7,55 @@ namespace PhotoDatabase\Search;
 /**
  * Class SqlImagesSource
  * Creates the query to populate the fts4 image search index.
- * @package PhotoDatabase\Search
  */
 class SqlImagesSource extends SqlIndexerSource
 {
-    /** @var string[] columns to index */
-    private array $colNames = [
-        'ImgId',
-        'ImgFolder',
-        'ImgName',
-        'ImgTitle',
-        'ImgDesc',
-        'Theme',
-        'Country',
-        'Keywords',
-        'Locations',
-        'CommonNames',
-        'ScientificNames',
-        'Subject',
-        'Rating'
+    /** @var string[] the list of columns to index for the fts search.  */
+    private array $columns = [
+        'ImgId'      => 'i.Id',
+        'ImgFolder'  => 'i.ImgFolder',
+        'ImgName'    => 'i.ImgName',
+        'ImgTitle'   => 'i.ImgTitle',
+        'ImgDesc'    => 'i.ImgDesc',
+        'ThemeDe'    => 't.NameDe',
+        'ThemeEn'    => 't.NameEn',
+        'SubjectDe' => 'sj.NameDe',
+        'SubjectEn' => 'sj.NameEn',
+        'CountryDe'  => 'c.NameDe',
+        'CountryEn'  => 'c.NameEn',
+        'KeywordsDe' => '(SELECT GROUP_CONCAT(k.NameDe) FROM Keywords k INNER JOIN Images_Keywords ik ON k.Id = ik.KeywordId WHERE ik.ImgId = i.Id)',
+        'KeywordsEn' => '(SELECT GROUP_CONCAT(k.NameEn) FROM Keywords k INNER JOIN Images_Keywords ik ON k.Id = ik.KeywordId WHERE ik.ImgId = i.Id)',
+        'CommonNamesDe' => '(SELECT GROUP_CONCAT(s.NameDe) FROM ScientificNames s INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId WHERE isc.ImgId = i.Id)',
+        'CommonNamesEn' => '(SELECT GROUP_CONCAT(s.NameEn) FROM ScientificNames s INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId WHERE isc.ImgId = i.Id)',
+        'ScientificNames' => '(SELECT GROUP_CONCAT(s.NameLa) FROM ScientificNames s INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId WHERE isc.ImgId = i.Id)',
+        'Rating' => 'r.Value',
     ];
 
-    /** @var array scoring weight of each column excluding id column */
-    private array $colWeights = [1, 1, 2, 1, 2, 0.25, 1, 0.5, 1, 1, 0.25];
-
     /**
+     * Columns that should not be tokenized.
      * @var string[]
      */
-    private array $colPrefixes = ['ImgTitle', 'ImgDesc', 'Keywords', 'CommonNames'];
+    private array $prefixExclusions = ['ImgId', 'ImgFolder', 'ImgName', 'CountryDe', 'CountryEn', 'ScientificNames', 'Rating'];
 
     /**
-     * @return array
-     */
-    public function getColWeights(): array
-    {
-        return $this->colWeights;
-    }
-
-    /**
-     * @return array|string[]
+     * Returns the columns that need prefix processing.
+     * Automatically excludes internal columns like ImgId or ImgFolder.
+     * @return array<int, string>
      */
     public function getColPrefixes(): array
     {
-        return $this->colPrefixes;
+        $cols = array_keys($this->columns);
+
+        return array_values(array_diff($cols, $this->prefixExclusions));
     }
 
     /**
-     * @return string[]
+     * Return the column names for the FTS table.
+     * @return array<int, string>
      */
     public function getColNames(): array
     {
-        return $this->colNames;
+        return array_keys($this->columns);
     }
 
     /**
@@ -66,23 +64,13 @@ class SqlImagesSource extends SqlIndexerSource
      */
     public function getList(): string
     {
-        return 'i.Id ImgId, i.ImgFolder, i.ImgName, i.ImgTitle, i.ImgDesc,
-            t.NameDe Theme,
-            c.NameDe Country,
-            (SELECT GROUP_CONCAT(k.Name) FROM Keywords k
-                INNER JOIN Images_Keywords ik ON k.Id = ik.KeywordId
-                WHERE ik.ImgId = i.Id) Keywords,
-            (SELECT GROUP_CONCAT(l.Name) FROM Locations l
-                INNER JOIN Images_Locations il ON l.id = il.LocationId
-                WHERE il.ImgId = i.Id) Locations,
-            (SELECT GROUP_CONCAT(s.NameDe) FROM ScientificNames s
-                INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId
-                WHERE isc.ImgId = i.Id) CommonNames,
-            (SELECT GROUP_CONCAT(s.NameLa) FROM ScientificNames s
-                INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId
-                WHERE isc.ImgId = i.Id) ScientificNames,
-            sj.NameDe Subject,
-            r.Value Rating';
+        $selects = [];
+        foreach ($this->columns as $alias => $expression) {
+            // Using AS ensures the column name perfectly matches the array key
+            $selects[] = "$expression AS $alias";
+        }
+
+        return implode(", ", $selects);
     }
 
     /**

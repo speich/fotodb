@@ -2,6 +2,7 @@
 // TODO: this code should only be available to authenticated users (->PHP)
 //  especially the delete function!!!!
 // TODO: check all input before storing in db
+use Pdo\Sqlite;
 use PhotoDatabase\Database\Exporter;
 use PhotoDatabase\Search\ImagesIndexer;
 use PhotoDatabase\Search\ImagesSearch;
@@ -80,7 +81,7 @@ if (property_exists($data, 'Fnc')) {
             $indexer->init();
             $indexer->populate();
             echo 'created image search index<br>';
-            // copy database to target
+            // copy database to target and remove private records
             try {
                 $exporter->publish();
                 echo 'db copy successful<br>';
@@ -93,6 +94,7 @@ if (property_exists($data, 'Fnc')) {
             break;
 
         case 'republish':
+            // TODO: unify with case publish
             $imgFolder = $_GET['ImgFolder'];
             echo 'republishing folder '.$imgFolder.'...<br>';
             $exporter = new Exporter($config);
@@ -118,7 +120,7 @@ if (property_exists($data, 'Fnc')) {
 
         case 'search':
             $text = $_GET['q'];
-            $db = new PDO('sqlite:'.$config->paths->targetDatabase);
+            $db = new Sqlite('sqlite:'.$config->paths->targetDatabase);
             $search = new ImagesSearch($db);
             $query = $search->prepareQuery($text);
             //var_dump($search->search($query));

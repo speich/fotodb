@@ -13,22 +13,22 @@ use function strpos;
  */
 class SearchQuery
 {
-    public static $maxExtractedWords = null;
+    public static ?int $maxExtractedWords = null;
 
-    public static $minWordLength = 4;
+    public static int $minWordLength = 4;
 
     /**
      * Extract words and phrases from a string.
      * Treats several words as a phrase if they are wrapped in double parentheses. Parentheses are included in the array items indicating
      * that the search needs to match exactly.
-     * The number of character a string has to contain to be counted as a word can be set with the parameter $minWordLength. Default is 4.
+     * The number of characters a string has to contain to be counted as a word can be set with the parameter $minWordLength. Default is 4.
      * The length of the returned array (number of words) can be limited with the argument $maxWords. Default is 6.
      * @param string $text
-     * @param null $minWordLength number of characters of a word to be counted as a word
-     * @param null $maxWords maximum number of words to return
+     * @param int|null $minWordLength number of characters of a word to be counted as a word
+     * @param int|null $maxWords maximum number of words to return
      * @return array
      */
-    public static function extractWords($text, $minWordLength = null, $maxWords = null): array
+    public static function extractWords($text, ?int $minWordLength = null, ?int $maxWords = null): array
     {
         $maxWords = $maxWords ?? self::$maxExtractedWords;
         $minWordLength = $minWordLength ?? self::$minWordLength;

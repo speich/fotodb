@@ -10,11 +10,11 @@ use PhotoDatabase\Database\Database;
  *
  */
 class FileExplorer {
-	private $topDir = '';
+	private string $topDir = '';
     /**
      * @var Database
      */
-    private $db; // top level directory. Do not allow going outside it unless explicitly set.
+    private Database $db; // top level directory. Do not allow going outside it unless explicitly set.
 
 
     public static array $validExtensions = ['jpg', 'png', 'webp'];
@@ -29,25 +29,28 @@ class FileExplorer {
         $this->db = $db;
     }
 
-	/**
-	 * TopDir is the topmost website directory a user can browse to. For security reasons
-	 * a user can not go outside the webroot.
-	 * @param string $TopDir directory path
-	 */
-	public function setTopDir($Dir) {
+    /**
+     * TopDir is the topmost website directory a user can browse to. For security reasons
+     * a user cannot go outside the webroot.
+     * @param string $Dir
+     */
+	public function setTopDir(string $Dir): void
+    {
 		// TODO: check if absolute path from webroot.
 		$this->topDir = trim($Dir, DIRECTORY_SEPARATOR);
 	}
 
 	/**
-	 * Return absolute folder path where images are stored.
+	 * Return the absolute folder path where images are stored.
 	 * @return string
 	 */
-	public function GetTopDir() {
+	public function GetTopDir(): string
+    {
 		return $this->topDir;
 	}
 
-	public function CheckTopDirOutside($path) {
+	public function CheckTopDirOutside($path): bool
+    {
 	    // TODO: find a way to check if we are in or above top dir
         $topSegments = explode(DIRECTORY_SEPARATOR, $this->topDir);
         $pathSegments = explode(DIRECTORY_SEPARATOR, $path);

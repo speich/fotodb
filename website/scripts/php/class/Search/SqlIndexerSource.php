@@ -27,7 +27,7 @@ abstract class SqlIndexerSource extends SqlFull
 
     public function getWhere(): string
     {
-        return Exporter::SQL_UPDATABLE;
+        return Exporter::SQL_UPDATEABLE;
     }
 
     /**

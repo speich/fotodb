@@ -3,6 +3,7 @@
 namespace PhotoDatabase\Search;
 
 use PDO;
+use Pdo\Sqlite;
 
 /**
  * Class SearchKeywords
@@ -12,19 +13,19 @@ use PDO;
 class KeywordsSearch
 {
     /**
-     * @var PDO
+     * @var Sqlite
      */
-    public $db;
+    public Sqlite $db;
 
     /**
      * Keywords constructor.
-     * @param PDO $db
+     * @param Sqlite $db
      */
-    public function __construct($db)
+    public function __construct(Sqlite $db)
     {
         $this->db = $db;
-        $this->db->sqliteCreateFunction('OFFSETWORD', [FtsFunctions::class, 'offsetWord']);
-        $this->db->sqliteCreateFunction('NUMMATCHES', [FtsFunctions::class, 'numMatches']);
+        $this->db->createFunction('OFFSETWORD', [FtsFunctions::class, 'offsetWord']);
+        $this->db->createFunction('NUMMATCHES', [FtsFunctions::class, 'numMatches']);
     }
 
     /**
@@ -48,7 +49,7 @@ class KeywordsSearch
     }
 
     /**
-     * Full text search returning a list of found keywords in the database.
+     * Full-text search returning a list of found keywords in the database.
      * @param string $text
      * @return array keywords
      */

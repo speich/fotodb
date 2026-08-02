@@ -14,7 +14,7 @@ class ImagesIndexer extends Indexer
     public function init(): bool|int
     {
         $cols = $this->toString([$this->sqlSource, 'getColNames']);
-        $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], null, true);
+        $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], postfixed: true);
         $sql = 'BEGIN;
             CREATE VIRTUAL TABLE IF NOT EXISTS Images_fts USING fts4('.$cols.', '.$prefixCols.', tokenize=unicode61);   -- important: do not pass the row id column !
 			COMMIT;';
@@ -24,14 +24,13 @@ class ImagesIndexer extends Indexer
 
     /**
      * Fills the virtual table with searchable image info.
-     * // TODO: instead of all records, only add/update new/changed records.
      */
     public function populate(): void
     {
         $tools = new IndexingTools();
         $cols = $this->toString([$this->sqlSource, 'getColNames']);
         $colVars = $this->toString([$this->sqlSource, 'getColNames'], true);
-        $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], null, true);
+        $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], postfixed: true);
         $prefixColVars = $this->toString([$this->sqlSource, 'getColPrefixes'], true, true);
         $this->db->beginTransaction();
         $stmtSelect = $this->db->query($this->sqlSource->get());
@@ -51,29 +50,31 @@ class ImagesIndexer extends Indexer
     /**
      * Converts an array to a string of column names.
      * @param callable $fnc
-     * @param null $prefixed prefix names with a colon
-     * @param null $postfixed postfix names with 'Prefixes'
-     * @return false|string[]
+     * @param bool $prefixed prefix names with a colon
+     * @param bool $postfixed postfix names with 'Prefixes'
+     * @return string
      */
-    private function toString(callable $fnc, $prefixed = null, $postfixed = null): string|false
+    private function toString(callable $fnc, bool $prefixed = false, bool $postfixed = false): string
     {
         $pattern = [];
         $replacement = [];
-        if ($prefixed === true) {
+
+        if ($prefixed) {
             $pattern[] = '/^/';
             $replacement[] = ':';
         }
-        if ($postfixed === true) {
+        if ($postfixed) {
             $pattern[] = '/$/';
             $replacement[] = 'Prefixes';
         }
-        if ($prefixed !== null || $postfixed !== null) {
+        if ($prefixed || $postfixed) {
             $cols = preg_filter($pattern, $replacement, $fnc());
         } else {
             $cols = $fnc();
         }
 
-        return implode(', ', $cols);
+        // preg_filter returns null on error; the null-coalescing operator prevents a TypeError in PHP 8
+        return implode(', ', $cols ?? []);
     }
 
     /**
@@ -83,8 +84,22 @@ class ImagesIndexer extends Indexer
      */
     private function addPrefixes(array $bindValues, IndexingTools $tool): array
     {
+        // Extract available languages dynamically (e.g., ['de', 'en'])
+        $availableLangs = array_keys($tool->langTagsEnchant);
+
         foreach ($this->sqlSource->getColPrefixes() as $name) {
-            $prefixes = $bindValues[$name] === null ? null : $tool->createPrefixesFromAll($bindValues[$name], null, true);
+            $lang = IndexingTools::LANG_DEFAULT;
+            $lowerName = strtolower($name);
+
+            // Dynamically check if the column name ends with an active language code
+            foreach ($availableLangs as $availableLang) {
+                if (str_ends_with($lowerName, $availableLang)) {
+                    $lang = $availableLang;
+                    break;
+                }
+            }
+
+            $prefixes = $bindValues[$name] === null ? null : $tool->createPrefixesFromAll($bindValues[$name], $lang, null, true);
             $bindValues[$name.'Prefixes'] = $prefixes === null ? null : implode(' ', $prefixes);
         }
 

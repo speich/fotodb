@@ -3,6 +3,7 @@
 namespace PhotoDatabase\Search;
 
 use PDO;
+use Pdo\Sqlite;
 
 /**
  * Class SearchKeywords
@@ -11,17 +12,17 @@ use PDO;
  */
 class ImagesSearch
 {
-    /** @var PDO */
-    public PDO $db;
+    /** @var Sqlite */
+    public Sqlite $db;
 
     /**
      * Keywords constructor.
-     * @param PDO $db
+     * @param Sqlite $db
      */
-    public function __construct(PDO $db)
+    public function __construct(Sqlite $db)
     {
         $this->db = $db;
-        $this->db->sqliteCreateFunction('SCORE', [FtsFunctions::class, 'score']);
+        $this->db->createFunction('SCORE', [FtsFunctions::class, 'score']);
     }
 
     /**

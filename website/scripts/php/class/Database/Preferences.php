@@ -4,6 +4,7 @@ namespace PhotoDatabase\Database;
 
 
 use PDO;
+use Pdo\Sqlite;
 use PDOException;
 
 /**
@@ -13,14 +14,14 @@ use PDOException;
  */
 class Preferences
 {
-    private PDO $db;
+    private Sqlite $db;
     private string $dbName = 'user.sqlite';
     private string $dbPath = '/../../../../dbprivate/dbfiles/';
 
     public function __construct()
     {
         try {
-            $this->db = new PDO('sqlite:' . __DIR__ . $this->dbPath . $this->dbName);
+            $this->db = new Sqlite('sqlite:' . __DIR__ . $this->dbPath . $this->dbName);
         } catch (PDOException $Error) {
             echo $Error->getMessage();
         }
