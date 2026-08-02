@@ -18,7 +18,7 @@ class ImagesSearch
      * Keywords constructor.
      * @param PDO $db
      */
-    public function __construct($db)
+    public function __construct(PDO $db)
     {
         $this->db = $db;
         $this->db->sqliteCreateFunction('SCORE', [FtsFunctions::class, 'score']);
@@ -42,7 +42,7 @@ class ImagesSearch
     }
 
     /**
-     * Full text search returning a list of found keywords in the database.
+     * Full-text search returning a list of found keywords in the database.
      * @param string $text
      * @return array keywords
      */
