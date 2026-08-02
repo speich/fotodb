@@ -5,7 +5,7 @@ namespace PhotoDatabase\Search;
 /**
  * Class KeywordsIndexer
  * Creates a fulltext search index for keywords using fts4 based on most tables and columns in the database.
- * The fts uses the unicode64 tokenizer compiled with sqlite3.
+ * The fts uses the unicode61 tokenizer compiled with sqlite3.
  */
 class KeywordsIndexer extends Indexer
 {
