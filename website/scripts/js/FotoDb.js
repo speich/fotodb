@@ -583,7 +583,7 @@ define([
 			});
 			var Keywords = new ComboBox({
 				store: DataSrcKeywords,
-				searchAttr: 'Name',	// Name of property to use in json result returned from FotoDB::LoadData() e.g. { identifier: Id, items: [Id: 3, Name: 'Flug'] }
+				searchAttr: 'NameDe',	// Name of property to use in json result returned from FotoDB::LoadData() e.g. { identifier: Id, items: [Id: 3, NameDe: 'Flug'] }
 				searchDelay: 300,
 				queryExpr: '${0}',
 				query: {
