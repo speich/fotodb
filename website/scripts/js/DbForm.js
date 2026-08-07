@@ -124,7 +124,7 @@ define([
 						this.fotoDb.createLocationElements(Nodes[j].getAttribute('Id'), Tool.DecodeHtml(Nodes[j].getAttribute('Name')));
 					}
 					else if (Nodes[j].nodeName == 'Keyword') {
-						this.fotoDb.SetKeyword(Nodes[j].getAttribute('Id'), Tool.DecodeHtml(Nodes[j].getAttribute('Name')));
+						this.fotoDb.SetKeyword(Nodes[j].getAttribute('Id'), Tool.DecodeHtml(Nodes[j].getAttribute('NameDe')));
 					}
 					else {
 						Set(Nodes[j]);
@@ -312,7 +312,7 @@ define([
 								var Child = Node.appendChild(Xml.createElement('Keyword'));
 								Child.setAttribute('Id', El[i].id);
 								Val = Tool.EncodeHtml(El[i].childNodes[1].nodeValue);
-								Child.setAttribute('Name', Val);
+								Child.setAttribute('NameDe', Val);
 							}
 							break;
 						default:

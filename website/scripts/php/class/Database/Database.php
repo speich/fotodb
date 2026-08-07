@@ -85,30 +85,30 @@ class Database
             CREATE TABLE Countries (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                NameEn VARCHAR2,
-                NameDe VARCHAR2
+                NameEn TEXT,
+                NameDe TEXT
             );
             
             CREATE TABLE FilmTypes (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                Name VARCHAR2,
-                Code VARCHAR2
+                Name TEXT,
+                Code TEXT
             );
             
             CREATE TABLE Images (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                ImgFolder VARCHAR2,
-                ImgName VARCHAR2,
-                ImgDateManual VARCHAR2,
-                ImgTechInfo VARCHAR2,
+                ImgFolder TEXT,
+                ImgName TEXT,
+                ImgDateManual TEXT,
+                ImgTechInfo TEXT,
                 FilmTypeId INTEGER,
                 RatingId INTEGER,
                 DateAdded INTEGER,
                 LastChange INTEGER,
-                ImgDesc VARCHAR2,
-                ImgTitle VARCHAR2,
+                ImgDesc TEXT,
+                ImgTitle TEXT,
                 Public INTEGER,
                 DatePublished INTEGER,
                 ImgDateOriginal INTEGER,
@@ -120,18 +120,18 @@ class Database
             );
             
             CREATE TABLE Exif (
-                Make VARCHAR2,
-                Model VARCHAR2,
+                Make TEXT,
+                Model TEXT,
                 ImageWidth INTEGER,
                 ImageHeight INTEGER,
-                FileSize VARCHAR2,
+                FileSize TEXT,
                 DateTimeOriginal INTEGER,
-                ExposureTime VARCHAR2,
+                ExposureTime TEXT,
                 FNumber INTEGER,
                 ISO INTEGER,
-                ExposureProgram VARCHAR2,
-                MeteringMode VARCHAR2,
-                Flash VARCHAR2,
+                ExposureProgram TEXT,
+                MeteringMode TEXT,
+                Flash TEXT,
                 FocusDistance NUMERIC,
                 ImgId INTEGER NOT NULL
                     CONSTRAINT Exif_Images_Id_fk
@@ -226,7 +226,7 @@ class Database
             CREATE TABLE Keywords (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                Name VARCHAR2
+                NameDe TEXT
             );
             
             CREATE TABLE LicenseTypes (
@@ -261,24 +261,24 @@ class Database
             CREATE TABLE Rating (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                Name VARCHAR2,
+                Name TEXT,
                 Value INTEGER
             );
             
             CREATE TABLE ScientificNames (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                NameDe VARCHAR2,
-                NameEn VARCHAR2,
-                NameLa VARCHAR2,
+                NameDe TEXT,
+                NameEn TEXT,
+                NameLa TEXT,
                 ThemeId INTEGER DEFAULT NULL
             );
             
             CREATE TABLE Sexes (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                NameEn VARCHAR2,
-                NameDe VARCHAR2,
+                NameEn TEXT,
+                NameDe TEXT,
                 Symbol TEXT
             );
             
@@ -292,7 +292,7 @@ class Database
             CREATE TABLE Themes (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                NameDe VARCHAR2,
+                NameDe TEXT,
                 SubjectAreaId INTEGER,
                 NameEn VARCHAR
             );
@@ -692,7 +692,7 @@ class Database
         }
         $strXml .= '</Themes>';
         // keywords
-        $sql = 'SELECT Name, KeywordId FROM Images_Keywords IK
+        $sql = 'SELECT NameDe, KeywordId FROM Images_Keywords IK
 			INNER JOIN Keywords ON IK.KeywordId = Keywords.Id
 			WHERE ImgId = :ImgId';
         $stmt = $this->db->prepare($sql);
@@ -700,7 +700,7 @@ class Database
         $stmt->execute();
         $strXml .= '<Keywords Id="'.$ImgId.'">';
         foreach ($stmt->fetchAll() as $row) {
-            $strXml .= '<Keyword Id="'.$row['KeywordId'].'" Name="'.$row['Name'].'"/>';
+            $strXml .= '<Keyword Id="'.$row['KeywordId'].'" Name="'.$row['NameDe'].'"/>';
         }
         $strXml .= '</Keywords>';
         // species
@@ -803,20 +803,20 @@ class Database
             $stmt1 = $this->db->prepare($sql1);
             $stmt1->bindParam(':imgId', $imgId);
             $stmt1->bindParam(':keywordId', $keywordId);
-            $sql2 = 'INSERT INTO Keywords (Id, Name) VALUES (NULL, :Name)';
+            $sql2 = 'INSERT INTO Keywords (Id, NameDe) VALUES (NULL, :NameDe)';
             $stmt2 = $this->db->prepare($sql2);
-            $stmt2->bindParam(':Name', $keyword);
+            $stmt2->bindParam(':NameDe', $keyword);
             $sql3 = 'SELECT KeywordId FROM Images_Keywords WHERE ImgId = :imgId AND KeywordId = :keywordId';
             $stmt3 = $this->db->prepare($sql3);
             $stmt3->bindParam(':imgId', $imgId);
             $stmt3->bindParam(':keywordId', $keywordId);
-            $sql4 = 'SELECT Id FROM Keywords WHERE Name = :Name';
+            $sql4 = 'SELECT Id FROM Keywords WHERE NameDe = :NameDe';
             $stmt4 = $this->db->prepare($sql4);
-            $stmt4->bindParam(':Name', $keyword);
+            $stmt4->bindParam(':NameDe', $keyword);
             /** @var DOMElement[] $children */
             foreach ($children as $child) {
                 $keywordId = $child->getAttribute('Id');
-                $keyword = $child->getAttribute('Name');
+                $keyword = $child->getAttribute('NameDe');
                 // 1. Insert into keyword table first if new keyword,e.g no id. and
                 // use (returned) id for table Images_Keywords.
                 // Note: Its possible that there is no id posted, but keyword is already in db -> check name first
@@ -1046,10 +1046,10 @@ class Database
                 }
                 break;
             case 'KeywordName':
-                $query = (isset($_GET['Name']) && $_GET['Name'] !== '') ? $_GET['Name'] : '';
+                $query = (isset($_GET['NameDe']) && $_GET['NameDe'] !== '') ? $_GET['NameDe'] : '';
                 $limit = (isset($_GET['count']) && preg_match('/^[0-9]+$/', $_GET['count']) === 1) ? $_GET['count'] : 50;
                 $offset = (isset($_GET['start']) && preg_match('/^[0-9]+$/', $_GET['start']) === 1) ? $_GET['start'] : 0;
-                $sql = "SELECT Id, Name FROM Keywords WHERE Name LIKE '%'||:query||'%' ORDER BY Name ASC LIMIT :limit OFFSET :offset";
+                $sql = "SELECT Id, NameDe FROM Keywords WHERE NameDe LIKE '%'||:query||'%' ORDER BY NameDe ASC LIMIT :limit OFFSET :offset";
                 $stmt = $this->db->prepare($sql);
                 $stmt->bindParam(':query', $query);
                 $stmt->bindParam(':limit', $limit);
