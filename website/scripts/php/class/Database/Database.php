@@ -700,7 +700,7 @@ class Database
         $stmt->execute();
         $strXml .= '<Keywords Id="'.$ImgId.'">';
         foreach ($stmt->fetchAll() as $row) {
-            $strXml .= '<Keyword Id="'.$row['KeywordId'].'" Name="'.$row['NameDe'].'"/>';
+            $strXml .= '<Keyword Id="'.$row['KeywordId'].'" NameDe="'.$row['NameDe'].'"/>';
         }
         $strXml .= '</Keywords>';
         // species
@@ -959,7 +959,7 @@ class Database
      * @param integer $imgId image id
      * @param bool $deleteFile also delete the image file (only the jpg)
      */
-    public function delete($imgId, $deleteFile = false): void
+    public function delete(int $imgId, bool $deleteFile = false): void
     {
         if ($deleteFile) {
             $imgSrc = $this->getImageSrc($imgId);
