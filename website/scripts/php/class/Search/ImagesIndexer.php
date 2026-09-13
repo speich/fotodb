@@ -49,7 +49,7 @@ class ImagesIndexer extends Indexer
     }
 
     /**
-     * Converts array to a string of column names.
+     * Converts an array to a string of column names.
      * @param callable $fnc
      * @param null $prefixed prefix names with a colon
      * @param null $postfixed postfix names with 'Prefixes'
