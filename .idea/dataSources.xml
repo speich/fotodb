@@ -2,7 +2,7 @@
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
     <data-source source="LOCAL" name="FotoDb" uuid="deaf27d0-1049-46e0-88da-f7ca7c9eb38b">
-      <driver-ref>4c7b6f67-4fb5-4e09-a12b-fecc327dc94b</driver-ref>
+      <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/website/dbprivate/dbfiles/FotoDb.sqlite</jdbc-url>

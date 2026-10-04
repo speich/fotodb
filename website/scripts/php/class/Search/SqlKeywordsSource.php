@@ -3,99 +3,136 @@
 namespace PhotoDatabase\Search;
 
 
-
 class SqlKeywordsSource extends SqlIndexerSource
 {
-
-    public function getList(): string
-    {
-        return "Id, ImgName, 0.25, NULL";
-    }
-
-    public function getFrom(): string
-    {
-        return "Images WHERE Public = 1
-          UNION
-          SELECT i.Id, NameDe, 2, 'de' FROM Images i
-            INNER JOIN Images_Themes it ON i.Id = it.ImgId
-            INNER JOIN Themes t ON it.ThemeId = t.Id 
-          UNION
-          SELECT i.Id, NameEn, 2, 'en' FROM Images i
-              INNER JOIN Images_Themes it ON i.Id = it.ImgId
-              INNER JOIN Themes t ON it.ThemeId = t.Id 
-          UNION
-          SELECT Id, ImgTitle, 2, 'de' FROM Images WHERE Public = 1 AND ImgTitle != ''
-          UNION
-          SELECT Id, ImgDesc, 1, 'de' FROM Images WHERE Public = 1 AND ImgDesc != ''
-          UNION
-          SELECT i.Id, c.NameDe, 0.25, 'de' FROM Images i
-            INNER JOIN Countries c ON i.CountryId = c.Id
-            WHERE i.Public = 1 AND c.NameDe != ''
-          UNION
-          SELECT i.Id, c.NameEn, 0.25, 'en' FROM Images i
-              INNER JOIN Countries c ON i.CountryId = c.Id
-              WHERE i.Public = 1 AND c.NameEn != ''
-          UNION
-          SELECT i.Id, k.NameDe, 1, 'de' FROM Images i
-            INNER JOIN Images_Keywords ik ON i.Id = ik.ImgId
-            INNER JOIN Keywords k ON ik.KeywordId = k.Id
-            WHERE i.Public = 1 AND k.NameDe != ''
-          UNION
-          SELECT i.Id, l.Name, 0.5, NULL FROM Images i
-              INNER JOIN Images_Locations il ON il.ImgId = i.Id
-              INNER JOIN Locations l ON il.LocationId = l.Id
-              WHERE i.Public = 1 AND l.name != ''
-          UNION
-          SELECT i.Id, s.NameDe, 1, 'de' FROM Images i
-              INNER JOIN Images_ScientificNames isc ON i.Id = isc.ImgId
-              INNER JOIN ScientificNames s ON isc.ScientificNameId = s.Id
-              WHERE i.Public = 1 AND s.NameDe != ''
-          UNION
-          SELECT i.Id, s.NameEn, 1, 'en' FROM Images i
-                INNER JOIN Images_ScientificNames isc ON i.Id = isc.ImgId
-                INNER JOIN ScientificNames s ON isc.ScientificNameId = s.Id
-                WHERE i.Public = 1 AND s.NameEn != ''
-            UNION
-          SELECT i.Id, s.NameLa, 1, NULL FROM Images i
-              INNER JOIN Images_ScientificNames isc ON i.Id = isc.ImgId
-              INNER JOIN ScientificNames s ON isc.ScientificNameId = s.Id
-              WHERE i.Public = 1 AND s.NameLa != ''
-          UNION
-          SELECT i.Id, t.NameDe, 0.5, 'de' FROM Images i
-              INNER JOIN Images_Themes it ON i.Id = it.ImgId
-              INNER JOIN Themes t ON it.ThemeId = t.Id
-              WHERE i.Public = 1 AND t.NameDe != ''
-          UNION
-          SELECT i.Id, t.NameEn, 0.5, 'en' FROM Images i
-                INNER JOIN Images_Themes it ON i.Id = it.ImgId
-                INNER JOIN Themes t ON it.ThemeId = t.Id
-                WHERE i.Public = 1 AND t.NameEn != ''
-          UNION
-          SELECT i.Id, a.NameDe, 0.25, 'de' FROM Images i
-              INNER JOIN Images_Themes it ON i.Id = it.ImgId
-              INNER JOIN Themes t ON it.ThemeId = t.Id
-              INNER JOIN SubjectAreas a ON t.SubjectAreaId = a.Id
-              WHERE i.Public = 1 AND a.NameDe != ''
-          UNION
-          SELECT i.Id, a.NameEn, 0.25, 'en' FROM Images i
-              INNER JOIN Images_Themes it ON i.Id = it.ImgId
-              INNER JOIN Themes t ON it.ThemeId = t.Id
-              INNER JOIN SubjectAreas a ON t.SubjectAreaId = a.Id
-              WHERE i.Public = 1 AND a.NameEn != '';";
-    }
-
-    public function getColWeights(): array
-    {
-        // TODO: Implement getColWeights() method.
-    }
-
-    public function getColPrefixes(): array
-    {
-        // TODO: Implement getColPrefixes() method.
-    }
-
+    /**
+     * The target columns for the FTS insertion.
+     */
     public function getColNames(): array
     {
-        // TODO: Implement getColNames() method.
+        return ['Keyword', 'Language'];
+    }
+
+    /**
+     * The columns that require syllable/prefix tokenization.
+     */
+    public function getColPrefixes(): array
+    {
+        return ['Keyword'];
+    }
+
+    /**
+     * Returns the SELECT list part of the SQL.
+     */
+    public function getList(): string
+    {
+        return 'Keyword, Language';
+    }
+
+    /**
+     * Returns the FROM clause of the SQL as a derived table containing the UNIONs.
+     * Every sub-select joins back to the Images table to ensure Public = 1.
+     */
+    public function getFrom(): string
+    {
+        return "(
+            /* --- Themes --- */
+            SELECT t.NameDe AS Keyword, 'de' AS Language FROM Themes t
+            INNER JOIN Images_Themes it ON t.Id = it.ThemeId
+            INNER JOIN Images i ON it.ImgId = i.Id
+            WHERE i.Public = 1 AND t.NameDe IS NOT NULL AND t.NameDe != ''
+            UNION
+            SELECT t.NameEn AS Keyword, 'en' AS Language FROM Themes t
+            INNER JOIN Images_Themes it ON t.Id = it.ThemeId
+            INNER JOIN Images i ON it.ImgId = i.Id
+            WHERE i.Public = 1 AND t.NameEn IS NOT NULL AND t.NameEn != ''
+            
+            UNION
+            /* --- SubjectAreas --- */
+            SELECT sa.NameDe AS Keyword, 'de' AS Language FROM SubjectAreas sa
+            INNER JOIN Themes t ON sa.Id = t.SubjectAreaId
+            INNER JOIN Images_Themes it ON t.Id = it.ThemeId
+            INNER JOIN Images i ON it.ImgId = i.Id
+            WHERE i.Public = 1 AND sa.NameDe IS NOT NULL AND sa.NameDe != ''
+            UNION
+            SELECT sa.NameEn AS Keyword, 'en' AS Language FROM SubjectAreas sa
+            INNER JOIN Themes t ON sa.Id = t.SubjectAreaId
+            INNER JOIN Images_Themes it ON t.Id = it.ThemeId
+            INNER JOIN Images i ON it.ImgId = i.Id
+            WHERE i.Public = 1 AND sa.NameEn IS NOT NULL AND sa.NameEn != ''
+            
+            UNION
+            /* --- Keywords --- */
+            SELECT k.NameDe AS Keyword, 'de' AS Language FROM Keywords k
+            INNER JOIN Images_Keywords ik ON k.Id = ik.KeywordId
+            INNER JOIN Images i ON ik.ImgId = i.Id
+            WHERE i.Public = 1 AND k.NameDe IS NOT NULL AND k.NameDe != ''
+            UNION
+            SELECT k.NameEn AS Keyword, 'en' AS Language FROM Keywords k
+            INNER JOIN Images_Keywords ik ON k.Id = ik.KeywordId
+            INNER JOIN Images i ON ik.ImgId = i.Id
+            WHERE i.Public = 1 AND k.NameEn IS NOT NULL AND k.NameEn != ''
+            
+            UNION
+            /* --- ScientificNames (DE, EN) --- */
+            SELECT s.NameDe AS Keyword, 'de' AS Language FROM ScientificNames s
+            INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId
+            INNER JOIN Images i ON isc.ImgId = i.Id
+            WHERE i.Public = 1 AND s.NameDe IS NOT NULL AND s.NameDe != ''
+            UNION
+            SELECT s.NameEn AS Keyword, 'en' AS Language FROM ScientificNames s
+            INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId
+            INNER JOIN Images i ON isc.ImgId = i.Id
+            WHERE i.Public = 1 AND s.NameEn IS NOT NULL AND s.NameEn != ''
+            
+            UNION
+            /* --- Language-Neutral: Scientific Latin Names --- */
+            SELECT s.NameLa AS Keyword, 'de' AS Language FROM ScientificNames s
+            INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId
+            INNER JOIN Images i ON isc.ImgId = i.Id
+            WHERE i.Public = 1 AND s.NameLa IS NOT NULL AND s.NameLa != ''
+            UNION
+            SELECT s.NameLa AS Keyword, 'en' AS Language FROM ScientificNames s
+            INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId
+            INNER JOIN Images i ON isc.ImgId = i.Id
+            WHERE i.Public = 1 AND s.NameLa IS NOT NULL AND s.NameLa != ''
+            
+            UNION
+            /* --- Language-Neutral: Locations --- */
+            SELECT l.Name AS Keyword, 'de' AS Language FROM Locations l
+            INNER JOIN Images_Locations il ON l.Id = il.LocationId
+            INNER JOIN Images i ON il.ImgId = i.Id
+            WHERE i.Public = 1 AND l.Name IS NOT NULL AND l.Name != ''
+            UNION
+            SELECT l.Name AS Keyword, 'en' AS Language FROM Locations l
+            INNER JOIN Images_Locations il ON l.Id = il.LocationId
+            INNER JOIN Images i ON il.ImgId = i.Id
+            WHERE i.Public = 1 AND l.Name IS NOT NULL AND l.Name != ''
+        ) AS Dictionary";
+    }
+
+    /**
+     * Returns the WHERE clause of the SQL.
+     * (Filtering is done inside the subquery to maximize UNION DISTINCT efficiency)
+     */
+    public function getWhere(): string
+    {
+        return '';
+    }
+
+    /**
+     * Returns the GROUP BY clause of the SQL.
+     */
+    public function getGroupBy(): string
+    {
+        return '';
+    }
+
+    /**
+     * Returns the ORDER BY clause of the SQL.
+     */
+    public function getOrderBy(): string
+    {
+        return 'Keyword ASC';
     }
 }

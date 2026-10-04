@@ -4,52 +4,51 @@ namespace PhotoDatabase\Search;
 
 /**
  * Class KeywordsIndexer
- * Creates a fulltext search index for keywords using fts4 based on most tables and columns in the database.
- * The fts uses the unicode64 tokenizer compiled with sqlite3.
+ * Creates a language-aware fulltext search dictionary for autosuggest.
  */
 class KeywordsIndexer extends Indexer
 {
     /**
-     * @return int
+     * Create the virtual table for the dictionary, now including Language.
      */
     public function init(): int
     {
-        /* note: unlike ordinary fts4 tables, contentless tables require an explicit integer docid value to be provided. External content tables are assumed to have
-            a unique id too. Therefore, we cannot use a view as the external content, since that does not have a unique id. */
-        $options = $this->isTokenizerUnicode61() ? 'Keyword, tokenize=unicode61' : 'KeywordOrig, KeywordMod';
         $sql = 'BEGIN;
-            DROP TABLE IF EXISTS Keywords_fts; 
-            CREATE VIRTUAL TABLE Keywords_fts USING fts4('.$options.');
+            CREATE VIRTUAL TABLE IF NOT EXISTS Keywords_fts USING fts4(Keyword, Language, KeywordPrefixes, tokenize=unicode61);
             COMMIT;';
 
         return $this->db->exec($sql);
     }
 
     /**
-     * Fills the virtual table with keywords.
-     * Note: Automatically removes diacritics. The unmodified words are stored in the column KeywordOrig, while the ones with
-     * diacritics removed, are stored in KeywordMod.
-     * TODO: improve search by creating variants of each word by removing syllables from the beginning of the word to simulate prefix search, e.g.
-     *      "Waldverjüngung" -> Waldverjungung -> Wald-ver-jüng-ung
-     *      e.g. stores      KeywordOrig | KeywordMod
-     *                    Waldverjüngung | Waldverjungung
-     *                    Waldverjüngung | verjungung
-     *                    Waldverjüngung | jungung
-     *                    Waldverjüngung | ung
-     *  use https://github.com/vanderlee/phpSyllable to hyphenate
-     *  then check if new word is in dictionary before adding it to index enchant_dict_check
-     * @return int number of affected records
+     * Fills the virtual table with unique keywords.
      */
-    public function populate(): int
+    public function populate(): void
     {
-        $sqlTok = "INSERT INTO Keywords_fts(Keyword) ".$this->sqlSource->get();
-        //SELECT Keyword FROM (".$this->sqlSource->getFrom().") WHERE Keyword != '';";
-        $sqlNoTok = "INSERT INTO Keywords_fts(KeywordOrig, KeywordMod) 
-            SELECT REMOVE_DIACRITICS(Keyword), Keyword FROM (".$this->sqlSource->get().");";
-        $sql = "BEGIN;".
-            ($this->isTokenizerUnicode61() === true ? $sqlTok : $sqlNoTok).
-            "COMMIT;";
+        $tools = new IndexingTools();
 
-        return $this->db->exec($sql);
+        $this->db->beginTransaction();
+
+        // Clear the old dictionary completely
+        $this->db->exec('DELETE FROM Keywords_fts');
+
+        $stmtSelect = $this->db->query($this->sqlSource->get());
+
+        // The parent Indexer class will dynamically generate:
+        // INSERT INTO Keywords_fts (Keyword, Language, KeywordPrefixes) VALUES (:Keyword, :Language, :KeywordPrefixes)
+        $cols = $this->toString([$this->sqlSource, 'getColNames']);
+        $colVars = $this->toString([$this->sqlSource, 'getColNames'], true);
+        $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], null, true);
+        $prefixColVars = $this->toString([$this->sqlSource, 'getColPrefixes'], true, true);
+
+        $sqlInsert = 'INSERT INTO Keywords_fts (' . $cols . ', ' . $prefixCols . ') VALUES (' . $colVars . ', ' . $prefixColVars . ')';
+        $stmtInsert = $this->db->prepare($sqlInsert);
+
+        foreach ($stmtSelect as $row) {
+            $row = $this->addPrefixes($row, $tools);
+            $stmtInsert->execute($row);
+        }
+
+        $this->db->commit();
     }
 }
