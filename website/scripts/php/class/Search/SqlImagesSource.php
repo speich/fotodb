@@ -5,12 +5,15 @@ namespace PhotoDatabase\Search;
 
 
 /**
- * Class SqlImagesSource
- * Creates the query to populate the fts4 image search index.
+ * Creates the SQL query and structure definitions to populate the FTS4 image search index.
+ *
+ * Maps external database structure to the flattened virtual table index.
  */
 class SqlImagesSource extends SqlIndexerSource
 {
-    /** @var string[] the list of columns to index for the fts search.  */
+    /**
+     * @var array<string, string> Dictionary mapping FTS table columns (keys) to their actual SQL SELECT expressions (values).
+     */
     private array $columns = [
         'ImgId'      => 'i.Id',
         'ImgFolder'  => 'i.ImgFolder',
@@ -33,16 +36,20 @@ class SqlImagesSource extends SqlIndexerSource
     ];
 
     /**
-     * Columns that should not be tokenized.
-     * TODO: make this part of the columns array?
-     * @var string[]
+     * Columns that should not undergo string tokenization/prefix generation.
+     *
+     * @todo Evaluate making this metadata a property within the $columns array format.
+     * @var array<int, string>
      */
     private array $prefixExclusions = ['ImgId', 'ImgFolder', 'ImgName', 'ThemeDe', 'ThemeEn', 'SubjectDe', 'SubjectEn', 'CountryDe', 'CountryEn', 'Locations', 'ScientificNames', 'Rating'];
 
     /**
-     * Returns the columns that need prefix processing.
-     * Automatically excludes internal columns like ImgId or ImgFolder.
-     * @return array<int, string>
+     * Returns the array of column names that require prefix processing.
+     *
+     * Automatically filters out structural or purely numerical columns defined
+     * in the prefix exclusions list (like ImgId, CountryDe, etc).
+     *
+     * @return array<int, string> Flat array of column names.
      */
     public function getColPrefixes(): array
     {
@@ -52,8 +59,9 @@ class SqlImagesSource extends SqlIndexerSource
     }
 
     /**
-     * Return the column names for the FTS table.
-     * @return array<int, string>
+     * Returns all destination column names for the FTS table structure.
+     *
+     * @return array<int, string> Array of column aliases used in the virtual table.
      */
     public function getColNames(): array
     {
@@ -61,8 +69,9 @@ class SqlImagesSource extends SqlIndexerSource
     }
 
     /**
-     * Return the list part of the SQL.
-     * @return string
+     * Compiles the SELECT list for the main data extraction query.
+     *
+     * @return string A comma-separated SQL string of expressions mapping to their aliases.
      */
     public function getList(): string
     {
@@ -76,7 +85,12 @@ class SqlImagesSource extends SqlIndexerSource
     }
 
     /**
-     * @return string
+    /**
+     * Compiles the FROM/JOIN clause for the main data extraction query.
+     *
+     * Resolves all relational tables necessary to compile the image metadata into a single searchable row.
+     *
+     * @return string The SQL FROM clause containing all necessary JOINs.
      */
     public function getFrom(): string
     {
