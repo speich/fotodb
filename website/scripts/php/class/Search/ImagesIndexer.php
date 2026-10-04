@@ -3,13 +3,20 @@
 namespace PhotoDatabase\Search;
 
 /**
- * Class SearchImages
+ * Handles the creation and population of the full-text search (FTS4) index for images.
+ *
+ * Maps structural database content into a virtual table optimized for fast text querying.
+ *
  * @package PhotoDatabase\Database
  */
 class ImagesIndexer extends Indexer
 {
     /**
-     * Create the database structure necessary for searching.
+     * Creates the virtual database table structure necessary for FTS4 searching.
+     *
+     * Uses the unicode61 tokenizer for better diacritic handling if supported.
+     *
+     * @return bool|int Returns the number of affected rows on success, or false on failure.
      */
     public function init(): bool|int
     {
@@ -23,8 +30,15 @@ class ImagesIndexer extends Indexer
     }
 
     /**
-     * Fills the virtual table with searchable image info.
-     * // TODO: instead of all records, only add/update new/changed records.
+     * Fills the virtual FTS4 table with searchable image data.
+     *
+     * Iterates through all images from the source query, generates the necessary
+     * word prefixes, and updates the index via a DELETE/INSERT transaction to
+     * ensure clean token updates.
+     *
+     * @todo Instead of processing all records, only add/update new/changed records.
+     *
+     * @return void
      */
     public function populate(): void
     {
@@ -33,8 +47,10 @@ class ImagesIndexer extends Indexer
         $colVars = $this->toString([$this->sqlSource, 'getColNames'], true);
         $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], null, true);
         $prefixColVars = $this->toString([$this->sqlSource, 'getColPrefixes'], true, true);
+
         $this->db->beginTransaction();
         $stmtSelect = $this->db->query($this->sqlSource->get());
+
         /* note: query should return records in a way that rowId is unique for fts4 */
         $sqlDelete = 'DELETE FROM Images_fts WHERE ImgId = :ImgId';
         $sqlInsert = 'INSERT INTO Images_fts ('.$cols.', '.$prefixCols.') VALUES ('.$colVars.', '.$prefixColVars.')';
@@ -48,46 +64,5 @@ class ImagesIndexer extends Indexer
         $this->db->commit();
     }
 
-    /**
-     * Converts an array to a string of column names.
-     * @param callable $fnc
-     * @param null $prefixed prefix names with a colon
-     * @param null $postfixed postfix names with 'Prefixes'
-     * @return false|string[]
-     */
-    private function toString(callable $fnc, $prefixed = null, $postfixed = null): string|false
-    {
-        $pattern = [];
-        $replacement = [];
-        if ($prefixed === true) {
-            $pattern[] = '/^/';
-            $replacement[] = ':';
-        }
-        if ($postfixed === true) {
-            $pattern[] = '/$/';
-            $replacement[] = 'Prefixes';
-        }
-        if ($prefixed !== null || $postfixed !== null) {
-            $cols = preg_filter($pattern, $replacement, $fnc());
-        } else {
-            $cols = $fnc();
-        }
 
-        return implode(', ', $cols);
-    }
-
-    /**
-     * @param array $bindValues array of database columns and values
-     * @param IndexingTools $tool
-     * @return array
-     */
-    private function addPrefixes(array $bindValues, IndexingTools $tool): array
-    {
-        foreach ($this->sqlSource->getColPrefixes() as $name) {
-            $prefixes = $bindValues[$name] === null ? null : $tool->createPrefixesFromAll($bindValues[$name], null, true);
-            $bindValues[$name.'Prefixes'] = $prefixes === null ? null : implode(' ', $prefixes);
-        }
-
-        return $bindValues;
-    }
 }

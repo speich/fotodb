@@ -8,36 +8,43 @@ use function count;
 
 
 /**
- * Class Indexer
+ * Provides linguistic tools to generate searchable word prefixes.
+ *
+ * Utilizes the Enchant dictionary and Vanderlee Syllable libraries to
+ * break down words, process syllables, and validate dictionary terms for
+ * more forgiving search queries.
+ *
  * @package PhotoDatabase\Search
  */
 class IndexingTools
 {
-    /** @var string language tag for Enchant library with underscore */
+    /** @var string Language tag for the Enchant spelling library (e.g., 'de_CH'). */
     private string $langTagEnchant = 'de_CH';
 
-    /** @var string language tag for Syllable class with hyphen */
+    /** @var string Language tag for the Syllable hyphenation class (e.g., 'de-ch-1901'). */
     private string $langTagSyllable = 'de-ch-1901';
 
-    /** @var resource dictionary */
+    /** @var resource|EnchantDictionary The active Enchant dictionary broker/resource. */
     private $dict;
 
-    /** @var Syllable */
+    /** @var Syllable The active Syllable instance for word splitting. */
     private Syllable $syll;
 
-    /** @var int minimum word length to be hyphenated */
+    /** @var int Minimum length a word must be to qualify for syllable hyphenation. */
     private int $minHyphenatedWordLength = 6;
 
-    /** @var int minimum word length to create prefixes from */
+    /** @var int Minimum length a word must be to process prefixes from it. */
     private int $minWordLength = 6;
 
+    /** @var int Minimum string length an extracted prefix must have to be kept. */
     private int $minPrefixesLength = 4;
 
     /**
-     * IndexingTools constructor.
-     * @param int|null $minHyphenatedWordLength minimum word length to be hyphenated. Default value is 6
-     * @param string|null $langTagEnchant language tag for Enchant library with underscore. Default value is de_CH
-     * @param string|null $langTagSyllable language tag for Syllable class with hyphen. Default value is de-ch-1901
+     * Initializes the required linguistic libraries.
+     *
+     * @param int|null $minHyphenatedWordLength Min word length to be hyphenated (default: 6).
+     * @param string|null $langTagEnchant Language tag for Enchant library (default: 'de_CH').
+     * @param string|null $langTagSyllable Language tag for Syllable class (default: 'de-ch-1901').
      */
     public function __construct(
         ?int $minHyphenatedWordLength = null,
@@ -52,8 +59,10 @@ class IndexingTools
     }
 
     /**
-     * Init the enchant library to work with spelling libraries.
-     * @param string $langTagEnchant
+     * Initializes the enchant library to work with system spelling libraries.
+     *
+     * @param string $langTagEnchant The dictionary language tag to request.
+     * @return void
      */
     protected function initEnchant(string $langTagEnchant): void
     {
@@ -63,9 +72,11 @@ class IndexingTools
     }
 
     /**
-     * Initialize the class to syllabify a word.
-     * @param string $langTagSyllable
-     * @param int $minWordLength
+     * Initializes the Syllable library to break words into phonetic segments.
+     *
+     * @param string $langTagSyllable The language model to use for syllabification.
+     * @param int $minWordLength The minimum word length required to process.
+     * @return void
      */
     protected function initSyllable(string $langTagSyllable, int $minWordLength): void
     {
@@ -73,14 +84,20 @@ class IndexingTools
         $this->syll->setMinWordLength($minWordLength);
     }
 
+    /**
+     * Release memory associated with the dictionary resource.
+     *
+     * @return void
+     */
     public function cleanup(): void
     {
         unset($this->dict);
     }
 
     /**
-     * Returns a reference to the enchant dictionary
-     * @return resource|false
+     * Return a reference to the active enchant dictionary.
+     *
+     * @return resource|bool The dictionary resource, or false if not available.
      */
     public function getDict(): bool
     {
@@ -88,7 +105,8 @@ class IndexingTools
     }
 
     /**
-     * Returns a reference to the Syllable.
+     * Return a reference to the active Syllable instance.
+     *
      * @return Syllable
      */
     public function getSyll(): Syllable
@@ -97,12 +115,14 @@ class IndexingTools
     }
 
     /**
-     * Check if the word is in the dictionary.
-     * Check if a word is in the dictionary and return it or false. Fixes the case of the word.
-     * @param string $word
-     * @return bool|string
+     * Check if a given word exists in the loaded dictionary.
+     *
+     * Evaluates both the exact string and its ucfirst() variation.
+     *
+     * @param string $word The word to check.
+     * @return string|false The validated true word with correct casing, or false if not found.
      */
-    public function isInDictionary(string $word)
+    public function isInDictionary(string $word): false|string
     {
         $trueWord = false;
         if (enchant_dict_check($this->dict, $word)) {
@@ -155,9 +175,12 @@ class IndexingTools
     }
 
     /**
-     * @param string $word
-     * @param int $minPrefixLength
-     * @return array
+     * Generates prefixes by stripping characters one by one from the start of the word.
+     *
+     * @internal
+     * @param string $word The individual word to process.
+     * @param int $minPrefixLength The length at which to stop generating shorter prefixes.
+     * @return array<int, string>
      */
     private function prefixesFromChars(string $word, int $minPrefixLength): array
     {
@@ -172,9 +195,12 @@ class IndexingTools
     }
 
     /**
-     * @param $word
-     * @param $minPrefixLength
-     * @return array
+     * Generates prefixes by stripping syllables one by one from the start of the word.
+     *
+     * @internal
+     * @param string $word The individual word to process.
+     * @param int $minPrefixLength The length at which to stop generating shorter prefixes.
+     * @return array<int, string>
      */
     private function prefixesFromSyllables(string $word, int $minPrefixLength): array
     {
@@ -193,6 +219,19 @@ class IndexingTools
         return $prefixes;
     }
 
+    /**
+     * Core orchestrator method to tokenize words and extract their prefixes.
+     *
+     * Punctuation is stripped automatically before extraction begins.
+     *
+     * @internal
+     * @param string $text The text block or word to process.
+     * @param callable $tokenizer The specific extraction method (Chars or Syllables).
+     * @param int|null $minWordLength Threshold length for processing a word.
+     * @param bool|null $checkDict Whether to drop prefixes not found in the dictionary.
+     * @param int|null $minPrefixLength Threshold length for keeping an extracted prefix.
+     * @return array<int, string>
+     */
     private function createPrefixes(
         string $text,
         callable $tokenizer,

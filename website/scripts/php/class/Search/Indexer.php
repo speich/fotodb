@@ -7,24 +7,32 @@ use PDOException;
 
 
 /**
- * Class Indexer
+ * Base class for full-text search indexers.
+ *
+ * Provides common functionality for interacting with the SQLite FTS4 engine,
+ * managing the tokenizer support, and formatting SQL column strings.
+ *
  * @package PhotoDatabase\Search
  */
 abstract class Indexer implements Fts4Indexer
 {
-    /** @var PDO */
+    /** @var PDO The active database connection */
     public PDO $db;
 
-    /** @var bool */
+    /** @var bool Indicates if the SQLite environment supports the unicode61 tokenizer */
     private bool $tokenizerUnicode61;
 
-    /** @var SqlIndexerSource sql query returning data to create index from */
+    /** @var SqlIndexerSource The SQL query builder returning data to index */
     protected SqlIndexerSource $sqlSource;
 
     /**
-     * Fts4Indexer constructor.
-     * @param PDO $db
-     * @param SqlIndexerSource $sqlSource
+     * Initializes the indexer and verifies tokenizer support.
+     *
+     * If the unicode61 tokenizer is unavailable, it registers a fallback
+     * REMOVE_DIACRITICS SQLite function.
+     *
+     * @param PDO $db The active database connection instance.
+     * @param SqlIndexerSource $sqlSource The source mapping for indexing columns.
      */
     public function __construct(PDO $db, SqlIndexerSource $sqlSource)
     {
@@ -37,8 +45,9 @@ abstract class Indexer implements Fts4Indexer
     }
 
     /**
-     * Check if sqlite supports using the tokenizer unicode61 in FTS4 tables.
-     * @return bool
+     * Checks if the SQLite engine supports using the 'unicode61' tokenizer in FTS4 tables.
+     *
+     * @return bool True if unicode61 is supported, false otherwise.
      */
     private function hasTokenizerUnicode61(): bool
     {
@@ -56,10 +65,61 @@ abstract class Indexer implements Fts4Indexer
     }
 
     /**
+     * Returns whether the unicode61 tokenizer is active.
+     *
      * @return bool
      */
     public function isTokenizerUnicode61(): bool
     {
         return $this->tokenizerUnicode61;
     }
+
+    /**
+     * Formats an array of column names into a comma-separated string.
+     *
+     * Can optionally append or prepend specific syntax markers (like PDO binding colons).
+     *
+     * @param callable $fnc Callable returning the array of column names.
+     * @param bool|null $prefixed If true, prefixes all column names with a colon (':').
+     * @param bool|null $postfixed If true, postfixes all column names with 'Prefixes'.
+     * @return string|false The formatted string, or false if the operation fails.
+     */
+    protected function toString(callable $fnc, $prefixed = null, $postfixed = null): string|false
+    {
+        $pattern = [];
+        $replacement = [];
+        if ($prefixed === true) {
+            $pattern[] = '/^/';
+            $replacement[] = ':';
+        }
+        if ($postfixed === true) {
+            $pattern[] = '/$/';
+            $replacement[] = 'Prefixes';
+        }
+        if ($prefixed !== null || $postfixed !== null) {
+            $cols = preg_filter($pattern, $replacement, $fnc());
+        } else {
+            $cols = $fnc();
+        }
+
+        return implode(', ', $cols);
+    }
+
+    /**
+     * Appends generated word prefixes to the database binding array for specified columns.
+     *
+     * @param array $bindValues The array of database columns and values for a single row.
+     * @param IndexingTools $tool The linguistic toolset used to generate the prefixes.
+     * @return array The updated array containing both original values and their generated prefixes.
+     */
+    protected function addPrefixes(array $bindValues, IndexingTools $tool): array
+    {
+        foreach ($this->sqlSource->getColPrefixes() as $name) {
+            $prefixes = $bindValues[$name] === null ? null : $tool->createPrefixesFromAll($bindValues[$name], null, true);
+            $bindValues[$name.'Prefixes'] = $prefixes === null ? null : implode(' ', $prefixes);
+        }
+
+        return $bindValues;
+    }
+
 }
