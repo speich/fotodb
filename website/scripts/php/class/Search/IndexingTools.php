@@ -42,14 +42,14 @@ class IndexingTools
     /**
      * Initializes the required linguistic libraries.
      *
-     * @param int|null $minHyphenatedWordLength Min word length to be hyphenated (default: 6).
      * @param string|null $langTagEnchant Language tag for Enchant library (default: 'de_CH').
      * @param string|null $langTagSyllable Language tag for Syllable class (default: 'de-ch-1901').
+     * @param int|null $minHyphenatedWordLength Min word length to be hyphenated (default: 6).
      */
     public function __construct(
-        ?int $minHyphenatedWordLength = null,
         ?string $langTagEnchant = null,
-        ?string $langTagSyllable = null
+        ?string $langTagSyllable = null,
+        ?int $minHyphenatedWordLength = null
     ) {
         $langTagEnchant = $langTagEnchant ?? $this->langTagEnchant;
         $langTagSyllable = $langTagSyllable ?? $this->langTagSyllable;
