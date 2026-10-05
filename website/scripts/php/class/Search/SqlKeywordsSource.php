@@ -10,7 +10,7 @@ class SqlKeywordsSource extends SqlIndexerSource
      */
     public function getColNames(): array
     {
-        return ['Keyword', 'Language'];
+        return ['Keyword', 'Lang'];
     }
 
     /**
@@ -26,7 +26,7 @@ class SqlKeywordsSource extends SqlIndexerSource
      */
     public function getList(): string
     {
-        return 'Keyword, Language';
+        return 'Keyword, Lang';
     }
 
     /**
@@ -37,25 +37,25 @@ class SqlKeywordsSource extends SqlIndexerSource
     {
         return "(
             /* --- Themes --- */
-            SELECT t.NameDe AS Keyword, 'de' AS Language FROM Themes t
+            SELECT t.NameDe AS Keyword, 'de' AS Lang FROM Themes t
             INNER JOIN Images_Themes it ON t.Id = it.ThemeId
             INNER JOIN Images i ON it.ImgId = i.Id
             WHERE i.Public = 1 AND t.NameDe IS NOT NULL AND t.NameDe != ''
             UNION
-            SELECT t.NameEn AS Keyword, 'en' AS Language FROM Themes t
+            SELECT t.NameEn AS Keyword, 'en' AS Lang FROM Themes t
             INNER JOIN Images_Themes it ON t.Id = it.ThemeId
             INNER JOIN Images i ON it.ImgId = i.Id
             WHERE i.Public = 1 AND t.NameEn IS NOT NULL AND t.NameEn != ''
             
             UNION
             /* --- SubjectAreas --- */
-            SELECT sa.NameDe AS Keyword, 'de' AS Language FROM SubjectAreas sa
+            SELECT sa.NameDe AS Keyword, 'de' AS Lang FROM SubjectAreas sa
             INNER JOIN Themes t ON sa.Id = t.SubjectAreaId
             INNER JOIN Images_Themes it ON t.Id = it.ThemeId
             INNER JOIN Images i ON it.ImgId = i.Id
             WHERE i.Public = 1 AND sa.NameDe IS NOT NULL AND sa.NameDe != ''
             UNION
-            SELECT sa.NameEn AS Keyword, 'en' AS Language FROM SubjectAreas sa
+            SELECT sa.NameEn AS Keyword, 'en' AS Lang FROM SubjectAreas sa
             INNER JOIN Themes t ON sa.Id = t.SubjectAreaId
             INNER JOIN Images_Themes it ON t.Id = it.ThemeId
             INNER JOIN Images i ON it.ImgId = i.Id
@@ -63,48 +63,48 @@ class SqlKeywordsSource extends SqlIndexerSource
             
             UNION
             /* --- Keywords --- */
-            SELECT k.NameDe AS Keyword, 'de' AS Language FROM Keywords k
+            SELECT k.NameDe AS Keyword, 'de' AS Lang FROM Keywords k
             INNER JOIN Images_Keywords ik ON k.Id = ik.KeywordId
             INNER JOIN Images i ON ik.ImgId = i.Id
             WHERE i.Public = 1 AND k.NameDe IS NOT NULL AND k.NameDe != ''
             UNION
-            SELECT k.NameEn AS Keyword, 'en' AS Language FROM Keywords k
+            SELECT k.NameEn AS Keyword, 'en' AS Lang FROM Keywords k
             INNER JOIN Images_Keywords ik ON k.Id = ik.KeywordId
             INNER JOIN Images i ON ik.ImgId = i.Id
             WHERE i.Public = 1 AND k.NameEn IS NOT NULL AND k.NameEn != ''
             
             UNION
             /* --- ScientificNames (DE, EN) --- */
-            SELECT s.NameDe AS Keyword, 'de' AS Language FROM ScientificNames s
+            SELECT s.NameDe AS Keyword, 'de' AS Lang FROM ScientificNames s
             INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId
             INNER JOIN Images i ON isc.ImgId = i.Id
             WHERE i.Public = 1 AND s.NameDe IS NOT NULL AND s.NameDe != ''
             UNION
-            SELECT s.NameEn AS Keyword, 'en' AS Language FROM ScientificNames s
+            SELECT s.NameEn AS Keyword, 'en' AS Lang FROM ScientificNames s
             INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId
             INNER JOIN Images i ON isc.ImgId = i.Id
             WHERE i.Public = 1 AND s.NameEn IS NOT NULL AND s.NameEn != ''
             
             UNION
-            /* --- Language-Neutral: Scientific Latin Names --- */
-            SELECT s.NameLa AS Keyword, 'de' AS Language FROM ScientificNames s
+            /* --- Lang-Neutral: Scientific Latin Names --- */
+            SELECT s.NameLa AS Keyword, 'de' AS Lang FROM ScientificNames s
             INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId
             INNER JOIN Images i ON isc.ImgId = i.Id
             WHERE i.Public = 1 AND s.NameLa IS NOT NULL AND s.NameLa != ''
             UNION
-            SELECT s.NameLa AS Keyword, 'en' AS Language FROM ScientificNames s
+            SELECT s.NameLa AS Keyword, 'en' AS Lang FROM ScientificNames s
             INNER JOIN Images_ScientificNames isc ON s.Id = isc.ScientificNameId
             INNER JOIN Images i ON isc.ImgId = i.Id
             WHERE i.Public = 1 AND s.NameLa IS NOT NULL AND s.NameLa != ''
             
             UNION
-            /* --- Language-Neutral: Locations --- */
-            SELECT l.Name AS Keyword, 'de' AS Language FROM Locations l
+            /* --- Lang-Neutral: Locations --- */
+            SELECT l.Name AS Keyword, 'de' AS Lang FROM Locations l
             INNER JOIN Images_Locations il ON l.Id = il.LocationId
             INNER JOIN Images i ON il.ImgId = i.Id
             WHERE i.Public = 1 AND l.Name IS NOT NULL AND l.Name != ''
             UNION
-            SELECT l.Name AS Keyword, 'en' AS Language FROM Locations l
+            SELECT l.Name AS Keyword, 'en' AS Lang FROM Locations l
             INNER JOIN Images_Locations il ON l.Id = il.LocationId
             INNER JOIN Images i ON il.ImgId = i.Id
             WHERE i.Public = 1 AND l.Name IS NOT NULL AND l.Name != ''

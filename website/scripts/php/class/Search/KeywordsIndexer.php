@@ -25,7 +25,10 @@ class KeywordsIndexer extends Indexer
      */
     public function populate(): void
     {
-        $tools = new IndexingTools();
+        $tools = [
+            'de' => new IndexingTools('de_CH', 'de-ch-1901'),
+            'en' => new IndexingTools('en_US', 'en-us')
+        ];
 
         $this->db->beginTransaction();
 
@@ -45,7 +48,9 @@ class KeywordsIndexer extends Indexer
         $stmtInsert = $this->db->prepare($sqlInsert);
 
         foreach ($stmtSelect as $row) {
-            $row = $this->addPrefixes($row, $tools);
+            $lang = $row['Language'] ?? 'de';
+            $activeTool = $tools[$lang] ?? $tools['de'];
+            $row = $this->addPrefixes($row, $activeTool);
             $stmtInsert->execute($row);
         }
 
