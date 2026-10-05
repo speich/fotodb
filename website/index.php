@@ -14,7 +14,7 @@ $text = 'Autobahnraststätte Île-de-France! #Füchse# beim Spielen Waldreservat
 $sql = new SqlKeywordsSource();
 
 var_dump(SearchQuery::extractWords($text));
-$indexer = new IndexingTools(6);
+$indexer = new IndexingTools(null, null, 6);
 $prefixes = $indexer->createPrefixesFromSyllables($text, 3, true);
 var_dump($prefixes);
 
