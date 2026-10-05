@@ -106,20 +106,11 @@ abstract class Indexer implements Fts4Indexer
     }
 
     /**
-     * Appends generated word prefixes to the database binding array for specified columns.
+     * Appends generated word prefixes to the database binding array.
      *
      * @param array $bindValues The array of database columns and values for a single row.
-     * @param IndexingTools $tool The linguistic toolset used to generate the prefixes.
-     * @return array The updated array containing both original values and their generated prefixes.
+     * @param IndexingTools[] $tools Associative array of linguistic toolsets keyed by language (e.g. ['de' => ..., 'en' => ...]).
+     * @return array The updated array containing original values and their generated prefixes.
      */
-    protected function addPrefixes(array $bindValues, IndexingTools $tool): array
-    {
-        foreach ($this->sqlSource->getColPrefixes() as $name) {
-            $prefixes = $bindValues[$name] === null ? null : $tool->createPrefixesFromAll($bindValues[$name], null, true);
-            $bindValues[$name.'Prefixes'] = $prefixes === null ? null : implode(' ', $prefixes);
-        }
-
-        return $bindValues;
-    }
-
+    abstract protected function addPrefixes(array $bindValues, array $tools): array;
 }

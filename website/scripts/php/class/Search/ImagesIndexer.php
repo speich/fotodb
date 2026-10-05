@@ -42,7 +42,11 @@ class ImagesIndexer extends Indexer
      */
     public function populate(): void
     {
-        $tools = new IndexingTools();
+        $tools = [
+            'de' => new IndexingTools('de_CH', 'de-ch-1901'),
+            'en' => new IndexingTools('en_US', 'en-us')
+        ];
+
         $cols = $this->toString([$this->sqlSource, 'getColNames']);
         $colVars = $this->toString([$this->sqlSource, 'getColNames'], true);
         $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], null, true);
@@ -62,6 +66,29 @@ class ImagesIndexer extends Indexer
             $stmtInsert->execute($row);
         }
         $this->db->commit();
+    }
+
+    /**
+     * Applies the correct language dictionary based on the column name.
+     */
+    protected function addPrefixes(array $bindValues, array $tools): array
+    {
+        foreach ($this->sqlSource->getColPrefixes() as $name) {
+            if ($bindValues[$name] === null) {
+                $bindValues[$name.'Prefixes'] = null;
+                continue;
+            }
+
+            // Route to English if the column ends with "En" (e.g., KeywordsEn, CommonNamesEn).
+            // Default to German for all others (KeywordsDe, ImgTitle, ImgDesc).
+            $lang = str_ends_with($name, 'En') ? 'en' : 'de';
+            $activeTool = $tools[$lang] ?? $tools['de'];
+
+            $prefixes = $activeTool->createPrefixesFromAll($bindValues[$name], null, true);
+            $bindValues[$name.'Prefixes'] = $prefixes === null ? null : implode(' ', $prefixes);
+        }
+
+        return $bindValues;
     }
 
 

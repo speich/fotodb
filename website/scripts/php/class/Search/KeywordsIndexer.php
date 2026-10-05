@@ -48,12 +48,32 @@ class KeywordsIndexer extends Indexer
         $stmtInsert = $this->db->prepare($sqlInsert);
 
         foreach ($stmtSelect as $row) {
-            $lang = $row['Lang'] ?? 'de';
-            $activeTool = $tools[$lang] ?? $tools['de'];
-            $row = $this->addPrefixes($row, $activeTool);
+             $row = $this->addPrefixes($row, $tools);
             $stmtInsert->execute($row);
         }
 
         $this->db->commit();
+    }
+
+    /**
+     * Applies the correct language dictionary based on the row's Language column.
+     */
+    protected function addPrefixes(array $bindValues, array $tools): array
+    {
+        // Route to the language specified in the database row
+        $lang = $bindValues['Lang'] ?? 'de';
+        $activeTool = $tools[$lang] ?? $tools['de'];
+
+        foreach ($this->sqlSource->getColPrefixes() as $name) {
+            if ($bindValues[$name] === null) {
+                $bindValues[$name.'Prefixes'] = null;
+                continue;
+            }
+
+            $prefixes = $activeTool->createPrefixesFromAll($bindValues[$name], null, true);
+            $bindValues[$name.'Prefixes'] = $prefixes === null ? null : implode(' ', $prefixes);
+        }
+
+        return $bindValues;
     }
 }
