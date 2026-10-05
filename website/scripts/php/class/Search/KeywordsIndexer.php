@@ -14,7 +14,7 @@ class KeywordsIndexer extends Indexer
     public function init(): int
     {
         $sql = 'BEGIN;
-            CREATE VIRTUAL TABLE IF NOT EXISTS Keywords_fts USING fts4(Keyword, Language, KeywordPrefixes, tokenize=unicode61);
+            CREATE VIRTUAL TABLE IF NOT EXISTS Keywords_fts USING fts4(Keyword, Lang, KeywordPrefixes, tokenize=unicode61);
             COMMIT;';
 
         return $this->db->exec($sql);
@@ -48,7 +48,7 @@ class KeywordsIndexer extends Indexer
         $stmtInsert = $this->db->prepare($sqlInsert);
 
         foreach ($stmtSelect as $row) {
-            $lang = $row['Language'] ?? 'de';
+            $lang = $row['Lang'] ?? 'de';
             $activeTool = $tools[$lang] ?? $tools['de'];
             $row = $this->addPrefixes($row, $activeTool);
             $stmtInsert->execute($row);
