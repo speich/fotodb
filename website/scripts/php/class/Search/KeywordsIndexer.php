@@ -14,7 +14,9 @@ class KeywordsIndexer extends Indexer
     public function init(): int
     {
         $sql = 'BEGIN;
-            CREATE VIRTUAL TABLE IF NOT EXISTS Keywords_fts USING fts4(Keyword, Lang, KeywordPrefixes, tokenize=unicode61);
+            CREATE VIRTUAL TABLE IF NOT EXISTS Keywords_fts USING fts4(
+                Keyword, Lang, KeywordPrefixes, notindexed=Lang, tokenize=unicode61
+            );
             COMMIT;';
 
         return $this->db->exec($sql);
