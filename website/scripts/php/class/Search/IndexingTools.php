@@ -31,10 +31,10 @@ class IndexingTools
     private Syllable $syll;
 
     /** @var int Minimum length a word must be to qualify for syllable hyphenation. */
-    private int $minHyphenatedWordLength = 6;
+    private int $minHyphenatedWordLength = 4;
 
     /** @var int Minimum length a word must be to process prefixes from it. */
-    private int $minWordLength = 6;
+    private int $minWordLength = 4;
 
     /** @var int Minimum string length an extracted prefix must have to be kept. */
     private int $minPrefixesLength = 4;
