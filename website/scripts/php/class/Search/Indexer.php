@@ -2,7 +2,7 @@
 
 namespace PhotoDatabase\Search;
 
-use PDO;
+use Pdo\Sqlite;
 use PDOException;
 
 
@@ -16,8 +16,8 @@ use PDOException;
  */
 abstract class Indexer implements Fts4Indexer
 {
-    /** @var PDO The active database connection */
-    public PDO $db;
+    /** @var Sqlite The active database connection */
+    public SQLite $db;
 
     /** @var bool Indicates if the SQLite environment supports the unicode61 tokenizer */
     private bool $tokenizerUnicode61;
@@ -31,16 +31,16 @@ abstract class Indexer implements Fts4Indexer
      * If the unicode61 tokenizer is unavailable, it registers a fallback
      * REMOVE_DIACRITICS SQLite function.
      *
-     * @param PDO $db The active database connection instance.
+     * @param Sqlite $db The active database connection instance.
      * @param SqlIndexerSource $sqlSource The source mapping for indexing columns.
      */
-    public function __construct(PDO $db, SqlIndexerSource $sqlSource)
+    public function __construct(Sqlite $db, SqlIndexerSource $sqlSource)
     {
         $this->db = $db;
         $this->sqlSource = $sqlSource;
         $this->tokenizerUnicode61 = $this->hasTokenizerUnicode61();
         if ($this->tokenizerUnicode61 === false) {
-            $this->db->sqliteCreateFunction('REMOVE_DIACRITICS', [FtsFunctions::class, 'removeDiacritics'], 1);
+            $this->db->createFunction('REMOVE_DIACRITICS', [FtsFunctions::class, 'removeDiacritics'], 1);
         }
     }
 

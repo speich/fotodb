@@ -5,11 +5,13 @@ namespace PhotoDatabase\Database;
 use DOMDocument;
 use DOMElement;
 use PDO;
+use Pdo\Sqlite;
 use PhotoDatabase\ExifService;
 use SQLite3;
 use stdClass;
 use function array_key_exists;
 use function count;
+use function strlen;
 
 
 /**
@@ -19,8 +21,8 @@ use function count;
  */
 class Database
 {
-    /** @var PDO $db db instance of SQLite */
-    public PDO $db;
+    /** @var Sqlite $db db instance of SQLite */
+    public Sqlite $db;
     // paths are always appended to webroot ('/' or a subfolder) and start therefore with a foldername
     // and not with a slash, but end with a slash
     protected bool $hasActiveTransaction = false;    // absolute path where image originals are stored*/
@@ -34,7 +36,7 @@ class Database
      * @constructor
      * @param stdClass $config
      */
-    public function __construct($config)
+    public function __construct(stdClass $config)
     {
         $this->pathImg = $config->paths->imagesWebRoot;
         $this->folderImageOriginal = $config->paths->imagesOriginal;
@@ -46,28 +48,27 @@ class Database
      * Connect to the SQLite photo database.
      *
      * If you set the argument $UseNativeDriver to true the native SQLite driver
-     * is used instead of PDO.
-     * @return PDO
+     * is used instead of Sqlite.
+     * @return Sqlite
      */
-    public function connect(): PDO
+    public function connect(): Sqlite
     {
         if (!isset($this->db)) {   // check if not already connected
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
             ];
-            $this->db = new PDO('sqlite:'.$this->dbPath, null, null, $options);
+            $this->db = new Sqlite('sqlite:'.$this->dbPath, null, null, $options);
             $isCreated = file_exists($this->dbPath);
             if (!$isCreated) {
                 $this->createStructure();
             }
             // Do every time you connect since they are only valid during connection (not permanent)
-            $this->db->sqliteCreateAggregate(
+            $this->db->createAggregate(
                 'GROUP_CONCAT',
                 [$this, 'groupConcatStep'],
-                [$this, 'groupConcatFinalize']
-            );
-            $this->db->sqliteCreateFunction('STRTOTIME', [$this, 'strToTime']);
+                [$this, 'groupConcatFinalize']);
+            $this->db->createFunction('STRTOTIME', [$this, 'strToTime']);
 //				$this->Db->sqliteCreateFunction('LOCALE', array($this, 'GetSortOrder'), 1);
             $this->db->exec('pragma short_column_names = 1');
         }
@@ -140,11 +141,11 @@ class Database
                 GPSLongitude FLOAT,
                 GPSAltitude INTEGER,
                 GPSAltitudeRef INTEGER,
-                LensSpec VARCHAR,
+                LensSpec TEXT,
                 VibrationReduction TEXT,
-                FileType VARCHAR,
-                Lens VARCHAR,
-                FocalLength VARCHAR,
+                FileType TEXT,
+                Lens TEXT,
+                FocalLength TEXT,
                 SyncDate TEXT DEFAULT NULL
             );
             
@@ -261,7 +262,7 @@ class Database
             CREATE TABLE Rating (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                Name TEXT,
+                Name VARCHAR2,
                 Value INTEGER
             );
             
@@ -285,8 +286,8 @@ class Database
             CREATE TABLE SubjectAreas (
                 Id INTEGER NOT NULL
                     PRIMARY KEY,
-                NameDe VARCHAR,
-                NameEn VARCHAR
+                NameDe TEXT,
+                NameEn TEXT
             );
             
             CREATE TABLE Themes (
@@ -294,7 +295,7 @@ class Database
                     PRIMARY KEY,
                 NameDe TEXT,
                 SubjectAreaId INTEGER,
-                NameEn VARCHAR
+                NameEn TEXT
             );
             
             CREATE TABLE Xmp (
@@ -352,9 +353,9 @@ class Database
      *
      * This method is only called once, when the image is selected by the user for the first time.
      * @param string $img image file including web root path
-     * @return string XML file
+     * @return true|string XML file
      */
-    public function insert(string $img)
+    public function insert(string $img): true|string
     {
         $imgFolder = str_replace($this->getWebRoot().ltrim($this->getPath('Img'), '/'), '', $img);   // remove web images folder path part
         $imgName = substr($imgFolder, strrpos($imgFolder, '/') + 1);
@@ -433,8 +434,8 @@ class Database
     }
 
     /**
-     * Open transaction with a flag that you can check if it is already started.
-     * PDO whould throw an error if you opend a transaction which is already open
+     * Open a transaction with a flag that you can check if it is already started.
+     * PDO would throw an error if you opened a transaction which is already open
      * and does not provide a means of checking status. So use this method instead
      * together with Commit and RollBack.
      * @return bool
@@ -450,7 +451,7 @@ class Database
     }
 
     /**
-     * Insert or update EXIF und XMP data.
+     * Insert or update EXIF and XMP data.
      * @param int $imgId image id
      * @param string $imgSrc image source (path)
      * @return bool
@@ -478,7 +479,7 @@ class Database
     /**
      * Executes the exif service and returns the read image exif and xmp data.
      * @param string $imgSrc image name and folder
-     * @return array
+     * @return false|array
      */
     public function getExif(string $imgSrc): false|array
     {
@@ -490,7 +491,7 @@ class Database
     }
 
     /**
-     * Insert or replace exif data read from image into fotodb.
+     * Insert or replace exif data read from the image into fotodb.
      * Returns true on success or false on failure.
      *
      * @param int $imgId image id
@@ -650,7 +651,7 @@ class Database
     /**
      * Edit image data.
      *
-     * Data is selected from database and posted back as an xml page.
+     * Data is selected from the database and posted back as an xml page.
      * Response is returned as an XML to the ajax request to fill form fields.
      * XML attribute names must have the same name as the HTML form field names.
      *
@@ -700,7 +701,7 @@ class Database
         $stmt->execute();
         $strXml .= '<Keywords Id="'.$ImgId.'">';
         foreach ($stmt->fetchAll() as $row) {
-            $strXml .= '<Keyword Id="'.$row['KeywordId'].'" NameDe="'.$row['NameDe'].'"/>';
+            $strXml .= '<Keyword Id="'.$row['KeywordId'].'" Name="'.$row['Name'].'"/>';
         }
         $strXml .= '</Keywords>';
         // species
@@ -803,20 +804,20 @@ class Database
             $stmt1 = $this->db->prepare($sql1);
             $stmt1->bindParam(':imgId', $imgId);
             $stmt1->bindParam(':keywordId', $keywordId);
-            $sql2 = 'INSERT INTO Keywords (Id, NameDe) VALUES (NULL, :NameDe)';
+            $sql2 = 'INSERT INTO Keywords (Id, NameDe) VALUES (NULL, :Name)';
             $stmt2 = $this->db->prepare($sql2);
-            $stmt2->bindParam(':NameDe', $keyword);
+            $stmt2->bindParam(':Name', $keyword);
             $sql3 = 'SELECT KeywordId FROM Images_Keywords WHERE ImgId = :imgId AND KeywordId = :keywordId';
             $stmt3 = $this->db->prepare($sql3);
             $stmt3->bindParam(':imgId', $imgId);
             $stmt3->bindParam(':keywordId', $keywordId);
-            $sql4 = 'SELECT Id FROM Keywords WHERE NameDe = :NameDe';
+            $sql4 = 'SELECT Id FROM Keywords WHERE NameDe = :Name';
             $stmt4 = $this->db->prepare($sql4);
-            $stmt4->bindParam(':NameDe', $keyword);
+            $stmt4->bindParam(':Name', $keyword);
             /** @var DOMElement[] $children */
             foreach ($children as $child) {
                 $keywordId = $child->getAttribute('Id');
-                $keyword = $child->getAttribute('NameDe');
+                $keyword = $child->getAttribute('Name');
                 // 1. Insert into keyword table first if new keyword,e.g no id. and
                 // use (returned) id for table Images_Keywords.
                 // Note: Its possible that there is no id posted, but keyword is already in db -> check name first
@@ -1046,10 +1047,10 @@ class Database
                 }
                 break;
             case 'KeywordName':
-                $query = (isset($_GET['NameDe']) && $_GET['NameDe'] !== '') ? $_GET['NameDe'] : '';
+                $query = (isset($_GET['Name']) && $_GET['Name'] !== '') ? $_GET['Name'] : '';
                 $limit = (isset($_GET['count']) && preg_match('/^[0-9]+$/', $_GET['count']) === 1) ? $_GET['count'] : 50;
                 $offset = (isset($_GET['start']) && preg_match('/^[0-9]+$/', $_GET['start']) === 1) ? $_GET['start'] : 0;
-                $sql = "SELECT Id, NameDe FROM Keywords WHERE NameDe LIKE '%'||:query||'%' ORDER BY NameDe ASC LIMIT :limit OFFSET :offset";
+                $sql = "SELECT Id, Name FROM Keywords WHERE Name LIKE '%'||:query||'%' ORDER BY Name ASC LIMIT :limit OFFSET :offset";
                 $stmt = $this->db->prepare($sql);
                 $stmt->bindParam(':query', $query);
                 $stmt->bindParam(':limit', $limit);
@@ -1080,31 +1081,34 @@ class Database
      * Adds a SQL GROUP_CONCAT function
      * Method used in the SQLite createAggregate function to implement SQL GROUP_CONCAT
      * which is not supported by PDO.
-     * @param string $Context
-     * @param string $RowId
-     * @param string $String
-     * @param bool [$Unique]
-     * @param string [$Separator]
-     * @return
+     * @param string|null $context
+     * @param int $rowId
+     * @param string|null $string $string
+     * @param bool $unique [$Unique]
+     * @param string $separator [$Separator]
+     * @return string|null
      */
-    function groupConcatStep($Context, $RowId, $String, $Unique = false, $Separator = ', ')
+    public function groupConcatStep(?string $context, int $rowId, ?string $string, bool $unique = false, string $separator = ', '): ?string
     {
-        if ($Context) {
-            if ($Unique) {
-                if (strpos($Context, $String) !== false) {
-                    return $Context;
-                }
-
-                return $Context.$Separator.$String;
-            }
-
-            return $Context.$Separator.$String;
+        // If there is no value to concatenate (e.g. an image has no keywords), just return the existing context
+        if ($string === null) {
+            return $context;
         }
 
-        return $String;
+        $result = $string;
+
+        if ($context !== null) {
+            if ($unique && str_contains($context, $string)) {
+                $result = $context;
+            } else {
+                $result = $context.$separator.$string;
+            }
+        }
+
+        return $result;
     }
 
-    function groupConcatFinalize($Context)
+    public function groupConcatFinalize($Context): mixed
     {
         return $Context;
     }
@@ -1112,11 +1116,11 @@ class Database
     /**
      * Adds the PHP strtotime function to PDO SQLite.
      * @param string $Context
-     * @return string
+     * @return string|null
      */
-    function strToTime($Context): ?string
+    public function strToTime(string $Context): ?string
     {
-        if (\strlen($Context) > 4) {
+        if (strlen($Context) > 4) {
             return strtotime($Context);
         }
 

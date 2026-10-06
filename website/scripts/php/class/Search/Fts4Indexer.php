@@ -2,7 +2,7 @@
 
 namespace PhotoDatabase\Search;
 
-use PDO;
+use Pdo\Sqlite;
 
 
 /**
@@ -15,10 +15,10 @@ interface Fts4Indexer
 {
     /**
      * Fts4Indexer constructor.
-     * @param PDO $db
+     * @param Sqlite $db
      * @param SqlIndexerSource $sqlSource sql query providing data to create index from.
      */
-    public function __construct(PDO $db, SqlIndexerSource $sqlSource);
+    public function __construct(Sqlite $db, SqlIndexerSource $sqlSource);
 
     /**
      * Creates the database structure to hold the index data.

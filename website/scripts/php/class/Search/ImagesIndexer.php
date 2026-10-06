@@ -11,6 +11,7 @@ namespace PhotoDatabase\Search;
  */
 class ImagesIndexer extends Indexer
 {
+
     /**
      * Creates the virtual database table structure necessary for FTS4 searching.
      *
@@ -21,7 +22,7 @@ class ImagesIndexer extends Indexer
     public function init(): bool|int
     {
         $cols = $this->toString([$this->sqlSource, 'getColNames']);
-        $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], null, true);
+        $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], postfixed: true);
         $sql = 'BEGIN;
             CREATE VIRTUAL TABLE IF NOT EXISTS Images_fts USING fts4('.$cols.', '.$prefixCols.', tokenize=unicode61);   -- important: do not pass the row id column !
 			COMMIT;';
@@ -36,11 +37,11 @@ class ImagesIndexer extends Indexer
      * word prefixes, and updates the index via a DELETE/INSERT transaction to
      * ensure clean token updates.
      *
-     * @todo Instead of processing all records, only add/update new/changed records.
+     * @param bool $onlyChanged populate only with new or changed images
      *
      * @return void
      */
-    public function populate(): void
+    public function populate(bool $onlyChanged = true): void
     {
         $tools = [
             'de' => new IndexingTools('de_CH', 'de-ch-1901'),
@@ -49,20 +50,31 @@ class ImagesIndexer extends Indexer
 
         $cols = $this->toString([$this->sqlSource, 'getColNames']);
         $colVars = $this->toString([$this->sqlSource, 'getColNames'], true);
-        $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], null, true);
+        $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], postfixed: true);
         $prefixColVars = $this->toString([$this->sqlSource, 'getColPrefixes'], true, true);
+
+
+        $this->sqlSource->setOnlyChanged($onlyChanged);
 
         $this->db->beginTransaction();
         $stmtSelect = $this->db->query($this->sqlSource->get());
 
         /* note: query should return records in a way that rowId is unique for fts4 */
-        $sqlDelete = 'DELETE FROM Images_fts WHERE ImgId = :ImgId';
+        $stmtSelect = $this->db->query($this->sqlSource->get());
+        $sqlDelete = 'DELETE FROM Images_fts'.($onlyChanged ? ' WHERE ImgId = :ImgId' : '');
         $sqlInsert = 'INSERT INTO Images_fts ('.$cols.', '.$prefixCols.') VALUES ('.$colVars.', '.$prefixColVars.')';
         $stmtInsert = $this->db->prepare($sqlInsert);
         $stmtDelete = $this->db->prepare($sqlDelete);
+        if ($onlyChanged === false) {
+            // delete all records first before re-inserting
+            $stmtDelete->execute();
+        }
         foreach ($stmtSelect as $row) {
             $row = $this->addPrefixes($row, $tools);
-            $stmtDelete->execute([':ImgId' => $row['ImgId']]);
+            if ($onlyChanged) {
+                // delete only changed records
+                $stmtDelete->execute([':ImgId' => $row['ImgId']]);
+            }
             $stmtInsert->execute($row);
         }
         $this->db->commit();

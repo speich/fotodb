@@ -1,5 +1,6 @@
 <?php /** @noinspection ForgottenDebugOutputInspection */
 
+use Pdo\Sqlite;
 use PhotoDatabase\Search\FtsFunctions;
 use PhotoDatabase\Search\IndexingTools;
 use PhotoDatabase\Search\SearchQuery;
@@ -26,9 +27,9 @@ $indexer->cleanup();
 
 // create the example database
 try {
-    $db = new PDO('sqlite:example.sqlite');
-    $db->sqliteCreateFunction('SCORE', [FtsFunctions::class, 'tfIdf']);
-    $db->sqliteCreateFunction('SCOREWEIGHTED', [FtsFunctions::class, 'tfIdfWeighted']);
+    $db = new Sqlite('sqlite:example.sqlite');
+    $db->createFunction('SCORE', [FtsFunctions::class, 'tfIdf']);
+    $db->createFunction('SCOREWEIGHTED', [FtsFunctions::class, 'tfIdfWeighted']);
 } catch (PDOException $error) {
     echo $error->getMessage();
 }

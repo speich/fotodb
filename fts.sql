@@ -131,7 +131,7 @@ FROM (
 	FROM Images i
 	INNER JOIN Countries c ON i.CountryId = c.Id
 	UNION
-	SELECT k.Name
+	SELECT k.NameDe
 	FROM Images i
 	INNER JOIN Images_Keywords ik ON i.Id = ik.ImgId
 	INNER JOIN Keywords k ON ik.KeywordId = k.Id
@@ -190,10 +190,10 @@ SELECT i.Id rowid, i.ImgName, i.ImgTitle, i.ImgDesc,
 FROM Images i
 LEFT JOIN Countries c ON i.CountryId = c.Id
 LEFT JOIN (
-		SELECT ik.imgId, GROUP_CONCAT(k.Name, ', ') Keywords
+		SELECT ik.imgId, GROUP_CONCAT(k.NameDe, ', ') Keywords
 		FROM Images_Keywords ik
 		INNER JOIN Keywords k ON ik.KeywordId = k.Id
-		WHERE k.Name NOT NULL
+		WHERE k.NameDe NOT NULL
 		GROUP BY ik.ImgId
 	) k ON i.Id = k.ImgId
 LEFT JOIN (

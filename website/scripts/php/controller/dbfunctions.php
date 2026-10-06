@@ -1,7 +1,8 @@
 <?php
 // TODO: this code should only be available to authenticated users (->PHP)
-// specially the delete function!!!!
+//  especially the delete function!!!!
 // TODO: check all input before storing in db
+use Pdo\Sqlite;
 use PhotoDatabase\Database\Exporter;
 use PhotoDatabase\Search\ImagesIndexer;
 use PhotoDatabase\Search\ImagesSearch;
@@ -64,6 +65,8 @@ if (property_exists($data, 'Fnc')) {
             break;
 
         case 'publish':
+            $imgFolder = $_GET['ImgFolder'] ?? null;
+
             echo 'exporting database...<br>';
             $exporter = new Exporter($config);
             $db = $exporter->connect();
@@ -79,33 +82,15 @@ if (property_exists($data, 'Fnc')) {
             $indexer->init();
             $indexer->populate();
             echo 'created image search index<br>';
-            // copy database to target
+            // copy database to target and remove private records
             try {
-                $exporter->publish();
-                echo 'db copy successful<br>';
-            } catch (RuntimeException $exception) {
-                echo 'Error exporting database:<br>';
-                echo $exception->getMessage();
-            }
-
-            echo 'done';
-            break;
-
-        case 'republish':
-            $imgFolder = $_GET['ImgFolder'];
-            echo 'republishing folder '.$imgFolder.'...<br>';
-            $exporter = new Exporter($config);
-            $db = $exporter->connect();
-
-            // update search indexes in the source before publishing it so it will be also copied to target database
-            $sql = new SqlImagesSource();
-            $indexer = new ImagesIndexer($db, $sql);
-            $indexer->init();
-            $indexer->populate();
-            echo 'created image search index<br>';
-            // reset DatePublished on the records of the given folder and republish it
-            try {
-                $exporter->republish($imgFolder);
+                if ($imgFolder === null) {
+                    $exporter->publish();
+                }
+                else {
+                    echo 'republishing folder '.$imgFolder.'...<br>';
+                    $exporter->republish($imgFolder);
+                }
                 echo 'db copy successful<br>';
             } catch (RuntimeException $exception) {
                 echo 'Error exporting database:<br>';
@@ -117,9 +102,9 @@ if (property_exists($data, 'Fnc')) {
 
         case 'search':
             $text = $_GET['q'];
-            $db = new PDO('sqlite:'.$config->paths->targetDatabase);
+            $db = new Sqlite('sqlite:'.$config->paths->targetDatabase);
             $search = new ImagesSearch($db);
             $query = $search->prepareQuery($text);
-            var_dump($search->search($query));
+            //var_dump($search->search($query));
     }
 }
