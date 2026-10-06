@@ -2,8 +2,8 @@
   "paths": {
     "imagesWebRoot": "/dbprivate/images",
     "imagesOriginal": "C:/Users/simon/Pictures",
-    "exifTool": "C:/Users/simon/PhpstormProjects/fotodb/website/library/vendor/philharvey/exiftool",
-    "database": "C:/Users/simon/PhpstormProjects/fotodb/website/dbprivate/dbfiles/FotoDb.sqlite",
+    "exifTool": "C:/Users/simon/Websites/fotodb/website/library/vendor/philharvey/exiftool",
+    "database": "C:/Users/simon/Websites/fotodb/website/dbprivate/dbfiles/FotoDb.sqlite",
     "targetDatabase": "C:/Users/simon/PhpstormProjects/speich.net/photo/photodb/dbfiles/photodb.sqlite",
     "targetImages": "C:/Users/simon/PhpstormProjects/speich.net/photo/photodb/images"
   }
