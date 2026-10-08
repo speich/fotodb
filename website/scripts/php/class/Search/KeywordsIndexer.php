@@ -40,7 +40,7 @@ class KeywordsIndexer extends Indexer
         $stmtSelect = $this->db->query($this->sqlSource->get());
 
         // The parent Indexer class will dynamically generate:
-        // INSERT INTO Keywords_fts (Keyword, Language, KeywordPrefixes) VALUES (:Keyword, :Language, :KeywordPrefixes)
+        // INSERT INTO Keywords_fts (Keyword, Lang, KeywordPrefixes) VALUES (:Keyword, :Lang, :KeywordPrefixes)
         $cols = $this->toString([$this->sqlSource, 'getColNames']);
         $colVars = $this->toString([$this->sqlSource, 'getColNames'], true);
         $prefixCols = $this->toString([$this->sqlSource, 'getColPrefixes'], null, true);
