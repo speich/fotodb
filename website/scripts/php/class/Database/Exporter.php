@@ -29,7 +29,8 @@ class Exporter extends Database
     /**
      * @param stdClass $config
      */
-    #[Pure] public function __construct(stdClass $config)
+    #[Pure]
+    public function __construct(stdClass $config)
     {
         parent::__construct($config);
         $this->pathTargetDb = $config->paths->targetDatabase;
@@ -51,7 +52,7 @@ class Exporter extends Database
         // Note: we need to query all private records te be able to remove them from the target database after copying
         $sql = "SELECT Id, ImgFolder, ImgFolder||'/'||ImgName Img, Public, ShowLoc, LastChange, DatePublished
             FROM Images
-			WHERE ".self::SQL_UPDATEABLE;
+			--WHERE " . self::SQL_UPDATEABLE;
 
         return $this->db->query($sql, PDO::FETCH_ASSOC);
     }
@@ -63,7 +64,7 @@ class Exporter extends Database
     private function setRecordsPublished(Sqlite $db): void
     {
         $time = time();
-        $sql = 'UPDATE Images SET DatePublished = :time WHERE ('.self::SQL_UPDATEABLE.')';
+        $sql = 'UPDATE Images SET DatePublished = :time WHERE (' . self::SQL_UPDATEABLE . ')';
         $stmtDateSrc = $db->prepare($sql);
         $stmtDateSrc->bindParam(':time', $time);
         $stmtDateSrc->execute();
@@ -92,8 +93,14 @@ class Exporter extends Database
     public function publish(): void
     {
         set_time_limit(120);
-        $this->copyImages();
+
         $targetDb = $this->copyDatabase();
+        $targetDb->exec("ALTER TABLE Images ADD COLUMN ImgWidth INTEGER");
+        $targetDb->exec("ALTER TABLE Images ADD COLUMN ImgHeight INTEGER");
+        $targetDb->exec("ALTER TABLE Images ADD COLUMN ThumbWidth INTEGER");
+        $targetDb->exec("ALTER TABLE Images ADD COLUMN ThumbHeight INTEGER");
+
+        $this->copyImages($targetDb);
 
         // Note: Since DB is just copied over, we have to delete all private records every time. Doing this only for changed/new records is not enough,
         // because previously deleted ones, get copied again.
@@ -144,7 +151,7 @@ class Exporter extends Database
     {
         $source = $this->getPath('Db');
         if (copy($source, $this->pathTargetDb)) {
-            return new Sqlite('sqlite:'.$this->pathTargetDb);
+            return new Sqlite('sqlite:' . $this->pathTargetDb);
         }
 
         $err = error_get_last();
@@ -153,18 +160,31 @@ class Exporter extends Database
 
     /**
      * Copy images of new or modified records.
+     * @param Sqlite $targetDb
+     * @throws ImagickException
      */
-    private function copyImages(): void
+    private function copyImages(Sqlite $targetDb): void
     {
         $arrData = $this->getRecords();
+
+        $sqlUpdate = "UPDATE Images SET ImgWidth = :iW, ImgHeight = :iH, ThumbWidth = :tW, ThumbHeight = :tH WHERE Id = :id";
+        $stmtUpdate = $targetDb->prepare($sqlUpdate);
+
         foreach ($arrData as $row) {
-            $destImg = $this->pathTargetImages.'/'.$row['Img'];
-            // copy image
+            $destImg = $this->pathTargetImages . '/' . $row['Img'];
+            // copy image and update dimensions in database
             if ($row['Public'] === 1) {
-                $dir = $this->pathTargetImages.'/'.$row['ImgFolder'];
+                $dir = $this->pathTargetImages . '/' . $row['ImgFolder'];
                 $this->createImgDirectories($dir);
-                $srcImg = __DIR__.'/../../../../dbprivate/images/'.$row['Img'];
-                $this->copyImage($srcImg, $destImg);
+                $srcImg = __DIR__ . '/../../../../dbprivate/images/' . $row['Img'];
+                $dimensions = $this->copyImage($srcImg, $destImg);
+                $stmtUpdate->execute([
+                    ':iW' => $dimensions['imgWidth'],
+                    ':iH' => $dimensions['imgHeight'],
+                    ':tW' => $dimensions['thumbWidth'],
+                    ':tH' => $dimensions['thumbHeight'],
+                    ':id' => $row['Id']
+                ]);
                 echo "exported $destImg {$row['Id']}<br>";
             } // delete records and previously copied images that are no longer public
             else {
@@ -181,7 +201,7 @@ class Exporter extends Database
     public function deleteImage(string $img): void
     {
         if ((is_file($img) === true) && unlink(realpath($img)) === false) {
-            throw new RuntimeException('could not delete image: '.$img);
+            throw new RuntimeException('could not delete image: ' . $img);
         }
     }
 
@@ -194,14 +214,14 @@ class Exporter extends Database
         if (!is_dir($dir)) {
             $created = mkdir($dir, 0755, true);
             if (!$created) {
-                throw new RuntimeException('creating directory '.$dir.' failed.<br>');
+                throw new RuntimeException('creating directory ' . $dir . ' failed.<br>');
             }
         }
         $dirThumbnails = str_replace('/images/', '/images/thumbs/', $dir);
         if (!is_dir($dirThumbnails)) {
             $created = mkdir($dirThumbnails, 0755, true);
             if (!$created) {
-                throw new RuntimeException('Creating thumbnails directory '.$dir.' failed.<br>');
+                throw new RuntimeException('Creating thumbnails directory ' . $dir . ' failed.<br>');
             }
         }
     }
@@ -210,9 +230,10 @@ class Exporter extends Database
      * Copy the image and create the thumbnail.
      * @param string $srcImg image path to the source
      * @param string $destImg image path to the destination
+     * @return array<string, int> Associative array of calculated dimensions
      * @throws ImagickException
      */
-    private function copyImage(string $srcImg, string $destImg): void
+    private function copyImage(string $srcImg, string $destImg): array
     {
         unlink($destImg);   // for some reason copy cannot overwrite
         if (copy($srcImg, $destImg)) {
@@ -220,8 +241,17 @@ class Exporter extends Database
             $destPath = str_replace('/images/', '/images/thumbs/', $destImg);
             unlink($destPath);
             $thumbnail->create($destImg, $destPath, $thumbnail->width);
+            $imgSize = getimagesize($destImg);
+            $thumbSize = getimagesize($destPath);
+
+            return [
+                'imgWidth' => $imgSize[0],
+                'imgHeight' => $imgSize[1],
+                'thumbWidth' => $thumbSize[0],
+                'thumbHeight' => $thumbSize[1]
+            ];
         } else {
-            throw new RuntimeException('Copying of image from'.$srcImg.' to '.$destImg.' failed.');
+            throw new RuntimeException('Copying of image from ' . $srcImg . ' to ' . $destImg . ' failed.');
         }
     }
 }
