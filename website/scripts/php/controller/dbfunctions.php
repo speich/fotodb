@@ -26,7 +26,7 @@ $resources = $ctrl->getResource();
 $method = $ctrl->getMethod();
 $response = null;
 
-set_time_limit(180);
+
 
 // TODO: use rest verbs GET, POST, PUT, DELETE instead of query string
 if (property_exists($data, 'Fnc')) {
