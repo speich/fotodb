@@ -92,7 +92,7 @@ class Exporter extends Database
      */
     public function publish(): void
     {
-        set_time_limit(120);
+        set_time_limit(0);
 
         $targetDb = $this->copyDatabase();
         $targetDb->exec("ALTER TABLE Images ADD COLUMN ImgWidth INTEGER");
@@ -235,12 +235,12 @@ class Exporter extends Database
      */
     private function copyImage(string $srcImg, string $destImg): array
     {
-        unlink($destImg);   // for some reason copy cannot overwrite
-        if (copy($srcImg, $destImg)) {
-            $thumbnail = new Thumbnail();
+    //    unlink($destImg);   // for some reason copy cannot overwrite
+    //    if (copy($srcImg, $destImg)) {
+    //        $thumbnail = new Thumbnail();
             $destPath = str_replace('/images/', '/images/thumbs/', $destImg);
-            unlink($destPath);
-            $thumbnail->create($destImg, $destPath, $thumbnail->width);
+      //      unlink($destPath);
+     //       $thumbnail->create($destImg, $destPath, $thumbnail->width);
             $imgSize = getimagesize($destImg);
             $thumbSize = getimagesize($destPath);
 
@@ -250,8 +250,8 @@ class Exporter extends Database
                 'thumbWidth' => $thumbSize[0],
                 'thumbHeight' => $thumbSize[1]
             ];
-        } else {
-            throw new RuntimeException('Copying of image from ' . $srcImg . ' to ' . $destImg . ' failed.');
-        }
+        //} else {
+       //     throw new RuntimeException('Copying of image from ' . $srcImg . ' to ' . $destImg . ' failed.');
+       // }
     }
 }
