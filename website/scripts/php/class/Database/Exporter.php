@@ -102,7 +102,7 @@ class Exporter extends Database
 
         $this->copyImages($targetDb);
 
-        // Note: Since DB is just copied over, we have to delete all private records every time.
+        // Note: Since the database is just copied over, we have to delete *all* private records every time.
         //      Doing this only for changed/new records is not enough,
         //      because previously deleted ones, get copied again.
         $sql = 'DELETE FROM Images WHERE Public = 0';
