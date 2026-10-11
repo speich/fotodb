@@ -701,7 +701,7 @@ class Database
         $stmt->execute();
         $strXml .= '<Keywords Id="'.$ImgId.'">';
         foreach ($stmt->fetchAll() as $row) {
-            $strXml .= '<Keyword Id="'.$row['KeywordId'].'" Name="'.$row['Name'].'"/>';
+            $strXml .= '<Keyword Id="'.$row['KeywordId'].'" NameDe="'.$row['NameDe'].'"/>';
         }
         $strXml .= '</Keywords>';
         // species
@@ -804,20 +804,20 @@ class Database
             $stmt1 = $this->db->prepare($sql1);
             $stmt1->bindParam(':imgId', $imgId);
             $stmt1->bindParam(':keywordId', $keywordId);
-            $sql2 = 'INSERT INTO Keywords (Id, NameDe) VALUES (NULL, :Name)';
+            $sql2 = 'INSERT INTO Keywords (Id, NameDe) VALUES (NULL, :NameDe)';
             $stmt2 = $this->db->prepare($sql2);
-            $stmt2->bindParam(':Name', $keyword);
+            $stmt2->bindParam(':NameDe', $keyword);
             $sql3 = 'SELECT KeywordId FROM Images_Keywords WHERE ImgId = :imgId AND KeywordId = :keywordId';
             $stmt3 = $this->db->prepare($sql3);
             $stmt3->bindParam(':imgId', $imgId);
             $stmt3->bindParam(':keywordId', $keywordId);
-            $sql4 = 'SELECT Id FROM Keywords WHERE NameDe = :Name';
+            $sql4 = 'SELECT Id FROM Keywords WHERE NameDe = :NameDe';
             $stmt4 = $this->db->prepare($sql4);
-            $stmt4->bindParam(':Name', $keyword);
+            $stmt4->bindParam(':NameDe', $keyword);
             /** @var DOMElement[] $children */
             foreach ($children as $child) {
                 $keywordId = $child->getAttribute('Id');
-                $keyword = $child->getAttribute('Name');
+                $keyword = $child->getAttribute('NameDe');
                 // 1. Insert into keyword table first if new keyword,e.g no id. and
                 // use (returned) id for table Images_Keywords.
                 // Note: Its possible that there is no id posted, but keyword is already in db -> check name first
@@ -1047,10 +1047,10 @@ class Database
                 }
                 break;
             case 'KeywordName':
-                $query = (isset($_GET['Name']) && $_GET['Name'] !== '') ? $_GET['Name'] : '';
+                $query = (isset($_GET['NameDe']) && $_GET['NameDe'] !== '') ? $_GET['NameDe'] : '';
                 $limit = (isset($_GET['count']) && preg_match('/^[0-9]+$/', $_GET['count']) === 1) ? $_GET['count'] : 50;
                 $offset = (isset($_GET['start']) && preg_match('/^[0-9]+$/', $_GET['start']) === 1) ? $_GET['start'] : 0;
-                $sql = "SELECT Id, Name FROM Keywords WHERE Name LIKE '%'||:query||'%' ORDER BY Name ASC LIMIT :limit OFFSET :offset";
+                $sql = "SELECT Id, NameDe FROM Keywords WHERE NameDe LIKE '%'||:query||'%' ORDER BY NameDe ASC LIMIT :limit OFFSET :offset";
                 $stmt = $this->db->prepare($sql);
                 $stmt->bindParam(':query', $query);
                 $stmt->bindParam(':limit', $limit);
